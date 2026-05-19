@@ -153,17 +153,6 @@ cross-origin), so the graph area stays blank for anyone not running
 All three commands must be run from the repository root (they locate
 the blueprint via the surrounding Git repo).
 
-### API documentation
-
-`doc-gen4` is pinned in `lakefile.toml` and resolved by the standard
-`lake update` / `lake exe cache get` flow above, so no extra step is
-needed before building docs:
-
-```sh
-lake build GammaPochhammer:docs
-# Output: .lake/build/doc/index.html
-```
-
 ## Contributing
 
 The two open axioms (Lemma 1 and Lemma 2 of the paper) require

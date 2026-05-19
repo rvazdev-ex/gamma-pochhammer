@@ -9,18 +9,6 @@ relaxedAutoImplicit = false
 weak.linter.mathlibStandardSet = true
 maxSynthPendingDepth = 3
 
-# doc-gen4 builds the API documentation that the blueprint links to.
-# The revision is pinned to the Lean toolchain tag so it stays in sync
-# with mathlib. Only fetched when the user/CI explicitly builds docs.
-# NOTE: keep `mathlib` AFTER `doc-gen4`. Lake resolves shared transitive
-# dependencies (e.g. plausible) from the *last* matching require, and
-# `lake exe cache get` will fail with a hash mismatch unless Mathlib's
-# pinned versions take precedence.
-[[require]]
-name = "«doc-gen4»"
-scope = "leanprover"
-rev = "v4.29.1"
-
 [[require]]
 name = "mathlib"
 scope = "leanprover-community"
