@@ -265,21 +265,20 @@ private theorem palindromic_factor_mul
     (hP_ne : P ≠ 0)
     (hd_le_n : d ≤ n) (hQR : Q = P * R) :
     PalindromicOfDegree (n - d) R ∧ R.natDegree = n - d := by
-  have hQ_ne : Q ≠ 0 := by
-    intro h
-    rw [h, zero_eq_mul] at hQR
-    rcases hQR with h | h
-    · exact hP_ne h.symm
-    · -- Q = 0 but ... well actually if R = 0 then Q = P * 0 = 0, fine. But then hQdeg says n = 0.
-      rw [h, mul_zero] at hQR
-      sorry  -- TODO
-  have hR_ne : R ≠ 0 := by
-    intro h
-    rw [h, mul_zero] at hQR
-    exact hQ_ne hQR
+  by_cases hR : R = 0
+  · -- R = 0 case: forces Q = 0, n = 0, d = 0.
+    subst hR
+    rw [mul_zero] at hQR
+    rw [hQR] at hQdeg
+    simp at hQdeg
+    refine ⟨⟨?_, ?_⟩, ?_⟩
+    · simp
+    · intro k hk
+      simp
+    · simp
   have hR_natDeg : R.natDegree = n - d := by
     have h_eq : Q.natDegree = P.natDegree + R.natDegree := by
-      rw [hQR, Polynomial.natDegree_mul hP_ne hR_ne]
+      rw [hQR, Polynomial.natDegree_mul hP_ne hR]
     rw [hQdeg, hPdeg] at h_eq
     omega
   have h_refl_Q : Polynomial.reflect n Q = Q := reflect_eq_self_of_palindromic hpalQ
@@ -654,13 +653,181 @@ theorem gamma_representation_proved
           have h_lt : n - 2 < n := by omega
           obtain ⟨γ', hγ'_exp, hγ'_root⟩ :=
             ih (n - 2) h_lt (m - 1) 0 (Or.inl rfl) hn_2 S hS_pal hS_root
-          -- Define γ via coefficients of (1 + C ζ * X) * gammaPolynomial (m-1) γ'.
-          refine ⟨fun j => ((1 + C ζ * X : ℝ[X]) * gammaPolynomial (m - 1) γ').coeff j,
+          -- Define γ explicitly via the recursive formula.
+          -- γ̃ truncates γ' to indices ≤ m - 1; γ adds the ζ-shifted term.
+          refine ⟨fun j =>
+              (if j ≤ m - 1 then γ' j else 0) +
+              (if 0 < j then ζ * (if j - 1 ≤ m - 1 then γ' (j - 1) else 0) else 0),
             ?_, ?_⟩
-          · -- IsGammaExpansion via the polynomial identity.
-            sorry
-          · -- gammaPolynomial m γ = (1 + ζX) * gammaPolynomial (m-1) γ'.
-            sorry
+          · -- IsGammaExpansion proof.
+            unfold IsGammaExpansion at hγ'_exp ⊢
+            rw [hQ_pair_eq, hγ'_exp, add_mul, Finset.mul_sum, Finset.mul_sum]
+            -- Rewrite each summand on LHS using gammaBasis identities.
+            have h_sq : ∀ j ∈ Finset.range m,
+                ((1 + X : ℝ[X]) ^ 2) * (C (γ' j) * gammaBasis (n - 2) j) =
+                  C (γ' j) * gammaBasis n j := by
+              intro j hj
+              rw [Finset.mem_range] at hj
+              have h2j : 2 * j + 2 ≤ n := by omega
+              calc ((1 + X : ℝ[X]) ^ 2) * (C (γ' j) * gammaBasis (n - 2) j)
+                  = C (γ' j) * ((1 + X : ℝ[X]) ^ 2 * gammaBasis (n - 2) j) := by ring
+                _ = C (γ' j) * gammaBasis n j := by
+                  rw [one_add_X_sq_mul_gammaBasis_pred2 n j h2j]
+            have h_X : ∀ j ∈ Finset.range m,
+                (C ζ * X : ℝ[X]) * (C (γ' j) * gammaBasis (n - 2) j) =
+                  C (ζ * γ' j) * gammaBasis n (j + 1) := by
+              intro j hj
+              rw [Finset.mem_range] at hj
+              have h2j1 : 2 * (j + 1) ≤ n := by omega
+              calc (C ζ * X : ℝ[X]) * (C (γ' j) * gammaBasis (n - 2) j)
+                  = C (ζ * γ' j) * (X * gammaBasis (n - 2) j) := by
+                    rw [Polynomial.C_mul]; ring
+                _ = C (ζ * γ' j) * gammaBasis n (j + 1) := by
+                    rw [X_mul_gammaBasis_pred2 n j h2j1]
+            rw [Finset.sum_congr rfl h_sq, Finset.sum_congr rfl h_X]
+            -- LHS: Σ_{j ∈ range m} C γ'_j * gB n j + Σ_{j ∈ range m} C (ζ γ'_j) * gB n (j+1)
+            -- Reindex second sum.
+            rw [show (∑ j ∈ Finset.range m, C (ζ * γ' j) * gammaBasis n (j + 1)) =
+                (∑ k ∈ Finset.Ico 1 (m + 1), C (ζ * γ' (k - 1)) * gammaBasis n k) from by
+              apply Finset.sum_nbij' (fun j _ => j + 1) (fun k _ => k - 1)
+              · intro j hj
+                rw [Finset.mem_range] at hj; rw [Finset.mem_Ico]; omega
+              · intro k hk
+                rw [Finset.mem_Ico] at hk; rw [Finset.mem_range]; omega
+              · intro j _; rfl
+              · intro k hk
+                rw [Finset.mem_Ico] at hk; show k - 1 + 1 = k; omega
+              · intro j hj
+                rw [Finset.mem_range] at hj
+                show C (ζ * γ' j) * gammaBasis n (j + 1) =
+                    C (ζ * γ' (j + 1 - 1)) * gammaBasis n (j + 1)
+                rw [show j + 1 - 1 = j from by omega]]
+            -- Now both LHS pieces are sums over range (m+1) (after extending first).
+            rw [show (∑ j ∈ Finset.range m, C (γ' j) * gammaBasis n j) =
+                (∑ j ∈ Finset.range (m + 1),
+                  C (if j ≤ m - 1 then γ' j else 0) * gammaBasis n j) from by
+              rw [show m + 1 = m - 1 + 1 + 1 from by omega]
+              rw [Finset.sum_range_succ]
+              rw [show m - 1 + 1 = m from by omega]
+              have h_top :
+                  C (if m ≤ m - 1 then γ' m else 0) * gammaBasis n m = 0 := by
+                rw [if_neg (by omega : ¬ m ≤ m - 1)]; simp
+              rw [h_top, add_zero]
+              apply Finset.sum_congr rfl
+              intro j hj
+              rw [Finset.mem_range] at hj
+              have hj_le : j ≤ m - 1 := Nat.lt_succ_iff.mp hj
+              rw [if_pos hj_le]]
+            rw [show (∑ k ∈ Finset.Ico 1 (m + 1), C (ζ * γ' (k - 1)) * gammaBasis n k) =
+                (∑ k ∈ Finset.range (m + 1),
+                  C (if 0 < k then ζ * (if k - 1 ≤ m - 1 then γ' (k - 1) else 0) else 0) *
+                  gammaBasis n k) from by
+              rw [show Finset.range (m + 1) =
+                  insert 0 (Finset.Ico 1 (m + 1)) from by
+                ext x
+                simp [Finset.mem_range, Finset.mem_insert, Finset.mem_Ico]
+                omega]
+              rw [Finset.sum_insert (by simp [Finset.mem_Ico])]
+              rw [show C (if 0 < (0 : ℕ) then
+                    ζ * (if (0 : ℕ) - 1 ≤ m - 1 then γ' ((0 : ℕ) - 1) else 0) else 0)
+                  * gammaBasis n 0 = 0 from by simp]
+              rw [zero_add]
+              apply Finset.sum_congr rfl
+              intro k hk
+              rw [Finset.mem_Ico] at hk
+              have hk_pos : 0 < k := hk.1
+              have hk_m : k - 1 ≤ m - 1 := by omega
+              rw [if_pos hk_pos, if_pos hk_m]]
+            -- Combine the two sums.
+            rw [← Finset.sum_add_distrib]
+            apply Finset.sum_congr rfl
+            intro j _
+            rw [← Polynomial.C_add]
+            ring_nf
+          · -- gammaPolynomial m γ has only real nonpos zeros.
+            have h_poly_eq :
+                gammaPolynomial m
+                  (fun j => (if j ≤ m - 1 then γ' j else 0) +
+                    (if 0 < j then
+                      ζ * (if j - 1 ≤ m - 1 then γ' (j - 1) else 0) else 0)) =
+                  ((1 : ℝ[X]) + C ζ * X) * gammaPolynomial (m - 1) γ' := by
+              unfold gammaPolynomial
+              rw [show ((1 : ℝ[X]) + C ζ * X) *
+                  ∑ j ∈ Finset.range (m - 1 + 1), C (γ' j) * X ^ j =
+                  ∑ j ∈ Finset.range (m - 1 + 1), C (γ' j) * X ^ j +
+                  (C ζ * X) *
+                    ∑ j ∈ Finset.range (m - 1 + 1), C (γ' j) * X ^ j from by ring]
+              -- RHS = gP_{m-1} γ' + Cζ X · gP_{m-1} γ'
+              rw [Finset.mul_sum]
+              -- Cζ X * (C γ'_j * X^j) = C (ζ γ'_j) * X^{j+1}
+              have h_Xterm : ∀ j ∈ Finset.range (m - 1 + 1),
+                  (C ζ * X : ℝ[X]) * (C (γ' j) * X ^ j) =
+                    C (ζ * γ' j) * X ^ (j + 1) := by
+                intro j _
+                rw [show (C ζ * X : ℝ[X]) * (C (γ' j) * X ^ j) =
+                    C (ζ * γ' j) * (X ^ j * X) from by
+                  rw [Polynomial.C_mul]; ring]
+                rw [← pow_succ]
+              rw [Finset.sum_congr rfl h_Xterm]
+              -- Reindex the second sum.
+              rw [show ∑ j ∈ Finset.range (m - 1 + 1), C (ζ * γ' j) * X ^ (j + 1) =
+                  ∑ k ∈ Finset.Ico 1 (m + 1), C (ζ * γ' (k - 1)) * X ^ k from by
+                apply Finset.sum_nbij' (fun j _ => j + 1) (fun k _ => k - 1)
+                · intro j hj
+                  rw [Finset.mem_range] at hj
+                  rw [Finset.mem_Ico]; omega
+                · intro k hk
+                  rw [Finset.mem_Ico] at hk
+                  rw [Finset.mem_range]; omega
+                · intro j _; rfl
+                · intro k hk
+                  rw [Finset.mem_Ico] at hk; show k - 1 + 1 = k; omega
+                · intro j hj
+                  rw [Finset.mem_range] at hj
+                  show C (ζ * γ' j) * X ^ (j + 1) =
+                      C (ζ * γ' (j + 1 - 1)) * X ^ (j + 1)
+                  rw [show j + 1 - 1 = j from by omega]]
+              -- Convert range (m-1+1) on the first part to range (m+1) and Ico on second.
+              rw [show (m - 1 + 1) = m from by omega]
+              rw [show ∑ j ∈ Finset.range m, C (γ' j) * X ^ j =
+                  ∑ j ∈ Finset.range (m + 1),
+                    C (if j ≤ m - 1 then γ' j else 0) * X ^ j from by
+                rw [show m + 1 = m + 1 from rfl]
+                rw [show (Finset.range (m + 1)) = insert m (Finset.range m) from by
+                  ext x; simp [Finset.mem_range, Finset.mem_insert]; omega]
+                rw [Finset.sum_insert (by simp [Finset.mem_range])]
+                rw [if_neg (by omega : ¬ m ≤ m - 1)]
+                simp
+                apply Finset.sum_congr rfl
+                intro j hj
+                rw [Finset.mem_range] at hj
+                rw [if_pos (by omega : j ≤ m - 1)]]
+              rw [show ∑ k ∈ Finset.Ico 1 (m + 1), C (ζ * γ' (k - 1)) * X ^ k =
+                  ∑ k ∈ Finset.range (m + 1),
+                    C (if 0 < k then ζ *
+                       (if k - 1 ≤ m - 1 then γ' (k - 1) else 0) else 0) * X ^ k from by
+                rw [show Finset.range (m + 1) = insert 0 (Finset.Ico 1 (m + 1)) from by
+                  ext x
+                  simp [Finset.mem_range, Finset.mem_insert, Finset.mem_Ico]
+                  omega]
+                rw [Finset.sum_insert (by simp [Finset.mem_Ico])]
+                rw [show C (if 0 < (0 : ℕ) then ζ *
+                       (if (0 : ℕ) - 1 ≤ m - 1 then γ' ((0 : ℕ) - 1) else 0) else 0) *
+                      X ^ 0 = 0 from by simp]
+                rw [zero_add]
+                apply Finset.sum_congr rfl
+                intro k hk
+                rw [Finset.mem_Ico] at hk
+                rw [if_pos hk.1, if_pos (by omega : k - 1 ≤ m - 1)]]
+              rw [← Finset.sum_add_distrib]
+              apply Finset.sum_congr rfl
+              intro j _
+              rw [← Polynomial.C_add]
+              ring_nf
+            rw [h_poly_eq]
+            apply mul_preserves_nonpos
+            · exact one_add_C_mul_X_hasOnlyRealNonposZeros hζ_nn
+            · exact hγ'_root
     · -- ε = 1
       subst hε1
       have hn_odd : Odd n := by
