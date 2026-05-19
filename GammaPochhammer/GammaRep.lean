@@ -182,9 +182,13 @@ private lemma X_mul_gammaBasis_pred2 (n j : ℕ) (h : 2 * (j + 1) ≤ n) :
 
 /-! ## Palindromicity of the factors -/
 
+private theorem one_add_X_eq_X_add_C : ((1 : ℝ[X]) + X) = X + C (1 : ℝ) := by
+  rw [Polynomial.C_1.symm]
+  ring
+
 private theorem one_add_X_palindromic : PalindromicOfDegree 1 ((1 : ℝ[X]) + X) := by
   refine ⟨?_, ?_⟩
-  · rw [add_comm]; rw [Polynomial.natDegree_X_add_C]
+  · rw [one_add_X_eq_X_add_C, Polynomial.natDegree_X_add_C]
   · intro k hk
     interval_cases k
     · simp [Polynomial.coeff_add, Polynomial.coeff_X, Polynomial.coeff_one]
@@ -192,7 +196,7 @@ private theorem one_add_X_palindromic : PalindromicOfDegree 1 ((1 : ℝ[X]) + X)
       simp [Polynomial.coeff_add, Polynomial.coeff_X, Polynomial.coeff_one]
 
 private theorem one_add_X_natDegree : ((1 : ℝ[X]) + X).natDegree = 1 := by
-  rw [add_comm]; rw [Polynomial.natDegree_X_add_C]
+  rw [one_add_X_eq_X_add_C, Polynomial.natDegree_X_add_C]
 
 private theorem one_add_X_ne_zero : ((1 : ℝ[X]) + X) ≠ 0 := by
   intro h
