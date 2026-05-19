@@ -63,7 +63,7 @@ corresponding to specific steps in the paper's proof of Theorem 1.
 
 ---
 
-## 3. The five project-specific axioms
+## 3. The four project-specific axioms
 
 All axioms are stated in `Basic.lean` and correspond to results classically
 known but absent from Mathlib (v4.29.1).
@@ -73,77 +73,63 @@ known but absent from Mathlib (v4.29.1).
 | ① | `hadamard_closure_for_negative_rooted` | Lemma 1 (Schur–Hadamard 1914 / Aissen-Schoenberg-Whitney) | ★★★★★ |
 | ② | `schur_preserves_nonpos` | Lemma 2 (Schur–Maló, paper's proof uses HKO induction) | ★★★★★ |
 | ③ | `gamma_representation` | Lemma 3 (reciprocal-pair factorization, paper's proof is constructive) | ★★★☆☆ |
-| ④ | `determinant_main_preserves_strict` | Theorem 1 — **derivable from ①, ②, ③** via the paper's proof; see §5 | ★★★☆☆ (mechanical) |
-| ⑤ | `centered_classification_axiom` | Theorem 3 — concrete γ-polynomial discriminant calculation | ★★★☆☆ |
+| ④ | `centered_classification_axiom` | Theorem 3 — concrete γ-polynomial discriminant calculation | ★★★☆☆ |
 
-### Axiom ④ vs. §5
+### Theorem 1 — now derived, not axiomatized
 
-The standalone axiom ④ is **derivable**. `Determinant.lean` carries the
-paper's proof skeleton as `determinant_main_preserves_strict_proved`, with
-2 remaining `sorry`s (see §5). When those close, axiom ④ is eliminated
-and the project's standalone axiom count drops 5 → 4.
+The original axiom `determinant_main_preserves_strict` has been **eliminated**.
+`Determinant.lean` proves `determinant_main_preserves_strict_proved` from
+the three other axioms (①, ②, ③) by following the paper's proof of Theorem 1.
+The user-facing `main_theorem` lives in `Determinant.lean` and uses this
+proved version. The project axiom count is now 4 (was 5).
 
 ---
 
 ## 4. `Determinant.lean` — paper's proof of Theorem 1
 
 This module is a direct transcription of the paper's proof of Theorem 1.
+**All steps are now proven** (no `sorry`s).
 
-### Axiom-free results (paper-relevant)
+### Major theorems
 
 | Result | Paper step |
 |---|---|
 | `convolutionPoly n f` | The polynomial `Q(x) = Σ C(n,k)·f_k·f_{n-k}·x^k` from the proof |
 | `convolutionPoly_palindromic` | "Moreover, c_{n-k} = c_k, so Q is palindromic" |
+| `convolutionPoly_hasOnlyRealNegativeZeros` | Q has only real negative zeros (via Hadamard closure × 2 + 0-exclusion) |
 | `determinantPolynomial_eq_rungOperator_convolutionPoly` | Identifies P_n with the s=1, μ=0 rung operator on Q |
-| `pochhammer_zero_eval_zero_of_pos` | Pochhammer eval at 0 helper |
-| `pochhammer_negone_eval_zero_of_ge_two` | Pochhammer eval at 0 helper |
-| `pochhammer_one_eval_zero` | `(0+1)(0+2)…(0+k) = k!` |
-| `determinantKernel_eval_zero_of_small` | `K_{n,k}(0) = 0` for `k + 2 ≤ n` |
-| `determinantKernel_eval_zero_at_nm1` | `K_{n,n-1}(0) = (n-1)!` |
-| `determinantKernel_eval_zero_at_n` | `K_{n,n}(0) = -n!` |
 | `determinantPolynomial_eval_zero` | `P_n(0) = n!·(f₁·f_{n-1} − f₀·f_n)` (paper's calculation) |
+| `cauchy_schwarz_f1_fn1_gt_f0_fn` | `f₁·f_{n-1} > f₀·f_n` (paper's `e_1·e_{n-1} > e_n` argument) |
+| `determinant_main_preserves_strict_proved` | Theorem 1 itself |
+| `main_theorem` | User-facing wrapper |
 
-### Two remaining `sorry`s — both correspond to explicit paper steps
+### Vieta infrastructure (axiom-free, paper-internal)
 
-#### Sorry 1: `convolutionPoly_hasOnlyRealNegativeZeros`
-
-> *Paper:* "by Lemma~\ref{lem:pf}, Q(x) = Σ C(n,k) f_k f_{n-k} x^k has only
-> real nonpositive zeros. Since c₀, cₙ > 0, zero is not a zero of Q, so all
-> zeros of Q are negative."
-
-Two applications of axiom ① (Hadamard closure): once to `F · F_reversed`,
-once to that result with `(1+X)^n`. Then exclude 0 via the constant term.
-
-**Effort:** Mechanical, ~200 lines. The blocker is supporting reversal-eval
-infrastructure (`F_rev(z) = z^n F(1/z)`).
-
-#### Sorry 2: `cauchy_schwarz_f1_fn1_gt_f0_fn`
-
-> *Paper:* "e₁·e_{n-1} = (Σ αᵢ)(Σ_j ∏_{r≠j} αᵢ) contains the term
-> e_n = ∏ᵢ αᵢ exactly n times, together with further nonnegative terms.
-> Therefore e₁·e_{n-1} > e_n."
-
-Vieta extraction (`Polynomial.coeff_eq_esymm_roots_of_splits` from Mathlib)
-+ `Multiset.esymm` expansion.
-
-**Effort:** Mechanical, ~250 lines.
+| Result | Role |
+|---|---|
+| `exists_factorization_real_neg` | Factor `p = C(leadingCoeff)·∏(X + α_i)` with `α_i > 0` |
+| `multiset_esymm_cons`, `_one`, `_card` | Multiset.esymm recursion + base cases |
+| `sum_mul_esymm_pred_card_ge` | Paper's `α.sum·α.esymm(n-1) ≥ n·α.prod` for non-negative multisets |
+| `coeff_eq_lc_mul_esymm` | Vieta coefficient formula |
+| `ordinaryGen_rev_eq_reverse` | Identifies the coefficient-reversed polynomial with `Polynomial.reverse` |
+| `ordinaryGen_rev_hasOnlyRealNegativeZeros` | Reversed polynomial has neg roots (via `eval₂_reverse_eq_zero_iff`) |
+| `one_add_X_pow_hasOnlyRealNegativeZeros` | `(1+X)^n` has root `-1` only |
+| `hadamard_coeff` | Hadamard product coefficient formula |
+| `convolutionPoly_eq_hadamard_iter` | Q = hadamard(hadamard(F, F_rev), (1+X)^n) |
 
 ---
 
 ## 5. Difficulty summary
 
-| Axiom / Sorry | Discharge route | Effort |
+| Axiom | Discharge route | Effort |
 |---|---|---|
 | `hadamard_closure_for_negative_rooted` ① | Build Pólya-frequency-sequence theory + Schur composition theorem | Multi-month |
 | `schur_preserves_nonpos` ② | Build HKO interlacing theorem + limit/multiplicity argument | Multi-month |
 | `gamma_representation` ③ | Paper's reciprocal-pair argument (self-contained) | ~300 lines |
-| `determinant_main_preserves_strict` ④ | **Close 2 sorrys in `Determinant.lean`** | ~450 lines |
-| `centered_classification_axiom` ⑤ | Concrete γ-polynomial discriminant calculation (paper's argument) | ~200 lines |
+| `centered_classification_axiom` ④ | Concrete γ-polynomial discriminant calculation (paper's argument) | ~200 lines |
 
-**Highest impact-per-line:** close the 2 sorrys in `Determinant.lean`
-to eliminate axiom ④. After that: ③ then ⑤. The Pólya-Schur axioms ①
-and ② require independent Mathlib infrastructure builds.
+The two Pólya-Schur axioms ① and ② require independent Mathlib infrastructure
+builds and are not currently planned. Axiom ③ would be the next pragmatic target.
 
 ---
 
@@ -154,17 +140,15 @@ $ lake build
 Build completed successfully (8251 jobs).
 
 $ #print axioms main_theorem
-[propext, Classical.choice, determinant_main_preserves_strict, Quot.sound]
-
-$ #print axioms determinant_main_preserves_strict_proved
-[propext, sorryAx, Classical.choice,
- gamma_representation, schur_preserves_nonpos, Quot.sound]
+[propext, Classical.choice,
+ gamma_representation,
+ hadamard_closure_for_negative_rooted,
+ schur_preserves_nonpos, Quot.sound]
 ```
 
-When the 2 `sorry`s close, `determinant_main_preserves_strict_proved`
-becomes axiom-free modulo `[hadamard_closure_for_negative_rooted,
-gamma_representation, schur_preserves_nonpos]`, and `main_theorem` can
-be rewired to use it instead of axiom ④.
+`main_theorem` now depends only on the three classically-named axioms
+(Lemmas 1, 2, 3 of the paper). The standalone `determinant_main_preserves_strict`
+has been eliminated.
 
 ---
 
