@@ -1,0 +1,238 @@
+// Static rendering of the blueprint dependency graph with
+// 5-star formalization-difficulty annotations (5 = hardest).
+//
+// The official `leanblueprint` tool re-generates an interactive D3
+// version from the \uses{...} annotations in src/content.tex.  This
+// .dot file matches the same edges and lets a reviewer render the
+// graph with graphviz alone:
+//
+//     dot -Tsvg dep_graph.dot > dep_graph.svg
+//     dot -Tpng dep_graph.dot > dep_graph.png
+//
+// Color convention (fill = proof status):
+//   - grey    : definition
+//   - green   : fully proved in Lean (no project-specific axioms)
+//   - red     : statement is a project-specific axiom
+//               (classical Polya-Schur result, not yet in mathlib)
+// Border convention (orthogonal to fill):
+//   - thick blue border : main result of the paper
+//
+// Bottom line of each node label: difficulty rating "*****" / 5
+// followed by the proof status in parentheses.
+
+digraph blueprint {
+  rankdir=LR;
+  ranksep=0.6;
+  nodesep=0.35;
+  node  [shape=box, style="filled,rounded", fontname="Helvetica", fontsize=10];
+  edge  [color="#666666", arrowsize=0.7];
+
+  // =====================================================================
+  // Chapter 1: Preliminaries -- definitions
+  // =====================================================================
+
+  "def:HasOnlyRealNegativeZeros"
+      [label="Real, strictly neg zeros\nroots ⊂ (−∞, 0)\n★★☆☆☆ (def)",
+       fillcolor="#dddddd"];
+  "def:PalindromicOfDegree"
+      [label="Palindromic deg n\n[X^k]Q = [X^{n−k}]Q\n★☆☆☆☆ (def)",
+       fillcolor="#dddddd"];
+  "def:pochhammer"
+      [label="Pochhammer (a)_k\n= ∏_{j<k}(a+j)\n★☆☆☆☆ (def)",
+       fillcolor="#dddddd"];
+  "def:ordinaryGen"
+      [label="Ordinary gen poly\n∑_k f_k X^k\n★☆☆☆☆ (def)",
+       fillcolor="#dddddd"];
+  "def:gammaBasis"
+      [label="γ-basis B_{n,j}\n= X^j (1+X)^{n−2j}\n★☆☆☆☆ (def)",
+       fillcolor="#dddddd"];
+  "def:IsGammaExpansion"
+      [label="γ-expansion\nQ = ∑_j γ_j B_{n,j}\n★☆☆☆☆ (def)",
+       fillcolor="#dddddd"];
+  "def:determinantPolynomial"
+      [label="Det. polynomial P_n\n∑_k C(n,k) f_k f_{n−k} K^det_{n,k}\n★★☆☆☆ (def)",
+       fillcolor="#dddddd"];
+
+  // =====================================================================
+  // Chapter 2: Theorem 1 -- the two Polya-Schur axioms + Lemma 3 + Theorem 1
+  // =====================================================================
+
+  // -- Axioms (red): classical Polya-Schur results not yet in mathlib.
+  "lem:hadamard_closure"
+      [label="Lem 1 (Hadamard closure)\nAissen–Schoenberg–Whitney\n★★★★★ (axiom)",
+       fillcolor="#ffb3b3"];
+  "lem:schur_preserves_nonpos"
+      [label="Lem 2 (Schur–Maló)\nℒ_{ℓ,α} preserves\nreal, non-pos zeros\n★★★★★ (axiom)",
+       fillcolor="#ffb3b3"];
+
+  // -- Lemma 3: gamma-representation (main proved result; blue border).
+  "lem:gamma_representation"
+      [label="**Lem 3** γ-representation\nQ = ∑_{j≤m} γ_j B_{n,j},  γ_j ≥ 0\n★★★★☆ (proved)",
+       fillcolor="#7ed957", color="#1565c0", penwidth=3];
+
+  // -- Vieta / convolution infrastructure (all proved in Lean).
+  "lem:convolutionPoly"
+      [label="convolutionPoly\n∑_k C(n,k) f_k f_{n−k} X^k\n★☆☆☆☆ (proved)",
+       fillcolor="#7ed957"];
+  "lem:convolutionPoly_palindromic"
+      [label="convolutionPoly\nis palindromic deg n\n★★☆☆☆ (proved)",
+       fillcolor="#7ed957"];
+  "lem:convolutionPoly_hasOnlyRealNegativeZeros"
+      [label="convolutionPoly has\nonly real, neg zeros\n★★★☆☆ (proved)",
+       fillcolor="#7ed957"];
+  "lem:determinantPolynomial_eq_rungOperator_convolutionPoly"
+      [label="P_n = T^{(n)}_{1,0}\n(convolutionPoly)\n★★★☆☆ (proved)",
+       fillcolor="#7ed957"];
+  "lem:determinantPolynomial_eval_zero"
+      [label="P_n(0)\n= n!(f_1 f_{n−1} − f_0 f_n)\n★★☆☆☆ (proved)",
+       fillcolor="#7ed957"];
+  "lem:cauchy_schwarz_f1_fn1_gt_f0_fn"
+      [label="f_1 f_{n−1} > f_0 f_n\n(Newton inequality)\n★★★☆☆ (proved)",
+       fillcolor="#7ed957"];
+
+  // -- Theorem 1 (main result; blue border).
+  "thm:main"
+      [label="**Thm 1** P_n preserves\nreal, strictly neg-rooted families\n★★★★★ (proved mod 2 axioms)",
+       fillcolor="#7ed957", color="#1565c0", penwidth=3];
+
+  // -- Edges: definitions feeding Lemma 3.
+  "def:PalindromicOfDegree"      -> "lem:gamma_representation";
+  "def:gammaBasis"               -> "lem:gamma_representation";
+  "def:IsGammaExpansion"         -> "lem:gamma_representation";
+  "def:HasOnlyRealNegativeZeros" -> "lem:gamma_representation";
+
+  // -- Edges: convolution infrastructure.
+  "def:ordinaryGen"              -> "lem:convolutionPoly";
+  "lem:convolutionPoly"          -> "lem:convolutionPoly_palindromic";
+  "def:PalindromicOfDegree"      -> "lem:convolutionPoly_palindromic";
+  "lem:convolutionPoly"          -> "lem:convolutionPoly_hasOnlyRealNegativeZeros";
+  "lem:hadamard_closure"         -> "lem:convolutionPoly_hasOnlyRealNegativeZeros";
+  "def:HasOnlyRealNegativeZeros" -> "lem:convolutionPoly_hasOnlyRealNegativeZeros";
+  "def:determinantPolynomial"    -> "lem:determinantPolynomial_eq_rungOperator_convolutionPoly";
+  "lem:convolutionPoly"          -> "lem:determinantPolynomial_eq_rungOperator_convolutionPoly";
+  "def:determinantPolynomial"    -> "lem:determinantPolynomial_eval_zero";
+  "def:ordinaryGen"              -> "lem:cauchy_schwarz_f1_fn1_gt_f0_fn";
+  "def:HasOnlyRealNegativeZeros" -> "lem:cauchy_schwarz_f1_fn1_gt_f0_fn";
+  "lem:determinantPolynomial_eval_zero" -> "lem:cauchy_schwarz_f1_fn1_gt_f0_fn";
+
+  // -- Edges: Theorem 1.
+  "def:determinantPolynomial"                 -> "thm:main";
+  "def:HasOnlyRealNegativeZeros"              -> "thm:main";
+  "lem:hadamard_closure"                      -> "thm:main";
+  "lem:schur_preserves_nonpos"                -> "thm:main";
+  "lem:gamma_representation"                  -> "thm:main";
+  "lem:convolutionPoly_palindromic"           -> "thm:main";
+  "lem:convolutionPoly_hasOnlyRealNegativeZeros" -> "thm:main";
+  "lem:determinantPolynomial_eq_rungOperator_convolutionPoly" -> "thm:main";
+  "lem:cauchy_schwarz_f1_fn1_gt_f0_fn"        -> "thm:main";
+
+  // =====================================================================
+  // Chapter 3: Theorem 2 -- the Pochhammer kernel ladder
+  // =====================================================================
+
+  "def:lambda"
+      [label="λ_{s,q}\n= (−1)^q C(2s, s−q)\n★☆☆☆☆ (def)",
+       fillcolor="#dddddd"];
+  "def:rungOperator"
+      [label="Rung operator T^{(n)}_{s,μ}\nQ ↦ ∑ [X^k]Q · K^{[s,μ]}_{n,k}\n★★☆☆☆ (def)",
+       fillcolor="#dddddd"];
+
+  "lem:central_difference_identity"
+      [label="**Lem 4** central\ndifference identity\n★★★☆☆ (proved)",
+       fillcolor="#7ed957"];
+  "lem:rung_action_on_gamma_basis"
+      [label="**Lem 5** rung action\non γ-basis  T·B_{n,j}\n★★★★☆ (proved)",
+       fillcolor="#7ed957"];
+
+  "thm:ladder_formula"
+      [label="**Thm 2** ladder formula\nT^{(n)}_{s,μ} parameter shift\n★★★★★ (proved)",
+       fillcolor="#7ed957", color="#1565c0", penwidth=3];
+
+  "thm:pochhammer_kernel_ladder"
+      [label="Kernel ladder\n(downstream form)\n★★★★☆ (proved)",
+       fillcolor="#7ed957"];
+  "thm:pochhammer_kernel_ladder_strict_shift"
+      [label="Strict-shift form\n★★★☆☆ (proved)",
+       fillcolor="#7ed957"];
+  "cor:original_kernel_palindromic"
+      [label="Cor 1 original kernel\nis palindromic\n★★☆☆☆ (proved)",
+       fillcolor="#7ed957"];
+  "cor:single_product_kernel"
+      [label="Cor 2 single-product\nkernel at s = 0\n★★☆☆☆ (proved)",
+       fillcolor="#7ed957"];
+
+  // -- Edges: Lemma 4 & Lemma 5.
+  "def:lambda"     -> "lem:central_difference_identity";
+  "def:pochhammer" -> "lem:central_difference_identity";
+  "def:rungOperator" -> "lem:rung_action_on_gamma_basis";
+  "def:gammaBasis"   -> "lem:rung_action_on_gamma_basis";
+  "lem:central_difference_identity" -> "lem:rung_action_on_gamma_basis";
+
+  // -- Edges: Theorem 2 and downstream.
+  "lem:rung_action_on_gamma_basis" -> "thm:ladder_formula";
+  "def:rungOperator"               -> "thm:ladder_formula";
+  "def:gammaBasis"                 -> "thm:ladder_formula";
+  "thm:ladder_formula"             -> "thm:pochhammer_kernel_ladder";
+  "lem:gamma_representation"       -> "thm:pochhammer_kernel_ladder";
+  "thm:pochhammer_kernel_ladder"   -> "thm:pochhammer_kernel_ladder_strict_shift";
+  "thm:pochhammer_kernel_ladder"   -> "cor:original_kernel_palindromic";
+  "def:PalindromicOfDegree"        -> "cor:original_kernel_palindromic";
+  "thm:pochhammer_kernel_ladder"   -> "cor:single_product_kernel";
+
+  // -- Cross-link: Theorem 2 also enters Theorem 1's proof (rung-action step).
+  "lem:rung_action_on_gamma_basis" -> "thm:main";
+  "thm:ladder_formula"             -> "thm:main";
+
+  // =====================================================================
+  // Chapter 4: Theorem 3 -- centered classification
+  // =====================================================================
+
+  "def:centeredKernel"
+      [label="Centered kernel\nK^{a,c}_{n,k} = (X+a)_k (X+c)_{n−k}\n★☆☆☆☆ (def)",
+       fillcolor="#dddddd"];
+  "def:UniversallyAdmissibleCentered"
+      [label="Universally admissible\n(a, c) ∈ ℝ²\n★★★☆☆ (def)",
+       fillcolor="#dddddd"];
+
+  "thm:centered_classification"
+      [label="**Thm 3** centered classification\n{a², c²} = {0, 1}  iff  univ. admissible\n★★★★★ (proved mod axiom 2)",
+       fillcolor="#7ed957", color="#1565c0", penwidth=3];
+
+  "def:UniversallyAdmissibleCentered" -> "thm:centered_classification";
+  "def:centeredKernel"                -> "thm:centered_classification";
+  "lem:schur_preserves_nonpos"        -> "thm:centered_classification";
+  "cor:original_kernel_palindromic"   -> "thm:centered_classification";
+  "lem:gamma_representation"          -> "thm:centered_classification";
+  "thm:ladder_formula"                -> "thm:centered_classification";
+
+  // =====================================================================
+  // Legend
+  // =====================================================================
+
+  subgraph cluster_legend {
+    label="Legend";
+    labeljust=l;
+    style="rounded,dashed";
+    color="#888888";
+    fontname="Helvetica";
+    fontsize=11;
+    node [shape=box, style="filled,rounded", fontsize=10];
+
+    "L_def"   [label="definition",
+               fillcolor="#dddddd"];
+    "L_done"  [label="proved in Lean\n(axiom-free)",
+               fillcolor="#7ed957"];
+    "L_axiom" [label="project-specific axiom\n(classical Pólya–Schur)",
+               fillcolor="#ffb3b3"];
+    "L_main"  [label="main result of the paper\n(thick blue border)",
+               fillcolor="#ffffff", color="#1565c0", penwidth=3];
+    "L_diff1" [label="★☆☆☆☆ trivial /\nbookkeeping",
+               fillcolor="#ffffff"];
+    "L_diff3" [label="★★★☆☆ standard\npolynomial algebra",
+               fillcolor="#ffffff"];
+    "L_diff5" [label="★★★★★ hardest:\nclassical Pólya–Schur\nor new argument",
+               fillcolor="#ffffff"];
+    {rank=same; "L_def" "L_done" "L_axiom" "L_main"
+                "L_diff1" "L_diff3" "L_diff5"}
+  }
+}
