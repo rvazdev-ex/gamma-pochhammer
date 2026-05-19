@@ -39,9 +39,9 @@ Lemmas 1, 2, 3.
 | Pochhammer `(z)_k` | `pochhammer` (Basic) |
 | `P_n(z)` | `determinantPolynomial` (Basic) |
 | **Theorem 1** (P_n real-negative-rooted) | `main_theorem` (Determinant) — uses axioms ①, ② |
-| **Lemma 1** (Hadamard closure) | `Hadamard_closure_for_negative_rooted_polynomials` (Basic) — axiom ① |
-| **Lemma 2** (Schur transform 𝓛) | `schur_transform_preserves_nonpos` + `schurTransform` (Basic) — axiom ② |
-| **Lemma 3** (γ-representation) | `gamma_representation` + `gamma_representation_of_palindromic_negative_rooted` (GammaRep) — **proved**, supporting defs `gammaBasis`, `IsGammaExpansion`, `gammaPolynomial`, `PalindromicOfDegree` in Basic |
+| **Lemma 1** (Hadamard closure) | `hadamard_closure_for_negative_rooted` (Basic) — axiom ① |
+| **Lemma 2** (Schur transform 𝓛) | `schur_preserves_nonpos` + `schurTransform` (Basic) — axiom ② |
+| **Lemma 3** (γ-representation) | `gamma_representation` (GammaRep) — **proved**, supporting defs `gammaBasis`, `IsGammaExpansion`, `gammaPolynomial`, `PalindromicOfDegree` in Basic |
 
 ### Paper §2 — Higher Pochhammer kernel ladder
 
@@ -50,13 +50,13 @@ Lemmas 1, 2, 3.
 | `λ_{s,q}` coefficients | `lambda` (Basic) |
 | `K_{n,k}^{[s,μ]}` (rung kernel) | `rungKernel` (Basic) |
 | `T_{s,μ}^{(n)}(Q)` (rung operator) | `rungOperator` (Basic) |
-| **A380113 triangle / `A(s,q)`** | `A380113` + `A380113_zero_zero`, `_left_edge`, `_internal` (Basic) |
-| **Lemma 4** (central-difference identity) | `central_difference_identity`, `central_difference` (Basic) |
-| **Lemma 5** (rung action) | `rung_action_on_gamma_basis`, `rung_action` (Basic) |
-| **Theorem 2** (the ladder formula) | `ladder_formula`, `pochhammer_kernel_ladder_formula` (Basic); `pochhammer_kernel_ladder`, `pochhammer_kernel_ladder_strict_shift` (GammaRep) |
+| **A380113 triangle / `A(s,q)`** | `A380113` (Basic) |
+| **Lemma 4** (central-difference identity) | `central_difference_identity` (Basic) |
+| **Lemma 5** (rung action) | `rung_action_on_gamma_basis` (Basic) |
+| **Theorem 2** (the ladder formula) | `ladder_formula` (Basic); `pochhammer_kernel_ladder`, `pochhammer_kernel_ladder_strict_shift` (GammaRep) |
 | **Corollary 1** (original kernel palindromic) | `original_kernel_palindromic` (GammaRep) |
 | **Corollary 2** (single-product kernel, s=0) | `single_product_kernel` (GammaRep) |
-| Proof of Theorem 1 from Lemmas 1, 2, 3 + ladder | `determinant_main_preserves_strict_proved` (Determinant) |
+| Proof of Theorem 1 from Lemmas 1, 2, 3 + ladder | `main_theorem` (Determinant) |
 
 ### Paper §3 — Centered two-product family uniqueness
 
@@ -64,7 +64,7 @@ Lemmas 1, 2, 3.
 |---|---|
 | `K_{n,k}^{a,c}` (centered family) | `centeredKernel`, `centeredOperator` (Basic) |
 | `UniversallyAdmissibleCentered` | `UniversallyAdmissibleCentered` (Basic) |
-| **Theorem 3** (classification) | `centered_classification_proved` + `centered_balanced_classification` (Classification) — **proved**, supporting `Q_n4`, `Q_n6` perturbation families |
+| **Theorem 3** (classification) | `centered_balanced_classification` (Classification) — **proved**, supporting `Q_n4`, `Q_n6` perturbation families |
 
 ---
 
@@ -81,10 +81,8 @@ known but absent from Mathlib (v4.29.1).
 ### Theorem 1 — derived, not axiomatized
 
 The original axiom `determinant_main_preserves_strict` has been **eliminated**.
-`Determinant.lean` proves `determinant_main_preserves_strict_proved` from
-the two PF/Schur axioms (①, ②) plus the proven Lemma 3, by following the
-paper's proof of Theorem 1. The user-facing `main_theorem` lives in
-`Determinant.lean` and uses this proved version.
+`Determinant.lean` proves `main_theorem` from the two PF/Schur axioms (①, ②)
+plus the proven Lemma 3, following the paper's proof of Theorem 1.
 
 ### Lemma 3 — proved, not axiomatized
 
@@ -124,8 +122,7 @@ This module is a direct transcription of the paper's proof of Theorem 1.
 | `determinantPolynomial_eq_rungOperator_convolutionPoly` | Identifies P_n with the s=1, μ=0 rung operator on Q |
 | `determinantPolynomial_eval_zero` | `P_n(0) = n!·(f₁·f_{n-1} − f₀·f_n)` (paper's calculation) |
 | `cauchy_schwarz_f1_fn1_gt_f0_fn` | `f₁·f_{n-1} > f₀·f_n` (paper's `e_1·e_{n-1} > e_n` argument) |
-| `determinant_main_preserves_strict_proved` | Theorem 1 itself |
-| `main_theorem` | User-facing wrapper |
+| `main_theorem` | Theorem 1 itself |
 
 ### Vieta infrastructure (axiom-free, paper-internal)
 
@@ -191,9 +188,8 @@ theorems but are stated for context:
    the unsigned `λ_{s,q}` table with OEIS A380113 and gives the formula
    `T(s,q) = C(2s, s−q)`. This is a *structural identification* with the
    OEIS triangle, not a proof step in any later result. **Formalized in
-   `Basic.lean` as `A380113`, `A380113_zero_zero`, `_left_edge`,
-   `_internal`** — these establish the closed form but are not used
-   by any downstream theorem.
+   `Basic.lean` as the definition `A380113`** — kept for paper
+   correspondence but not used by any downstream theorem.
 
 2. **The final remark in §3** on γ-symbols. Provides interpretive
    context (`Γ ↦ Γ^(s)`, the elementary identity

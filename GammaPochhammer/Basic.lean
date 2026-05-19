@@ -42,6 +42,82 @@ def HasOnlyRealNegativeZeros (p : ℝ[X]) : Prop :=
 def HasDegree (p : ℝ[X]) (n : ℕ) : Prop :=
   p ≠ 0 ∧ p.natDegree = n
 
+/-- `∑ k ∈ range (n+1), f k = ∑ k ∈ range (n+1), f (n - k)`.  Adaptation of
+mathlib's `Finset.sum_range_reflect` to the inclusive-range form used throughout
+this development for palindromic polynomials. -/
+theorem sum_range_reflect_succ {α : Type*} [AddCommMonoid α]
+    (n : ℕ) (f : ℕ → α) :
+    ∑ k ∈ Finset.range (n + 1), f k = ∑ k ∈ Finset.range (n + 1), f (n - k) := by
+  rw [← Finset.sum_range_reflect (fun k => f k) (n + 1)]
+  rfl
+
+/-- Strict negative-rooted polynomials are in particular nonpositive-rooted. -/
+theorem HasOnlyRealNegativeZeros.toNonpos {p : ℝ[X]}
+    (h : HasOnlyRealNegativeZeros p) : HasOnlyRealNonposZeros p := by
+  rcases h with hzero | hr
+  · left; exact hzero
+  right
+  intro z hz
+  obtain ⟨r, hr_neg, hr_eq⟩ := hr z hz
+  exact ⟨r, le_of_lt hr_neg, hr_eq⟩
+
+/-! ## Real / complex root utilities -/
+
+/-- Evaluating `toComplex p` at a real cast equals the real evaluation cast to ℂ. -/
+theorem isRoot_toComplex_iff_real (p : ℝ[X]) (r : ℝ) :
+    (toComplex p).eval (r : ℂ) = 0 ↔ p.eval r = 0 := by
+  have hcast : ((r : ℝ) : ℂ) = (algebraMap ℝ ℂ) r := rfl
+  have heval : (toComplex p).eval (r : ℂ) = ((p.eval r : ℝ) : ℂ) := by
+    rw [hcast]
+    unfold toComplex
+    rw [Polynomial.eval_map, Polynomial.eval₂_at_apply]
+    rfl
+  rw [heval]
+  exact_mod_cast Iff.rfl
+
+/-- A polynomial with `HasOnlyRealNegativeZeros` and `1 ≤ natDegree` has a real
+negative root. -/
+theorem exists_real_negative_root {p : ℝ[X]}
+    (h : HasOnlyRealNegativeZeros p) (hdeg : 1 ≤ p.natDegree) :
+    ∃ r : ℝ, r < 0 ∧ p.eval r = 0 := by
+  have hp_ne : p ≠ 0 := fun hp0 => by rw [hp0] at hdeg; simp at hdeg
+  have hpc_ne : toComplex p ≠ 0 := by
+    intro h0
+    apply hp_ne
+    unfold toComplex at h0
+    exact (Polynomial.map_eq_zero_iff (algebraMap ℝ ℂ).injective).mp h0
+  have hpc_natDeg : 1 ≤ (toComplex p).natDegree := by
+    unfold toComplex
+    rw [Polynomial.natDegree_map_eq_of_injective (algebraMap ℝ ℂ).injective]
+    exact hdeg
+  have hpc_deg : 0 < (toComplex p).degree :=
+    Polynomial.natDegree_pos_iff_degree_pos.mp (by omega)
+  obtain ⟨z, hz⟩ := Complex.exists_root hpc_deg
+  rcases h with h0 | hreal
+  · exact absurd h0 hp_ne
+  obtain ⟨r, hr_neg, hr_eq⟩ := hreal z hz
+  refine ⟨r, hr_neg, ?_⟩
+  rw [hr_eq] at hz
+  exact (isRoot_toComplex_iff_real p r).mp hz
+
+/-- If `p = (X - C r) · q` and `p` has only real negative zeros, so does `q`. -/
+theorem hasOnlyRealNegativeZeros_quotient {p q : ℝ[X]} {r : ℝ}
+    (hp : HasOnlyRealNegativeZeros p) (hpq : p = (X - C r) * q) :
+    HasOnlyRealNegativeZeros q := by
+  by_cases hq0 : q = 0
+  · left; exact hq0
+  rcases hp with hp0 | hp
+  · rw [hp0] at hpq
+    rcases mul_eq_zero.mp hpq.symm with h | h
+    · exact absurd h (X_sub_C_ne_zero r)
+    · exact absurd h hq0
+  right
+  intro z hz
+  apply hp
+  have hmul : toComplex p = toComplex (X - C r) * toComplex q := by
+    rw [hpq]; simp [toComplex, Polynomial.map_mul]
+  rw [hmul, Polynomial.eval_mul, hz, mul_zero]
+
 /-! ## Basic polynomial constructions -/
 
 /-- `(z+a)_k` as a polynomial in `z`. -/
@@ -126,6 +202,29 @@ def hadamard (n : ℕ) (A B : ℝ[X]) : ℝ[X] :=
 /-- Palindromic with respect to degree `n`. -/
 def PalindromicOfDegree (n : ℕ) (Q : ℝ[X]) : Prop :=
   Q.natDegree ≤ n ∧ ∀ k ≤ n, Q.coeff k = Q.coeff (n - k)
+
+/-- A palindromic polynomial of formal degree `n` is fixed by `Polynomial.reflect n`. -/
+theorem PalindromicOfDegree.reflect_eq {Q : ℝ[X]} {n : ℕ}
+    (hpal : PalindromicOfDegree n Q) : Polynomial.reflect n Q = Q := by
+  obtain ⟨_, h_sym⟩ := hpal
+  ext k
+  rw [Polynomial.coeff_reflect]
+  by_cases h_le_k : k ≤ n
+  · rw [Polynomial.revAt_le h_le_k]; exact (h_sym k h_le_k).symm
+  · rw [Polynomial.revAt_eq_self_of_lt (Nat.not_le.mp h_le_k)]
+
+/-- Product of palindromic polynomials is palindromic, with the degrees adding. -/
+theorem PalindromicOfDegree.mul {P Q : ℝ[X]} {d r : ℕ}
+    (hP : PalindromicOfDegree d P) (hQ : PalindromicOfDegree r Q) :
+    PalindromicOfDegree (d + r) (P * Q) := by
+  refine ⟨le_trans Polynomial.natDegree_mul_le (add_le_add hP.1 hQ.1), ?_⟩
+  intro k hk
+  have hrefl : Polynomial.reflect (d + r) (P * Q) = P * Q := by
+    rw [Polynomial.reflect_mul P Q hP.1 hQ.1, hP.reflect_eq, hQ.reflect_eq]
+  have h_coeff := congr_arg (fun p => p.coeff k) hrefl
+  simp only at h_coeff
+  rw [Polynomial.coeff_reflect, Polynomial.revAt_le hk] at h_coeff
+  exact h_coeff.symm
 
 /-- The `γ`-basis polynomial `x^j (1+x)^(n-2j)`. -/
 def gammaBasis (n j : ℕ) : ℝ[X] :=
@@ -262,13 +361,9 @@ axiom schur_preserves_nonpos
     HasOnlyRealNonposZeros (schurTransform ell α B)
 
 -- `gamma_representation` (Lemma 3 of the paper) is **no longer an axiom**.
--- It is now proved in `GammaPochhammer/GammaRep.lean` as
--- `GammaPochhammer.gamma_representation_proved`, and re-exported there as
--- `GammaPochhammer.gamma_representation`.  The five theorems that consumed
--- this axiom (`gamma_representation_of_palindromic_negative_rooted`,
--- `pochhammer_kernel_ladder`, `pochhammer_kernel_ladder_strict_shift`,
--- `original_kernel_palindromic`, `single_product_kernel`) live in
--- `GammaRep.lean` for the same reason.
+-- It is proved in `GammaPochhammer/GammaRep.lean`.  The four consumers
+-- (`pochhammer_kernel_ladder`, `pochhammer_kernel_ladder_strict_shift`,
+-- `original_kernel_palindromic`, `single_product_kernel`) live there as well.
 
 private def risingProd (w : ℝ) (j : ℕ) : ℝ :=
   ∏ i ∈ Finset.range j, (w + (i : ℝ))
@@ -309,10 +404,6 @@ private lemma lambda_mul_sq_sub_sq {s q : ℕ} (hs : 0 < s) (hq : q < s) :
       norm_num
     rw [hcast1, hcast2]
     ring
-
-private lemma lambda_mul_sq_sub_sq_self (s : ℕ) :
-    (((s : ℝ) ^ 2 - (s : ℝ) ^ 2) * lambda s s = 0) := by
-  ring
 
 private lemma risingProd_succ (w : ℝ) (j : ℕ) :
     risingProd w (j + 1) = risingProd w j * (w + j) := by
@@ -707,24 +798,6 @@ theorem central_difference_asc
   simpa [ascPochhammer_eval_eq_prod_range_real, add_assoc, add_comm, add_left_comm, sub_eq_add_neg]
     using central_difference_identity s j w
 
-theorem lambda_zero_left (q : ℕ) :
-    lambda 0 q =
-      if q = 0 then 1 else 2 * (-1 : ℝ) ^ q * ((Nat.factorial q : ℝ)⁻¹) := by
-  by_cases hq : q = 0 <;> simp [lambda, hq]
-
-theorem lambda_zero_zero : lambda 0 0 = 1 := by
-  simp [lambda]
-
-theorem rungKernel_zero (n k : ℕ) (μ : ℝ) :
-    rungKernel n k 0 μ = pochhammer μ k * pochhammer μ (n - k) := by
-  simp [rungKernel, lambda]
-
-theorem lambda_one_zero : lambda 1 0 = 1 := by
-  norm_num [lambda]
-
-theorem lambda_one_one : lambda 1 1 = -1 := by
-  norm_num [lambda]
-
 theorem rungKernel_one_zero (n k : ℕ) :
     rungKernel n k 1 0 = determinantKernel n k := by
   rw [rungKernel, determinantKernel]
@@ -747,7 +820,7 @@ theorem centeredOperator_zero_one (n : ℕ) (Q : ℝ[X]) :
   simp [centeredOperator, rungOperator, centeredKernel_zero_one, rungKernel_one_zero]
 
 /-- Vandermonde–Chu identity for ascending Pochhammer symbols. -/
-private lemma ascPochhammer_vandermonde (a b : ℝ) (n : ℕ) :
+theorem ascPochhammer_vandermonde (a b : ℝ) (n : ℕ) :
     ∑ k ∈ Finset.range (n + 1),
         (Nat.choose n k : ℝ) *
           ((ascPochhammer ℝ k).eval a * (ascPochhammer ℝ (n - k)).eval b) =
@@ -1708,94 +1781,5 @@ theorem shift_right_preserves_negative
     z = z + (μ : ℂ) - (μ : ℂ) := by ring
     _ = (r : ℂ) - (μ : ℂ) := by rw [hzr]
     _ = ((r - μ : ℝ) : ℂ) := by norm_num
-
-/-! **Theorem 1 of the paper** is now proven, not axiomatized. See
-`GammaPochhammer.determinant_main_preserves_strict_proved` in `Determinant.lean`
-for the proof using Lemmas 1, 2, 3. The wrapper `main_theorem` in
-`Determinant.lean` provides the user-facing statement.
-
-`centered_classification_axiom` (Theorem 3 of the paper) is **no longer an
-axiom**.  It is now proved in `GammaPochhammer/Classification.lean` as
-`GammaPochhammer.centered_classification_proved`, and the user-facing
-`centered_balanced_classification` theorem lives there too. -/
-
-/-! ## Theorems corresponding to the paper -/
-
-theorem Hadamard_closure_for_negative_rooted_polynomials
-    (n : ℕ) (A B : ℝ[X])
-    (hAcoeff : ∀ k ≤ n, 0 ≤ A.coeff k)
-    (hBcoeff : ∀ k ≤ n, 0 ≤ B.coeff k)
-    (hA : HasOnlyRealNonposZeros A)
-    (hB : HasOnlyRealNonposZeros B) :
-    HasOnlyRealNonposZeros (hadamard n A B) :=
-  hadamard_closure_for_negative_rooted n A B hAcoeff hBcoeff hA hB
-
-theorem schur_transform_preserves_nonpos
-    (ell : ℕ) {α : ℝ} (hα : 0 < α) (B : ℝ[X])
-    (hB : HasOnlyRealNonposZeros B) :
-    HasOnlyRealNonposZeros (schurTransform ell α B) :=
-  schur_preserves_nonpos ell hα B hB
-
--- `gamma_representation_of_palindromic_negative_rooted` is now in
--- `GammaRep.lean`, where Lemma 3 is proven.
-
-theorem central_difference
-    (s j : ℕ) (w : ℝ) :
-    (∑ q ∈ Finset.range (s + 1),
-      lambda s q *
-        ((∏ i ∈ Finset.range j, (w + q + (i : ℝ))) *
-         (∏ i ∈ Finset.range j, (w - q + (i : ℝ))))) =
-    (Nat.choose j s : ℝ) *
-      (∏ i ∈ Finset.range (j - s), (w + (i : ℝ))) *
-      (∏ i ∈ Finset.range (j - s), (w + s + (i : ℝ))) :=
-  central_difference_identity s j w
-
-theorem rung_action
-    (n m ε s j : ℕ) (μ : ℝ)
-    (hε : ε = 0 ∨ ε = 1) (hn : n = 2 * m + ε) (h2j : 2 * j ≤ n) :
-    rungOperator n s μ (gammaBasis n j) =
-      C (Nat.choose j s : ℝ) *
-        pochhammer μ (j - s) *
-        pochhammer (μ + s) (j - s) *
-        linearPochhammer 2 (2 * μ + 2 * j) (n - 2 * j) :=
-  rung_action_on_gamma_basis n m ε s j μ hε hn h2j
-
-theorem pochhammer_kernel_ladder_formula
-    (n m ε s : ℕ) (μ : ℝ) (Q : ℝ[X]) (γ : ℕ → ℝ)
-    (hε : ε = 0 ∨ ε = 1) (hn : n = 2 * m + ε)
-    (hγ : IsGammaExpansion n m Q γ) :
-    rungOperator n s μ Q =
-      C ((2 : ℝ) ^ ε / (Nat.factorial s : ℝ)) *
-      pochhammer (μ + s) (m - s + ε) *
-      (schurTransform (m - s) (s + (1 / 2 : ℝ))
-          ((C ((4 : ℝ) ^ (m - s))) *
-            ((derivative^[s]) (gammaPolynomial m γ)).comp (C ((1 / 4 : ℝ)) * X))).comp
-        (X + C μ) :=
-  ladder_formula n m ε s μ Q γ hε hn hγ
-
--- `pochhammer_kernel_ladder`, `pochhammer_kernel_ladder_strict_shift`,
--- `original_kernel_palindromic`, and `single_product_kernel` are now in
--- `GammaRep.lean`, since they consume the proved Lemma 3.
---
--- `main_theorem` (Theorem 1 of the paper) is stated and proven in
--- `Determinant.lean`, which has access to the Vieta machinery needed for
--- the proof.
-
--- `centered_balanced_classification` (Theorem 3 of the paper) is stated and
--- proven in `Classification.lean` as `centered_classification_proved`, and
--- re-exported there as `centered_balanced_classification`.
-
-/-- The normalized unsigned row used in the paper agrees with the stated
-closed form of OEIS A380113. -/
-theorem A380113_zero_zero : A380113 0 0 = 1 := by
-  simp [A380113]
-
-theorem A380113_left_edge (s : ℕ) (hs : s ≠ 0) :
-    A380113 s 0 = Nat.choose (2 * s) s / 2 := by
-  simp [A380113, hs]
-
-theorem A380113_internal (s q : ℕ) (hq : q ≠ 0) :
-    A380113 s q = Nat.choose (2 * s) (s - q) := by
-  simp [A380113, hq]
 
 end GammaPochhammer

@@ -197,26 +197,6 @@ Recorded in Lean as the axiom
 \lean{GammaPochhammer.schur_preserves_nonpos}.  An axiom-free proof
 would require Hermite--Kakeya--Obreschkoff (HKO) interlacing.
 
-\subsection*{Mathlib-facing wrappers}
-
-\begin{lemma}[Mathlib wrapper for Hadamard closure]
-  \label{lem:Hadamard_closure_wrapper}
-  \lean{GammaPochhammer.Hadamard_closure_for_negative_rooted_polynomials}
-  \leanok
-  \uses{lem:hadamard_closure}
-  Convenience restatement of Lemma~\ref{lem:hadamard_closure} in the
-  exact form consumed by the proof of Theorem~1.
-\end{lemma}
-
-\begin{lemma}[Mathlib wrapper for Schur--Maló]
-  \label{lem:schur_transform_preserves_nonpos}
-  \lean{GammaPochhammer.schur_transform_preserves_nonpos}
-  \leanok
-  \uses{lem:schur_preserves_nonpos}
-  Convenience restatement of Lemma~\ref{lem:schur_preserves_nonpos}
-  for the form used inside the proof of Theorem~1.
-\end{lemma}
-
 \section{Lemma~3: the \texorpdfstring{$\gamma$}{gamma}-representation}
 
 \begin{lemma}[$\gamma$-representation]
@@ -243,15 +223,6 @@ would require Hermite--Kakeya--Obreschkoff (HKO) interlacing.
   axioms.
 \end{proof}
 
-\begin{lemma}[$\gamma$-representation, negative-rooted form]
-  \label{lem:gamma_representation_of_palindromic_negative_rooted}
-  \lean{GammaPochhammer.gamma_representation_of_palindromic_negative_rooted}
-  \leanok
-  \uses{lem:gamma_representation, def:HasOnlyRealNegativeZeros}
-  Strengthening of Lemma~\ref{lem:gamma_representation} where $Q$ has
-  only strictly negative zeros; the same $\gamma$-expansion exists.
-\end{lemma}
-
 \section{Theorem~1}
 
 \begin{theorem}[Theorem~1 --- $\Pn$ preserves real-negative-rooted families]
@@ -269,14 +240,14 @@ would require Hermite--Kakeya--Obreschkoff (HKO) interlacing.
 
 \begin{proof}
   \leanok
-  \uses{def:determinantPolynomial, lem:Hadamard_closure_wrapper,
-        lem:schur_transform_preserves_nonpos,
+  \uses{def:determinantPolynomial, lem:hadamard_closure,
+        lem:schur_preserves_nonpos,
         lem:gamma_representation,
         lem:convolutionPoly_palindromic,
         lem:convolutionPoly_hasOnlyRealNegativeZeros,
         lem:determinantPolynomial_eq_rungOperator_convolutionPoly,
         lem:cauchy_schwarz_f1_fn1_gt_f0_fn,
-        lem:rung_action,
+        lem:rung_action_on_gamma_basis,
         thm:ladder_formula}
   Follow the paper's proof of Theorem~1:
   \begin{enumerate}
@@ -292,7 +263,7 @@ would require Hermite--Kakeya--Obreschkoff (HKO) interlacing.
     \item Identify $\Pn$ with the $s=1$, $\mu=0$ rung operator applied
           to $Q$ (Lemma~\ref{lem:determinantPolynomial_eq_rungOperator_convolutionPoly}).
     \item Apply the rung-action formula
-          (Lemma~\ref{lem:rung_action})
+          (Lemma~\ref{lem:rung_action_on_gamma_basis})
           together with the $\gamma$-representation
           (Lemma~\ref{lem:gamma_representation}) to express $\Pn$
           as a Schur transform of $Q$.
@@ -367,21 +338,6 @@ are formalized in Lean and depend on no project-specific axiom.
   $\Pn$ from acquiring a root at the origin.
 \end{lemma}
 
-\begin{lemma}[Internal: derived Theorem~1]
-  \label{lem:determinant_main_preserves_strict_proved}
-  \lean{GammaPochhammer.determinant_main_preserves_strict_proved}
-  \leanok
-  \uses{lem:Hadamard_closure_wrapper,
-        lem:schur_transform_preserves_nonpos,
-        lem:gamma_representation,
-        lem:convolutionPoly_hasOnlyRealNegativeZeros,
-        lem:determinantPolynomial_eq_rungOperator_convolutionPoly,
-        lem:cauchy_schwarz_f1_fn1_gt_f0_fn}
-  Internal name for Theorem~\ref{thm:main} (the version that takes the
-  full Lemma~1 and Lemma~2 hypotheses).
-  \texttt{main\_theorem} is a thin user-facing wrapper.
-\end{lemma}
-
 \chapter{Theorem~2: the Pochhammer kernel ladder}
 \label{ch:theorem2}
 
@@ -422,34 +378,11 @@ are formalized in Lean and depend on no project-specific axiom.
   $\binom{2s}{s-q}$ in the closed form below.
 \end{definition}
 
-\begin{lemma}[A380113 base case]
-  \label{lem:A380113_zero_zero}
-  \lean{GammaPochhammer.A380113_zero_zero}
-  \leanok
-  $\Atriangle{0}{0} = 1$.
-\end{lemma}
-
-\begin{lemma}[A380113 left edge]
-  \label{lem:A380113_left_edge}
-  \lean{GammaPochhammer.A380113_left_edge}
-  \leanok
-  For $s \neq 0$, $\Atriangle{s}{0}$ is given by the paper's left-edge
-  formula.
-\end{lemma}
-
-\begin{lemma}[A380113 internal recursion]
-  \label{lem:A380113_internal}
-  \lean{GammaPochhammer.A380113_internal}
-  \leanok
-  For $q \neq 0$, $\Atriangle{s}{q}$ satisfies the paper's interior
-  recurrence.
-\end{lemma}
-
 \section{Lemma~4 and Lemma~5}
 
 \begin{lemma}[Lemma~4 --- central-difference identity]
-  \label{lem:central_difference}
-  \lean{GammaPochhammer.central_difference}
+  \label{lem:central_difference_identity}
+  \lean{GammaPochhammer.central_difference_identity}
   \leanok
   \uses{def:lambda, def:pochhammer}
   The alternating sum
@@ -457,30 +390,14 @@ are formalized in Lean and depend on no project-specific axiom.
   closed-form central-difference identity.
 \end{lemma}
 
-\begin{lemma}[Pointwise version]
-  \label{lem:central_difference_identity}
-  \lean{GammaPochhammer.central_difference_identity}
-  \leanok
-  \uses{lem:central_difference}
-  Pointwise restatement of Lemma~4 used in the proof of Theorem~2.
-\end{lemma}
-
 \begin{lemma}[Lemma~5 --- rung action on the $\gamma$-basis]
   \label{lem:rung_action_on_gamma_basis}
   \lean{GammaPochhammer.rung_action_on_gamma_basis}
   \leanok
-  \uses{def:rungOperator, def:gammaBasis, lem:central_difference}
+  \uses{def:rungOperator, def:gammaBasis, lem:central_difference_identity}
   The rung operator $T_{s,\mu}^{(n)}$ acts on a single $\gamma$-basis
   element $\gammabasis{n}{j}$ by the explicit formula recorded in the
   paper (eq.~$T B_{n,j}$).
-\end{lemma}
-
-\begin{lemma}[Lemma~5 (rung action on a $\gamma$-expansion)]
-  \label{lem:rung_action}
-  \lean{GammaPochhammer.rung_action}
-  \leanok
-  \uses{lem:rung_action_on_gamma_basis, def:IsGammaExpansion}
-  By linearity from Lemma~\ref{lem:rung_action_on_gamma_basis}.
 \end{lemma}
 
 \section{Theorem~2 and its corollaries}
@@ -489,18 +406,10 @@ are formalized in Lean and depend on no project-specific axiom.
   \label{thm:ladder_formula}
   \lean{GammaPochhammer.ladder_formula}
   \leanok
-  \uses{lem:rung_action, def:rungOperator, def:gammaBasis}
+  \uses{lem:rung_action_on_gamma_basis, def:rungOperator, def:gammaBasis}
   Statement of the paper's ladder formula: applied to a $\gamma$-expansion,
   the rung operator $T_{s,\mu}^{(n)}$ produces another rung kernel with
   shifted parameters.  (Full statement in the source.)
-\end{theorem}
-
-\begin{theorem}[Pochhammer kernel ladder, full form]
-  \label{thm:pochhammer_kernel_ladder_formula}
-  \lean{GammaPochhammer.pochhammer_kernel_ladder_formula}
-  \leanok
-  \uses{thm:ladder_formula}
-  The fully-expanded form of Theorem~\ref{thm:ladder_formula}.
 \end{theorem}
 
 \begin{theorem}[Kernel ladder, downstream]
@@ -594,12 +503,3 @@ are formalized in Lean and depend on no project-specific axiom.
   \texttt{GammaPochhammer/Classification.lean}.
 \end{proof}
 
-\begin{lemma}[Internal name]
-  \label{lem:centered_classification_proved}
-  \lean{GammaPochhammer.centered_classification_proved}
-  \leanok
-  \uses{thm:centered_classification}
-  Internal name for Theorem~\ref{thm:centered_classification}.
-  \texttt{centered\_balanced\_classification} is the user-facing
-  alias.
-\end{lemma}

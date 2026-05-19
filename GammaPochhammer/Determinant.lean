@@ -42,19 +42,6 @@ open BigOperators Polynomial
 
 namespace GammaPochhammer
 
-/-! ## Utility: complex / real root equivalence -/
-
-private theorem isRoot_toComplex_iff_real (p : ℝ[X]) (r : ℝ) :
-    (toComplex p).eval (r : ℂ) = 0 ↔ p.eval r = 0 := by
-  have hcast : ((r : ℝ) : ℂ) = (algebraMap ℝ ℂ) r := rfl
-  have heval : (toComplex p).eval (r : ℂ) = ((p.eval r : ℝ) : ℂ) := by
-    rw [hcast]
-    unfold toComplex
-    rw [Polynomial.eval_map, Polynomial.eval₂_at_apply]
-    rfl
-  rw [heval]
-  exact_mod_cast Iff.rfl
-
 /-! ## Vieta factorization for real-negative-rooted polynomials
 
 The paper's proof of Theorem 1 uses Vieta in two places:
@@ -64,46 +51,6 @@ The paper's proof of Theorem 1 uses Vieta in two places:
 
 We formalize both via an inductive factorization:
 `p = C(leadingCoeff p) · ∏(X + C α_i)` with `α_i > 0`. -/
-
-private theorem exists_real_negative_root_aux (p : ℝ[X])
-    (h : HasOnlyRealNegativeZeros p) (hdeg : 1 ≤ p.natDegree) :
-    ∃ r : ℝ, r < 0 ∧ p.eval r = 0 := by
-  have hp_ne : p ≠ 0 := fun hp0 => by rw [hp0] at hdeg; simp at hdeg
-  have hpc_ne : toComplex p ≠ 0 := by
-    intro h0
-    apply hp_ne
-    unfold toComplex at h0
-    exact (Polynomial.map_eq_zero_iff (algebraMap ℝ ℂ).injective).mp h0
-  have hpc_natDeg : 1 ≤ (toComplex p).natDegree := by
-    unfold toComplex
-    rw [Polynomial.natDegree_map_eq_of_injective (algebraMap ℝ ℂ).injective]
-    exact hdeg
-  have hpc_deg : 0 < (toComplex p).degree :=
-    Polynomial.natDegree_pos_iff_degree_pos.mp (by omega)
-  obtain ⟨z, hz⟩ := Complex.exists_root hpc_deg
-  rcases h with h0 | hreal
-  · exact absurd h0 hp_ne
-  obtain ⟨r, hr_neg, hr_eq⟩ := hreal z hz
-  refine ⟨r, hr_neg, ?_⟩
-  rw [hr_eq] at hz
-  exact (isRoot_toComplex_iff_real p r).mp hz
-
-private theorem hasOnlyRealNegativeZeros_factor_quotient {p q : ℝ[X]} {r : ℝ}
-    (hp : HasOnlyRealNegativeZeros p) (hpq : p = (X - C r) * q) :
-    HasOnlyRealNegativeZeros q := by
-  by_cases hq0 : q = 0
-  · left; exact hq0
-  rcases hp with hp0 | hp
-  · rw [hp0] at hpq
-    rcases mul_eq_zero.mp hpq.symm with h | h
-    · exact absurd h (X_sub_C_ne_zero r)
-    · exact absurd h hq0
-  right
-  intro z hz
-  apply hp
-  have hmul : toComplex p = toComplex (X - C r) * toComplex q := by
-    rw [hpq]; simp [toComplex, Polynomial.map_mul]
-  rw [hmul, Polynomial.eval_mul, hz, mul_zero]
 
 /-- Vieta-style factorization: a polynomial with only real strictly negative
 zeros factors as `C(leadingCoeff) · ∏(X + α_i)` for positive `α_i`.
@@ -125,7 +72,7 @@ private theorem exists_factorization_real_neg (p : ℝ[X])
       simp [hcoeff.symm, ← hp_eq_C]
     · have hdeg : 1 ≤ p.natDegree := by omega
       have hp_ne : p ≠ 0 := fun h => by rw [h] at hn; simp at hn; omega
-      obtain ⟨r, hr_neg, hr_root⟩ := exists_real_negative_root_aux p hp hdeg
+      obtain ⟨r, hr_neg, hr_root⟩ := exists_real_negative_root hp hdeg
       obtain ⟨q, hpq⟩ := (Polynomial.dvd_iff_isRoot (p := p) (a := r)).mpr hr_root
       have hq_ne : q ≠ 0 := fun h => by rw [h, mul_zero] at hpq; exact hp_ne hpq
       have hq_deg : q.natDegree = n - 1 := by
@@ -135,7 +82,7 @@ private theorem exists_factorization_real_neg (p : ℝ[X])
         rw [← hpq, hn] at hnd; omega
       have hq_lt : q.natDegree < n := by omega
       have hq_root : HasOnlyRealNegativeZeros q :=
-        hasOnlyRealNegativeZeros_factor_quotient hp hpq
+        hasOnlyRealNegativeZeros_quotient hp hpq
       have hq_lc : p.leadingCoeff = q.leadingCoeff := by
         rw [hpq, Polynomial.leadingCoeff_mul, Polynomial.leadingCoeff_X_sub_C, one_mul]
       obtain ⟨αq, hαq_card, hαq_pos, hαq_eq⟩ := ih q.natDegree hq_lt q hq_root rfl
@@ -153,47 +100,22 @@ private theorem exists_factorization_real_neg (p : ℝ[X])
 
 /-! ## Pochhammer evaluation at zero (paper §1 — used in `P_n(0)`) -/
 
-/-- `pochhammer 0 k . eval (0:ℝ) = 0` whenever `1 ≤ k`. The product
-`X(X+1)…(X+k-1)` contains the factor `X`. -/
+/-- `pochhammer 0 k . eval (0:ℝ) = 0` whenever `1 ≤ k`. -/
 private theorem pochhammer_zero_eval_zero_of_pos (k : ℕ) (hk : 1 ≤ k) :
     (pochhammer 0 k).eval (0 : ℝ) = 0 := by
-  unfold pochhammer
-  rw [Polynomial.eval_prod]
-  apply Finset.prod_eq_zero (i := 0) (Finset.mem_range.mpr hk)
-  simp
+  rw [pochhammer_eval, zero_add, ascPochhammer_eval_eq_prod_range_real]
+  exact Finset.prod_eq_zero (Finset.mem_range.mpr hk) (by simp)
 
-/-- `pochhammer (-1) k . eval (0:ℝ) = 0` whenever `2 ≤ k`. The product
-`(X-1)·X·(X+1)…` contains the factor `X` at index 1. -/
+/-- `pochhammer (-1) k . eval (0:ℝ) = 0` whenever `2 ≤ k`. -/
 private theorem pochhammer_negone_eval_zero_of_ge_two (k : ℕ) (hk : 2 ≤ k) :
     (pochhammer (-1) k).eval (0 : ℝ) = 0 := by
-  unfold pochhammer
-  rw [Polynomial.eval_prod]
-  apply Finset.prod_eq_zero (i := 1) (Finset.mem_range.mpr (by omega))
-  simp
+  rw [pochhammer_eval, ascPochhammer_eval_eq_prod_range_real]
+  exact Finset.prod_eq_zero (i := 1) (Finset.mem_range.mpr (by omega)) (by norm_num)
 
-/-- `∏_{i ∈ range k} ((i : ℝ) + 1) = k!`. -/
-private lemma prod_one_add_range (k : ℕ) :
-    ∏ i ∈ Finset.range k, ((i : ℝ) + 1) = (Nat.factorial k : ℝ) := by
-  induction k with
-  | zero => simp
-  | succ k ih =>
-    rw [Finset.prod_range_succ, ih]
-    rw [Nat.factorial_succ]
-    push_cast
-    ring
-
-/-- `pochhammer 1 k . eval 0 = k!`. The product `(0+1)(0+2)⋯(0+k)` is `k!`. -/
+/-- `pochhammer 1 k . eval 0 = k!`, via `ascPochhammer_eval_one`. -/
 private theorem pochhammer_one_eval_zero (k : ℕ) :
     (pochhammer 1 k).eval (0 : ℝ) = (Nat.factorial k : ℝ) := by
-  unfold pochhammer
-  rw [Polynomial.eval_prod]
-  have h_term : ∀ i ∈ Finset.range k,
-      (X + C (1 + (i : ℝ))).eval (0 : ℝ) = (i : ℝ) + 1 := by
-    intro i _
-    simp only [Polynomial.eval_add, Polynomial.eval_X, Polynomial.eval_C, zero_add]
-    ring
-  rw [Finset.prod_congr rfl h_term]
-  exact prod_one_add_range k
+  rw [pochhammer_eval, zero_add, ascPochhammer_eval_one]
 
 /-! ## The convolution polynomial `Q_f` (paper §1, in the proof of Theorem 1) -/
 
@@ -569,7 +491,7 @@ private theorem ordinaryGen_rev_hasOnlyRealNegativeZeros
     (hroot : HasOnlyRealNegativeZeros (ordinaryGen n f)) :
     HasOnlyRealNegativeZeros (ordinaryGen n (fun k => f (n - k))) := by
   rw [ordinaryGen_rev_eq_reverse n f hdeg]
-  set F := ordinaryGen n f with hF_def
+  set F := ordinaryGen n f
   have hfn_ne : f n ≠ 0 := fn_ne_zero n f hdeg
   right
   intro z hz
@@ -791,22 +713,10 @@ theorem convolutionPoly_hasOnlyRealNegativeZeros
     rw [coeff_ordinaryGen_of_le n _ hk]
     exact ordinaryGen_coeff_nonneg n f hdeg hroot (le_of_lt hfn_pos) (n - k) (Nat.sub_le n k)
   -- F has only real non-positive zeros.
-  have hF_nonpos_root : HasOnlyRealNonposZeros F := by
-    rcases hroot with hzero | hr
-    · left; exact hzero
-    right
-    intro z hz
-    obtain ⟨r, hr_neg, hr_eq⟩ := hr z hz
-    exact ⟨r, le_of_lt hr_neg, hr_eq⟩
+  have hF_nonpos_root : HasOnlyRealNonposZeros F := hroot.toNonpos
   -- F_rev has only real non-positive zeros.
-  have hFrev_nonpos_root : HasOnlyRealNonposZeros Frev := by
-    have hFrev_neg := ordinaryGen_rev_hasOnlyRealNegativeZeros n f hdeg hroot
-    rcases hFrev_neg with hzero | hr
-    · left; exact hzero
-    right
-    intro z hz
-    obtain ⟨r, hr_neg, hr_eq⟩ := hr z hz
-    exact ⟨r, le_of_lt hr_neg, hr_eq⟩
+  have hFrev_nonpos_root : HasOnlyRealNonposZeros Frev :=
+    (ordinaryGen_rev_hasOnlyRealNegativeZeros n f hdeg hroot).toNonpos
   -- Step 1: hadamard n F F_rev has nonpos zeros.
   have hH1_root : HasOnlyRealNonposZeros (hadamard n F Frev) :=
     hadamard_closure_for_negative_rooted n F Frev hF_nonneg hFrev_nonneg
@@ -817,14 +727,8 @@ theorem convolutionPoly_hasOnlyRealNegativeZeros
     rw [hadamard_coeff n F Frev k hk]
     exact mul_nonneg (hF_nonneg k hk) (hFrev_nonneg k hk)
   -- (1+X)^n has nonpos zeros and nonneg coefficients.
-  have hB_root : HasOnlyRealNonposZeros ((1 + X : ℝ[X]) ^ n) := by
-    have := one_add_X_pow_hasOnlyRealNegativeZeros n hn_pos
-    rcases this with hzero | hr
-    · left; exact hzero
-    right
-    intro z hz
-    obtain ⟨r, hr_neg, hr_eq⟩ := hr z hz
-    exact ⟨r, le_of_lt hr_neg, hr_eq⟩
+  have hB_root : HasOnlyRealNonposZeros ((1 + X : ℝ[X]) ^ n) :=
+    (one_add_X_pow_hasOnlyRealNegativeZeros n hn_pos).toNonpos
   have hB_nonneg : ∀ k ≤ n, 0 ≤ ((1 + X : ℝ[X]) ^ n).coeff k := by
     intro k _
     rw [add_comm, Polynomial.coeff_X_add_one_pow]
@@ -858,18 +762,17 @@ theorem convolutionPoly_hasOnlyRealNegativeZeros
 
 /-! ## Main theorem — Theorem 1 of the paper -/
 
-/-- **Theorem 1 of the paper**, proved using Lemmas 1, 2, 3 (axiomatized
-in `Basic.lean`) plus the explicit `P_n(0)` calculation and the
-`e_1·e_{n-1} > e_n` inequality. Eliminates the standalone axiom
-`determinant_main_preserves_strict`; reduces the project axiom count
-from 5 to 4. -/
-theorem determinant_main_preserves_strict_proved
+/-- **Theorem 1 of the paper**, proved using Lemmas 1, 2, 3 (the two
+remaining PF/Schur axioms in `Basic.lean` plus the proven `gamma_representation`)
+together with the explicit `P_n(0)` calculation and the `e_1·e_{n-1} > e_n`
+inequality. -/
+theorem main_theorem
     (n : ℕ) (f : ℕ → ℝ)
     (hn : 2 ≤ n)
     (hdeg : HasDegree (ordinaryGen n f) n)
     (hroot : HasOnlyRealNegativeZeros (ordinaryGen n f)) :
     HasOnlyRealNegativeZeros (determinantPolynomial n f) := by
-  set Q := convolutionPoly n f with hQ_def
+  set Q := convolutionPoly n f
   have hQ_pal : PalindromicOfDegree n Q := convolutionPoly_palindromic n f
   have hQ_root : HasOnlyRealNegativeZeros Q :=
     convolutionPoly_hasOnlyRealNegativeZeros n f hdeg hroot
@@ -905,15 +808,5 @@ theorem determinant_main_preserves_strict_proved
     have hreal : (determinantPolynomial n f).eval 0 = 0 :=
       (isRoot_toComplex_iff_real (determinantPolynomial n f) 0).mp hz
     linarith
-
-/-- **Theorem 1 of the paper** — the main result, identical to
-`determinant_main_preserves_strict_proved`. -/
-theorem main_theorem
-    (n : ℕ) (f : ℕ → ℝ)
-    (hn : 2 ≤ n)
-    (hdeg : HasDegree (ordinaryGen n f) n)
-    (hroot : HasOnlyRealNegativeZeros (ordinaryGen n f)) :
-    HasOnlyRealNegativeZeros (determinantPolynomial n f) :=
-  determinant_main_preserves_strict_proved n f hn hdeg hroot
 
 end GammaPochhammer
