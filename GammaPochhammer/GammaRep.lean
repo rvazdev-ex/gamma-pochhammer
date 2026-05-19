@@ -299,7 +299,7 @@ private theorem palindromic_factor_mul
   rw [h_refl_P, h_refl_Q, hQR] at h_refl_mul
   have hR_refl : Polynomial.reflect (n - d) R = R :=
     (mul_left_cancel₀ hP_ne h_refl_mul).symm
-  exact ⟨palindromic_of_reflect_eq (by rw [hR_natDeg]) hR_refl, hR_natDeg⟩
+  exact ⟨palindromic_of_reflect_eq hR_natDeg.le hR_refl, hR_natDeg⟩
 
 /-! ## Palindromic evaluation at `-1` and root inversion -/
 
