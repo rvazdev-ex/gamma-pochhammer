@@ -1,0 +1,30 @@
+% Web build of the blueprint. Rendered via plasTeX through `leanblueprint web`.
+\documentclass[a4paper]{report}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{hyperref}
+\usepackage{xcolor}
+\usepackage{tikz-cd}
+
+\usepackage[showmore,
+            dep_graph,
+            coverage,
+            project=https://github.com/rvazdev-ex/gamma-pochhammer]{blueprint}
+
+\github{https://github.com/rvazdev-ex/gamma-pochhammer}
+\dochead{}
+\home{https://rvazdev-ex.github.io/gamma-pochhammer/}
+
+\title{Gamma Operators for Pochhammer Kernels}
+\author{R. Valencia}
+
+\input{macros/common}
+
+\begin{document}
+\maketitle
+
+\input{content}
+
+\end{document}

@@ -1,1 +1,35 @@
 /.lake
+
+# Blueprint generated outputs
+blueprint/web/
+blueprint/print/
+blueprint/src/print.pdf
+blueprint/src/print.aux
+blueprint/src/print.bbl
+blueprint/src/print.blg
+blueprint/src/print.fls
+blueprint/src/print.fdb_latexmk
+blueprint/src/print.log
+blueprint/src/print.out
+blueprint/src/print.toc
+blueprint/src/*.aux
+blueprint/src/*.log
+
+# Paper LaTeX build artifacts (paper.tex is tracked, paper.pdf is built in CI)
+paper/*.aux
+paper/*.log
+paper/*.out
+paper/*.toc
+paper/*.fls
+paper/*.fdb_latexmk
+paper/*.synctex.gz
+paper/*.bbl
+paper/*.blg
+paper/paper.pdf
+
+# doc-gen4 output
+.lake/build/doc/
+
+# Python / leanblueprint local
+__pycache__/
+*.pyc

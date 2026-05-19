@@ -1,0 +1,780 @@
+\documentclass[a4paper,11pt,reqno]{amsart}
+
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm,mathtools}
+\usepackage{url}
+\usepackage[colorlinks=true,linkcolor=blue,citecolor=blue,urlcolor=blue]{hyperref}
+\usepackage[nameinlink,noabbrev]{cleveref}
+
+\numberwithin{equation}{section}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{proposition}{Proposition}
+\newtheorem{lemma}{Lemma}
+\newtheorem{corollary}{Corollary}
+\theoremstyle{remark}
+\newtheorem{remark}{Remark}
+
+\DeclareMathOperator{\PF}{PF}
+
+\title{Pochhammer Gamma Kernels}
+\date{}
+
+\begin{document}
+
+\begin{abstract}
+We prove that a binomial Pochhammer convolution preserves strict negative real-rootedness. The proof passes through the \(\gamma\)-polynomial of a palindromic real-rooted polynomial and a Schur-type transform. We then construct higher Pochhammer kernels whose induced actions are, up to this transform, the successive derivatives \(\Gamma,\Gamma',\Gamma'',\ldots\). The original adjacent-shift determinant kernel is the first derivative rung. Within a centered balanced two-product family, we prove that this adjacent-shift kernel is essentially the unique universal preserver, and we identify the higher-rung coefficient triangle with OEIS A380113.
+\end{abstract}
+
+\maketitle
+
+\section{Main result}
+
+For \(r\geq0\), write
+\[
+  (z)_r=z(z+1)\cdots(z+r-1),
+  \qquad (z)_0=1.
+\]
+Given real numbers \(f_0,\ldots,f_n\), define
+\begin{equation}\label{eq:Pn}
+  P_n(z)=
+  \sum_{k=0}^{n}
+  f_kf_{n-k}\binom{n}{k}
+  \left[
+    (z)_k(z)_{n-k}-(z+1)_k(z-1)_{n-k}
+  \right].
+\end{equation}
+
+The following theorem proves Conjecture~1 in Karp's problem on Toeplitz determinants of Pochhammer symbols from the 2023 Sofia open-problem collection on polynomial zeros \cite{KarpProblem2023}.
+
+\begin{theorem}\label{thm:main}
+Let \(n\geq2\). Suppose that
+\[
+  F(x)=\sum_{k=0}^{n}f_kx^k
+\]
+has degree \(n\) and only real negative zeros. Then \(P_n(z)\) has only real negative zeros.
+\end{theorem}
+
+For \(n=0\) and \(n=1\), the polynomial \(P_n\) is identically zero. The restriction \(n\geq2\) is therefore only to avoid this degenerate case.
+
+The proof uses the \(\gamma\)-basis for palindromic polynomials. If \(Q(x)=x^nQ(1/x)\), then
+\[
+  Q(x)=\sum_j\gamma_jx^j(1+x)^{n-2j}
+\]
+is its \(\gamma\)-expansion. Nonnegativity of the coefficients \(\gamma_j\) is the property now called \(\gamma\)-positivity. Its classical combinatorial source is the Foata--Sch\"utzenberger theory of Eulerian polynomials and the Foata--Strehl action on permutations; later work, including Br\"and\'en's modified Foata--Strehl action, made this mechanism central in modern proofs of \(\gamma\)-positivity. General background is given in \cite{FoataSchutzenberger,FoataStrehl1974,FoataStrehl1976,Branden2008,Athanasiadis2018}.
+
+Here we use a real-rooted refinement: for a palindromic polynomial with only real negative zeros, the associated \(\gamma\)-polynomial has only real nonpositive zeros. The operator in \eqref{eq:Pn} becomes a derivative on the \(\gamma\)-polynomial followed by a fixed real-rootedness-preserving transform. The proof also uses the finite P\'olya-frequency theory of Aissen--Schoenberg--Whitney and Edrei, together with the Schur--Szeg\H{o} Hadamard closure theorem; see \cite{AissenSchoenbergWhitney,Edrei,Brenti1989,Wagner1992}.
+
+\section{Real-rootedness tools}
+
+\begin{lemma}[Hadamard closure]\label{lem:pf}
+Let
+\[
+  A(x)=\sum_{k=0}^{n}a_kx^k,
+  \qquad
+  B(x)=\sum_{k=0}^{n}b_kx^k
+\]
+have nonnegative coefficients and only real nonpositive zeros. Then
+\[
+  (A*B)(x):=\sum_{k=0}^{n}a_kb_kx^k
+\]
+also has only real nonpositive zeros.
+\end{lemma}
+
+\begin{proof}
+This is the finite Aissen--Schoenberg--Whitney--Edrei characterization of \(\PF_\infty\) sequences together with the Schur--Szeg\H{o} Hadamard-product closure theorem \cite{AissenSchoenbergWhitney,Edrei,Wagner1992}. Indeed, a finite nonnegative sequence is a P\'olya-frequency sequence of infinite order if and only if its ordinary generating polynomial has only real nonpositive zeros, and such sequences are closed under pointwise multiplication. Translating back to ordinary generating polynomials proves the assertion.
+\end{proof}
+
+For \(\ell\geq0\) and \(\alpha>0\), define
+\begin{equation}\label{eq:L}
+  \mathcal L_{\ell,\alpha}
+  \left(\sum_{r=0}^{\ell}b_rt^r\right)(z)
+  =
+  \sum_{r=0}^{\ell}b_r(z)_r(z+r+\alpha)_{\ell-r}.
+\end{equation}
+
+\begin{lemma}[Schur-type transform]\label{lem:schur}
+Let \(B(t)=\sum_{r=0}^{\ell}b_rt^r\) have degree at most \(\ell\). If \(B\) has only real nonpositive zeros, then
+\[
+  \mathcal L_{\ell,\alpha}(B)(z)
+\]
+has only real nonpositive zeros.
+\end{lemma}
+
+\begin{proof}
+The zero polynomial is harmless, and multiplication by a nonzero scalar does not change zeros. It is enough, by coefficientwise approximation, to treat the case where \(B\) has degree exactly \(\ell\), positive leading coefficient, simple zeros in \((-\infty,0)\), and the strict generic inequalities needed below. The general case follows by perturbing the zeros and by replacing a polynomial of degree \(q<\ell\) with
+\[
+  B_\eta(t)=B(t)(1+\eta t)^{\ell-q},
+  \qquad \eta>0,
+\]
+then letting \(\eta\to0^+\).
+
+We prove the stronger assertion that all zeros lie in
+\[
+  [-(\alpha+\ell-1),0]
+\]
+and are separated by at least \(1\). The case \(\ell=0\) is immediate. For \(\ell=1\), write \(B(t)=t+\lambda\), \(\lambda>0\). Then
+\[
+  \mathcal L_{1,\alpha}(B)(z)
+  =
+  \lambda(z+\alpha)+z,
+\]
+whose unique zero lies in \((-\alpha,0)\).
+
+Assume the claim for \(\ell-1\). Write
+\[
+  B(t)=(t+\lambda)C(t),
+  \qquad
+  \lambda>0,
+  \qquad
+  C(t)=\sum_{r=0}^{\ell-1}a_rt^r,
+\]
+and set
+\[
+  p(z)=\mathcal L_{\ell-1,\alpha}(C)(z).
+\]
+By induction, the zeros of \(p\) may be written
+\[
+  0>x_1>x_2>\cdots>x_{\ell-1}>-(\alpha+\ell-2),
+  \qquad
+  x_i-x_{i+1}>1,
+\]
+in the strict generic case. If \(B(t)=\sum_{r=0}^{\ell}b_rt^r\), then \(b_r=\lambda a_r+a_{r-1}\), where \(a_{-1}=a_\ell=0\). Therefore
+\[
+\begin{aligned}
+  \mathcal L_{\ell,\alpha}(B)(z)
+  &=
+  \lambda
+  \sum_{r=0}^{\ell-1}
+  a_r(z)_r(z+r+\alpha)_{\ell-r}
+  +
+  \sum_{r=1}^{\ell}
+  a_{r-1}(z)_r(z+r+\alpha)_{\ell-r}  \\
+  &=
+  \lambda(z+\alpha+\ell-1)p(z)+z\,p(z+1).
+\end{aligned}
+\]
+Put \(a=\alpha+\ell-1\). The zeros of \((z+a)p(z)\) are
+\[
+  -a,x_{\ell-1},\ldots,x_1,
+\]
+whereas the zeros of \(z\,p(z+1)\) are
+\[
+  x_{\ell-1}-1,\ldots,x_1-1,0.
+\]
+These two zero sets strictly interlace:
+\[
+  0>x_1>x_1-1>x_2>x_2-1>\cdots>x_{\ell-1}>x_{\ell-1}-1>-a.
+\]
+By the Hermite--Kakeya--Obreschkoff theorem, in the Obreschkoff form characterizing real-rootedness of all real linear combinations by interlacing, every nonnegative linear combination of these two polynomials has only real zeros; see \cite{Obreschkoff1963,BorceaBranden2009}. Hence \(\mathcal L_{\ell,\alpha}(B)\) is real-rooted. Its zeros lie one by one in the intervals
+\[
+  [x_1,0],\ [x_2,x_1-1],\ \ldots,\
+  [x_{\ell-1},x_{\ell-2}-1],\ [-a,x_{\ell-1}-1],
+\]
+which gives the asserted location and separation. Passing to limits proves the result in full generality.
+\end{proof}
+
+\begin{lemma}[The \(\gamma\)-polynomial]\label{lem:gamma}
+Let
+\[
+  Q(x)=\sum_{k=0}^{n}c_kx^k,
+  \qquad c_k=c_{n-k},
+\]
+have degree \(n\) and only real negative zeros. Write \(n=2m+\varepsilon\), where \(\varepsilon\in\{0,1\}\). Then \(Q\) has a unique expansion
+\begin{equation}\label{eq:gamma-expansion}
+  Q(x)=\sum_{j=0}^{m}\gamma_jx^j(1+x)^{n-2j},
+  \qquad
+  \Gamma(t)=\sum_{j=0}^{m}\gamma_jt^j,
+\end{equation}
+and the \(\gamma\)-polynomial \(\Gamma\) has only real nonpositive zeros.
+
+Conversely, if \(\Gamma\) has degree at most \(m\) and only real nonpositive zeros, then the polynomial \(Q\) defined by \eqref{eq:gamma-expansion} is a coefficientwise limit of palindromic polynomials of degree \(n\) with only real negative zeros.
+\end{lemma}
+
+\begin{proof}
+This factorization argument is the standard real-rooted criterion underlying many appearances of \(\gamma\)-positivity; see, for context, \cite{FoataSchutzenberger,Athanasiadis2018}. Since \(Q\) is palindromic and has no zero root, its zeros occur in reciprocal pairs. Thus
+\[
+  Q(x)=
+  C(1+x)^\varepsilon
+  \prod_{i=1}^{m}(x+\rho_i)(x+\rho_i^{-1}),
+  \qquad \rho_i>0.
+\]
+For each \(\rho>0\),
+\[
+  (x+\rho)(x+\rho^{-1})
+  =
+  (1+x)^2+\lambda x,
+  \qquad
+  \lambda=\rho+\rho^{-1}-2\geq0.
+\]
+Consequently
+\[
+  Q(x)=
+  C(1+x)^n
+  \prod_{i=1}^{m}
+  \left(
+    1+\lambda_i\frac{x}{(1+x)^2}
+  \right),
+\]
+and hence
+\[
+  \Gamma(t)=
+  C\prod_{i=1}^{m}(1+\lambda_it).
+\]
+Thus \(\Gamma\) has only real nonpositive zeros. Uniqueness follows because the polynomials \(x^j(1+x)^{n-2j}\), \(0\leq j\leq m\), form a basis for the space of palindromic polynomials of formal degree \(n\).
+
+For the converse, write
+\[
+  \Gamma(t)=C\,t^r\prod_{i=1}^{d}(1+\lambda_it),
+  \qquad
+  \lambda_i>0,
+  \qquad
+  r+d\leq m.
+\]
+Then
+\[
+  (1+x)^n\Gamma\left(\frac{x}{(1+x)^2}\right)
+  =
+  Cx^r(1+x)^{n-2r-2d}
+  \prod_{i=1}^{d}\bigl((1+x)^2+\lambda_ix\bigr).
+\]
+Each factor \((1+x)^2+\lambda x\), \(\lambda>0\), has two real negative reciprocal roots. Each factor \(x\) is the coefficientwise limit of
+\[
+  x+\eta(1+x)^2,
+  \qquad \eta>0,
+\]
+and this quadratic also has two real negative roots. This proves the claimed limiting statement.
+\end{proof}
+
+\section{The kernel ladder}
+
+For \(s\geq0\), define
+\[
+  \lambda_{s,0}=\frac{1}{(s!)^2},
+  \qquad
+  \lambda_{s,q}=\frac{2(-1)^q}{(s-q)!(s+q)!}
+  \quad (1\leq q\leq s).
+\]
+Let \(\mu\geq0\), put \(w=z+\mu\), and define
+\begin{equation}\label{eq:kernel}
+  K_{n,k}^{[s,\mu]}(z)=
+  \sum_{q=0}^{s}
+  \lambda_{s,q}(w+q)_k(w-q)_{n-k},
+  \qquad
+  0\leq s\leq\lfloor n/2\rfloor .
+\end{equation}
+Thus
+\[
+  K_{n,k}^{[0,\mu]}(z)=(w)_k(w)_{n-k},
+\]
+and
+\[
+  K_{n,k}^{[1,\mu]}(z)
+  =
+  (w)_k(w)_{n-k}-(w+1)_k(w-1)_{n-k}.
+\]
+The case \(s=1\), \(\mu=0\), is the kernel in \eqref{eq:Pn}.
+
+For \(s\geq1\), multiplying the row \((\lambda_{s,q})_{q=0}^{s}\) by the positive scalar \((2s)!/2\) gives
+\[
+  (-1)^qT(s,q),
+  \qquad
+  T(s,0)=\frac12\binom{2s}{s},
+  \qquad
+  T(s,q)=\binom{2s}{s-q}\quad(1\leq q\leq s).
+\]
+Set \(T(0,0)=1\). The unsigned rows begin
+\[
+  1;\quad
+  1,1;\quad
+  3,4,1;\quad
+  10,15,6,1;\quad
+  35,56,28,8,1;\quad\ldots
+\]
+This is OEIS A380113, the normalized inverse triangle for central factorials \cite{OEISA380113}. For example,
+\[
+  K_{n,k}^{[2,\mu]}(z)
+  \sim
+  3(w)_k(w)_{n-k}
+  -4(w+1)_k(w-1)_{n-k}
+  +(w+2)_k(w-2)_{n-k},
+\]
+where \(\sim\) denotes equality up to multiplication by a positive scalar.
+
+\begin{lemma}\label{lem:central-difference}
+For \(s,j\geq0\),
+\begin{equation}\label{eq:central-difference}
+  \sum_{q=0}^{s}
+  \lambda_{s,q}(w+q)_j(w-q)_j
+  =
+  \binom{j}{s}(w)_{j-s}(w+s)_{j-s},
+\end{equation}
+where the right-hand side is interpreted as \(0\) if \(j<s\).
+\end{lemma}
+
+\begin{proof}
+For \(-s\leq q\leq s\), put
+\[
+  \alpha_{s,q}=
+  \frac{(-1)^q}{(s-q)!(s+q)!}.
+\]
+Since \((w+q)_j(w-q)_j\) is even as a function of \(q\), the left-hand side of \eqref{eq:central-difference} equals
+\[
+  B_{j,s}(w):=
+  \sum_{q=-s}^{s}\alpha_{s,q}(w+q)_j(w-q)_j.
+\]
+We prove that \(B_{j,s}(w)\) is the right-hand side of \eqref{eq:central-difference}. The case \(s=0\) is immediate, and \(B_{0,s}=0\) for \(s>0\), since
+\[
+  \sum_{q=-s}^{s}\alpha_{s,q}=0
+\]
+is a finite difference of a constant.
+
+For \(j\geq1\),
+\[
+  (w+q)_j(w-q)_j
+  =
+  \bigl((w+j-1)^2-q^2\bigr)(w+q)_{j-1}(w-q)_{j-1}.
+\]
+Moreover,
+\[
+  (s^2-q^2)\alpha_{s,q}=\alpha_{s-1,q},
+\]
+where \(\alpha_{s-1,q}=0\) if \(|q|>s-1\). Hence
+\[
+  B_{j,s}(w)
+  =
+  \bigl((w+j-1)^2-s^2\bigr)B_{j-1,s}(w)
+  +
+  B_{j-1,s-1}(w).
+\]
+The expression
+\[
+  R_{j,s}(w)=\binom{j}{s}(w)_{j-s}(w+s)_{j-s}
+\]
+has the same initial conditions and satisfies the same recurrence. Indeed, after cancelling the common factor
+\[
+  (w)_{j-s-1}(w+s)_{j-s-1},
+\]
+the verification reduces to
+\[
+  s\binom{j-1}{s}=(j-s)\binom{j-1}{s-1}.
+\]
+Thus \(B_{j,s}=R_{j,s}\), as required.
+\end{proof}
+
+For \(Q(x)=\sum_{k=0}^{n}c_kx^k\), define
+\[
+  T_{s,\mu}^{(n)}(Q)(z)
+  =
+  \sum_{k=0}^{n}c_kK_{n,k}^{[s,\mu]}(z).
+\]
+
+\begin{lemma}\label{lem:rung-action}
+Let \(n=2m+\varepsilon\), \(\varepsilon\in\{0,1\}\). For \(0\leq j\leq m\),
+\[
+  T_{s,\mu}^{(n)}
+  \left(x^j(1+x)^{n-2j}\right)(z)
+  =
+  \binom{j}{s}
+  (w)_{j-s}(w+s)_{j-s}(2w+2j)_{n-2j},
+\]
+where the right-hand side is interpreted as \(0\) if \(j<s\).
+\end{lemma}
+
+\begin{proof}
+Put \(N=n-2j\). The coefficient of \(x^{j+r}\) in \(x^j(1+x)^N\) is \(\binom Nr\). By Vandermonde's identity for rising factorials,
+\[
+\begin{aligned}
+  &\sum_{r=0}^{N}\binom Nr
+  (w+q)_{j+r}(w-q)_{j+N-r}  \\
+  &\qquad =
+  (w+q)_j(w-q)_j
+  \sum_{r=0}^{N}\binom Nr
+  (w+q+j)_r(w-q+j)_{N-r}  \\
+  &\qquad =
+  (w+q)_j(w-q)_j(2w+2j)_N.
+\end{aligned}
+\]
+Summing over \(q\) with coefficients \(\lambda_{s,q}\), and then applying \Cref{lem:central-difference}, proves the formula.
+\end{proof}
+
+\begin{theorem}[Pochhammer kernel ladder]\label{thm:ladder}
+Let \(Q(x)=\sum_{k=0}^{n}c_kx^k\) be palindromic of degree \(n\) and have only real negative zeros. Write \(n=2m+\varepsilon\), \(\varepsilon\in\{0,1\}\), and let \(Q\) have \(\gamma\)-expansion as in \eqref{eq:gamma-expansion}. Then, for \(0\leq s\leq m\),
+\begin{equation}\label{eq:ladder}
+\begin{aligned}
+  T_{s,\mu}^{(n)}(Q)(z)
+  &=
+  \frac{2^\varepsilon}{s!}
+  (w+s)_{m-s+\varepsilon}  \\
+  &\quad\cdot
+  \mathcal L_{m-s,s+1/2}
+  \left(
+    4^{m-s}\Gamma^{(s)}\left(\frac t4\right)
+  \right)(w).
+\end{aligned}
+\end{equation}
+Consequently, if \(\mu\geq0\), then \(T_{s,\mu}^{(n)}(Q)\) is either identically zero or has only real nonpositive zeros. If \(\mu>0\), then it is either identically zero or has only real negative zeros.
+\end{theorem}
+
+\begin{proof}
+By \Cref{lem:rung-action},
+\[
+  T_{s,\mu}^{(n)}(Q)(z)
+  =
+  \sum_{j=s}^{m}
+  \gamma_j\binom{j}{s}
+  (w)_{j-s}(w+s)_{j-s}(2w+2j)_{n-2j}.
+\]
+The duplication identities
+\[
+  (2u)_{2r}=4^r(u)_r\left(u+\frac12\right)_r,
+  \qquad
+  (2u)_{2r+1}=2\cdot4^r(u)_{r+1}\left(u+\frac12\right)_r
+\]
+give, uniformly for \(n=2m+\varepsilon\),
+\[
+  (2w+2j)_{n-2j}
+  =
+  2^\varepsilon4^{m-j}
+  (w+j)_{m-j+\varepsilon}
+  \left(w+j+\frac12\right)_{m-j}.
+\]
+Thus
+\[
+\begin{aligned}
+  T_{s,\mu}^{(n)}(Q)(z)
+  &=
+  2^\varepsilon
+  (w+s)_{m-s+\varepsilon} \\
+  &\quad\cdot
+  \sum_{j=s}^{m}
+  \gamma_j\binom{j}{s}4^{m-j}
+  (w)_{j-s}
+  \left(w+j+\frac12\right)_{m-j}.
+\end{aligned}
+\]
+Putting \(r=j-s\), we have
+\[
+  \Gamma^{(s)}(t)
+  =
+  s!\sum_{r=0}^{m-s}
+  \binom{r+s}{s}\gamma_{r+s}t^r,
+\]
+and hence
+\[
+  4^{m-s}\Gamma^{(s)}\left(\frac t4\right)
+  =
+  s!\sum_{r=0}^{m-s}
+  \binom{r+s}{s}\gamma_{r+s}4^{m-s-r}t^r.
+\]
+Using the definition of \(\mathcal L_{\ell,\alpha}\) in \eqref{eq:L}, the displayed sum is exactly the transform appearing in \eqref{eq:ladder}. This proves the formula.
+
+By \Cref{lem:gamma}, \(\Gamma\) has only real nonpositive zeros. Rolle's theorem implies that \(\Gamma^{(s)}\) also has only real nonpositive zeros, unless it is zero. Scaling \(t\mapsto t/4\) preserves this property. \Cref{lem:schur} gives that the \(\mathcal L\)-factor in \eqref{eq:ladder} has only real nonpositive zeros in \(w\), and the prefactor \((w+s)_{m-s+\varepsilon}\) also has only real nonpositive zeros in \(w\). Therefore all zeros satisfy \(w\leq0\), equivalently \(z\leq-\mu\). The conclusions follow.
+\end{proof}
+
+\begin{corollary}\label{cor:original-kernel-pal}
+Let \(Q(x)=\sum_{k=0}^{n}c_kx^k\) be palindromic of degree \(n\) and have only real negative zeros. Then
+\[
+  \sum_{k=0}^{n}
+  c_k
+  \left[
+    (z)_k(z)_{n-k}-(z+1)_k(z-1)_{n-k}
+  \right]
+\]
+is either identically zero or has only real nonpositive zeros.
+\end{corollary}
+
+\begin{proof}
+This is \Cref{thm:ladder} with \(s=1\) and \(\mu=0\).
+\end{proof}
+
+\begin{proof}[Proof of \Cref{thm:main}]
+Since \(F\) has degree \(n\) and only real negative zeros, all coefficients \(f_k\) are nonzero and have the same sign. Multiplying \(F\) by \(-1\), if necessary, does not change the products \(f_kf_{n-k}\). Thus we may assume
+\[
+  f_k>0
+  \qquad(0\leq k\leq n).
+\]
+Define
+\[
+  c_k=\binom nk f_kf_{n-k},
+  \qquad
+  Q(x)=\sum_{k=0}^{n}c_kx^k.
+\]
+The reversed polynomial
+\[
+  x^nF(1/x)=\sum_{k=0}^{n}f_{n-k}x^k
+\]
+has only real negative zeros, and so does \((1+x)^n=\sum_{k=0}^{n}\binom nkx^k\). Applying \Cref{lem:pf} twice gives that \(Q\) has only real nonpositive zeros. Since \(c_0,c_n>0\), zero is not a zero of \(Q\); hence all zeros of \(Q\) are negative. Also \(c_{n-k}=c_k\), so \(Q\) is palindromic.
+
+By \Cref{cor:original-kernel-pal}, \(P_n\) has only real nonpositive zeros. It remains to exclude zero. Evaluating \eqref{eq:Pn} at \(z=0\), the first product \((0)_k(0)_{n-k}\) vanishes for every \(k\), and
+\[
+  (-1)_r=0\qquad(r\geq2).
+\]
+Thus, for \(n\geq2\), only \(k=n\) and \(k=n-1\) contribute, giving
+\[
+  P_n(0)=n!\left(f_1f_{n-1}-f_0f_n\right).
+\]
+Write
+\[
+  F(x)=C\prod_{i=1}^{n}(1+\alpha_ix),
+  \qquad
+  C>0,
+  \qquad
+  \alpha_i>0.
+\]
+Then \(f_k=C e_k(\alpha_1,\ldots,\alpha_n)\), where \(e_k\) is the elementary symmetric polynomial of degree \(k\). Hence
+\[
+  f_1f_{n-1}-f_0f_n
+  =
+  C^2\left(e_1e_{n-1}-e_n\right).
+\]
+For \(n\geq2\), the product \(e_1e_{n-1}\) contains the monomial \(e_n=\alpha_1\cdots\alpha_n\) exactly \(n\) times, together with further positive terms. Therefore \(e_1e_{n-1}>e_n\), and so \(P_n(0)>0\). Thus zero is not a zero of \(P_n\), and all zeros of \(P_n\) are real and strictly negative.
+\end{proof}
+
+\begin{corollary}[Single-product kernel]\label{cor:single-product}
+Let \(\mu>0\), and let \(Q(x)=\sum_{k=0}^{n}c_kx^k\) be palindromic of degree \(n\) with only real negative zeros. Then
+\[
+  \sum_{k=0}^{n}c_k(z+\mu)_k(z+\mu)_{n-k}
+\]
+has only real negative zeros.
+\end{corollary}
+
+\begin{proof}
+This is \Cref{thm:ladder} with \(s=0\).
+\end{proof}
+
+\section{The centered two-product family}
+
+For \(a,c\in\mathbb R\), define
+\[
+  K_{n,k}^{a,c}(z)
+  =
+  (z+a)_k(z-a)_{n-k}
+  -
+  (z+c)_k(z-c)_{n-k}.
+\]
+The shifts in each product sum to zero; this centered balanced condition is exactly what makes the \(\gamma_0\)-component vanish.
+
+\begin{theorem}\label{thm:classification}
+Assume \(a^2\neq c^2\). The following are equivalent.
+\begin{enumerate}
+\item For every \(n\), the operator
+\[
+  T_{a,c}^{(n)}(Q)(z)
+  =
+  \sum_{k=0}^{n}c_kK_{n,k}^{a,c}(z),
+  \qquad
+  Q(x)=\sum_{k=0}^{n}c_kx^k,
+\]
+maps every palindromic polynomial \(Q\) with only real negative zeros to a polynomial which is either zero or has only real nonpositive zeros.
+\item \(\{a^2,c^2\}=\{0,1\}\).
+\end{enumerate}
+Equivalently, up to multiplication by a nonzero scalar and the invisible symmetry \(k\leftrightarrow n-k\), the only nontrivial centered balanced two-product Pochhammer kernel with this universal preservation property is
+\[
+  (z)_k(z)_{n-k}-(z+1)_k(z-1)_{n-k}.
+\]
+\end{theorem}
+
+\begin{proof}
+For the \(\gamma\)-basis element \(x^j(1+x)^{n-2j}\), put \(N=n-2j\). Vandermonde's identity gives
+\begin{equation}\label{eq:Tac-basis}
+\begin{aligned}
+  T_{a,c}^{(n)}
+  \left(x^j(1+x)^N\right)(z)
+  &=
+  \left[
+    (z+a)_j(z-a)_j
+    -
+    (z+c)_j(z-c)_j
+  \right]  \\
+  &\quad\cdot
+  (2z+2j)_N .
+\end{aligned}
+\end{equation}
+Let
+\[
+  u=a^2,
+  \qquad
+  v=c^2.
+\]
+Multiplying the kernel by \(-1\), if necessary, does not affect zeros, so we may assume \(0\leq u<v\). Set
+\[
+  \delta=v-u>0,
+  \qquad
+  \sigma=u+v.
+\]
+
+Assume first that the universal preservation property holds. By the converse and closure statement in \Cref{lem:gamma}, it also holds for coefficientwise limits of palindromic negative-rooted polynomials. We may therefore test limiting \(\gamma\)-polynomials with zeros at \(0\).
+
+Take \(n=4\), so \(m=2\), and test
+\[
+  \Gamma_\tau(t)=\tau t+t^2=t(\tau+t),
+  \qquad \tau\geq0.
+\]
+Let
+\[
+  \Phi_j(z)=T_{a,c}^{(4)}
+  \left(x^j(1+x)^{4-2j}\right)(z).
+\]
+Using \eqref{eq:Tac-basis},
+\[
+  \Phi_1(z)=\delta(2z+2)(2z+3),
+  \qquad
+  \Phi_2(z)=\delta\left(z^2+(z+1)^2-\sigma\right).
+\]
+After dividing by the positive scalar \(\delta\), admissibility forces
+\[
+  R_\tau(z)=
+  \tau(2z+2)(2z+3)+2z^2+2z+1-\sigma
+\]
+to have only real nonpositive zeros for every \(\tau\geq0\). Its discriminant is
+\[
+  \Delta(\tau)=
+  4\left[
+    \tau^2+(4\sigma-6)\tau+2\sigma-1
+  \right].
+\]
+If \(\sigma<1\), the quadratic inside the brackets has its minimum on \([0,\infty)\) at \(\tau=3-2\sigma>0\), and that minimum equals
+\[
+  -2(\sigma-1)(2\sigma-5)<0.
+\]
+Thus \(\Delta(\tau)<0\) for some \(\tau\geq0\), a contradiction. Hence \(\sigma\geq1\). On the other hand, \(R_0(0)=1-\sigma\). If \(\sigma>1\), then \(R_0(0)<0\), while \(R_0(z)\to+\infty\) as \(z\to+\infty\); hence \(R_0\) has a positive zero, again a contradiction. Therefore \(\sigma=1\).
+
+Now take \(n=6\), so \(m=3\), and test \(\Gamma(t)=t^3\). Admissibility forces
+\[
+  \Phi_3(z)=
+  (z+a)_3(z-a)_3-(z+c)_3(z-c)_3
+\]
+to have only real nonpositive zeros. Put \(y=z+1\). Since \(u+v=1\), direct expansion gives
+\[
+  \Phi_3(z)
+  =
+  (v-u)\left(3y^4-3y^2+u^2-u\right).
+\]
+Because \(0\leq u<v\) and \(u+v=1\), we have \(0\leq u<1/2\). If \(0<u<1/2\), then \(u^2-u<0\). The quartic
+\[
+  3y^4-3y^2+u^2-u
+\]
+is a quadratic in \(y^2\) whose product of roots is \((u^2-u)/3<0\). Hence one value of \(y^2\) is positive and the other is negative. The quartic therefore has two real roots and two nonreal roots in \(y\), contradicting admissibility. Hence \(u=0\), and since \(u+v=1\), we get \(v=1\). Thus \(\{a^2,c^2\}=\{0,1\}\).
+
+Conversely, suppose \(\{a^2,c^2\}=\{0,1\}\). Up to multiplying the kernel by \(-1\), assume \(a=0\) and \(c=\pm1\). If \(c=1\), then
+\[
+  K_{n,k}^{0,1}(z)
+  =
+  (z)_k(z)_{n-k}-(z+1)_k(z-1)_{n-k},
+\]
+which is admissible by \Cref{cor:original-kernel-pal}. If \(c=-1\), then
+\[
+  K_{n,k}^{0,-1}(z)
+  =
+  (z)_k(z)_{n-k}-(z-1)_k(z+1)_{n-k}.
+\]
+On palindromic inputs, replacing \(k\) by \(n-k\) shows that this induces the same operator as \(K^{0,1}\). Hence it is admissible as well.
+\end{proof}
+
+\begin{remark}
+The classification is most transparent at the level of \(\gamma\)-symbols. A raw formula \(K_{n,k}(z)\) is not canonical on palindromic inputs: adding an antisymmetric part \(A_{n,k}(z)=-A_{n,n-k}(z)\) does not change the induced operator. The invariant data are the images
+\[
+  \Phi_j(z)=
+  T_K\left(x^j(1+x)^{n-2j}\right).
+\]
+For the ladder kernels, the hidden mechanism is
+\[
+  \Gamma
+  \longmapsto
+  \Gamma^{(s)}
+  \longmapsto
+  \mathcal L_{m-s,s+1/2}
+  \left(
+    4^{m-s}\Gamma^{(s)}\left(\frac t4\right)
+  \right).
+\]
+The original determinant kernel is the case \(s=1\), where
+\[
+  (z)_j^2-(z+1)_j(z-1)_j
+  =
+  j(z)_{j-1}(z+1)_{j-1}
+  \qquad (j\geq1)
+\]
+is the rising-factorial shadow of the derivative \(\Gamma\mapsto\Gamma'\). The higher kernels are the corresponding higher central divided-difference shadows of \(\Gamma\mapsto\Gamma^{(s)}\). This analytic \(\gamma\)-symbol viewpoint parallels the way Foata--Strehl orbit decompositions expose \(\gamma\)-coefficients for Eulerian-type polynomials \cite{FoataStrehl1974,FoataStrehl1976,Branden2008}.
+\end{remark}
+
+\begin{thebibliography}{99}
+
+\bibitem{AissenSchoenbergWhitney}
+M.~Aissen, I.~J. Schoenberg, and A.~M. Whitney,
+\emph{On the generating functions of totally positive sequences. I},
+J. Analyse Math. \textbf{2} (1952), 93--103.
+
+\bibitem{Athanasiadis2018}
+C.~A. Athanasiadis,
+\emph{Gamma-positivity in combinatorics and geometry},
+S\'em. Lothar. Combin. \textbf{77} ([2016--2018]), Article B77i, 64 pp.
+Available at \url{https://arxiv.org/abs/1711.05983}.
+
+\bibitem{BorceaBranden2009}
+J.~Borcea and P.~Br\"and\'en,
+\emph{P\'olya--Schur master theorems for circular domains and their boundaries},
+Ann. of Math. (2) \textbf{170} (2009), no.~1, 465--492.
+Available at \url{https://annals.math.princeton.edu/2009/170-1/p14}.
+
+\bibitem{Branden2008}
+P.~Br\"and\'en,
+\emph{Actions on permutations and unimodality of descent polynomials},
+European J. Combin. \textbf{29} (2008), no.~2, 514--531.
+Available at \url{https://arxiv.org/abs/math/0610185}.
+
+\bibitem{Brenti1989}
+F.~Brenti,
+\emph{Unimodal, log-concave and P\'olya frequency sequences in combinatorics},
+Mem. Amer. Math. Soc. \textbf{81} (1989), no.~413, viii+106 pp.
+
+\bibitem{Edrei}
+A.~Edrei,
+\emph{On the generating functions of totally positive sequences. II},
+J. Analyse Math. \textbf{2} (1952), 104--109.
+
+\bibitem{FoataSchutzenberger}
+D.~Foata and M.-P.~Sch\"utzenberger,
+\emph{Th\'eorie g\'eom\'etrique des polyn\^omes eul\'eriens},
+Lecture Notes in Mathematics, Vol.~138, Springer-Verlag, Berlin--New York, 1970.
+
+\bibitem{FoataStrehl1974}
+D.~Foata and V.~Strehl,
+\emph{Rearrangements of the symmetric group and enumerative properties of the tangent and secant numbers},
+Math. Z. \textbf{137} (1974), 257--264.
+Available at \url{https://doi.org/10.1007/BF01237393}.
+
+\bibitem{FoataStrehl1976}
+D.~Foata and V.~Strehl,
+\emph{Euler numbers and variations of permutations},
+in \emph{Colloquio Internazionale sulle Teorie Combinatorie, Tomo I},
+Atti dei Convegni Lincei, No.~17, Accademia Nazionale dei Lincei, Rome, 1976, pp. 119--131.
+
+\bibitem{KarpProblem2023}
+D.~Karp,
+\emph{Toeplitz determinants of Pochhammers},
+in L.~Kryvonos,
+\emph{Open problems on polynomials, their zero distribution and related questions: 2023},
+arXiv:2312.07754v1, 2023.
+Available at \url{https://arxiv.org/html/2312.07754v1}.
+
+\bibitem{Obreschkoff1963}
+N.~Obreschkoff,
+\emph{Verteilung und Berechnung der Nullstellen reeller Polynome},
+VEB Deutscher Verlag der Wissenschaften, Berlin, 1963.
+
+\bibitem{OEISA380113}
+The OEIS Foundation Inc.,
+\emph{A380113: Triangle read by rows: the inverse matrix of the central factorials, normalized},
+The On-Line Encyclopedia of Integer Sequences.
+Available at \url{https://oeis.org/A380113}.
+
+\bibitem{Wagner1992}
+D.~G. Wagner,
+\emph{Total positivity of Hadamard products},
+J. Math. Anal. Appl. \textbf{163} (1992), no.~2, 459--483.
+
+\end{thebibliography}
+
+\end{document}
