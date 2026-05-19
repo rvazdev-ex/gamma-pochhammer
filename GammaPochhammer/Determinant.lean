@@ -1,4 +1,5 @@
 import GammaPochhammer.Basic
+import GammaPochhammer.GammaRep
 
 /-!
 # Theorem 1 of the paper — derived from Lemmas 1, 2, 3
@@ -20,19 +21,19 @@ degree exactly `n` and only real strictly negative zeros, the polynomial
    - `F ⋆ F_reversed` has nonneg coefficients and real nonpositive zeros.
    - `(F ⋆ F_reversed) ⋆ (1+X)^n = convolutionPoly`, also real nonpositive.
    - Strict negativity comes from `convolutionPoly(0) = f(0)·f(n) > 0`.
-4. Apply **Theorem 2 (the ladder)** with `s = 1`, `μ = 0` (already proven
-   in `Basic.lean` as `pochhammer_kernel_ladder`, which uses Lemmas 2, 3):
-   `rungOperator n 1 0 (convolutionPoly) = determinantPolynomial n f`
-   has only real nonpositive zeros.
+4. Apply **Theorem 2 (the ladder)** with `s = 1`, `μ = 0` (proven in
+   `GammaRep.lean` as `pochhammer_kernel_ladder`, which uses Lemma 2 plus
+   the now-proved Lemma 3): `rungOperator n 1 0 (convolutionPoly) =
+   determinantPolynomial n f` has only real nonpositive zeros.
 5. Compute `P_n(0) = n!·(f(1)·f(n-1) − f(0)·f(n))` directly (paper).
 6. Use `e_1·e_{n-1} > e_n` on positive root magnitudes (paper's
    Cauchy-Schwarz argument) to deduce `P_n(0) > 0`, excluding `0` from
    the zero set.
 
-Theorem 1 is fully derived below from the three other axioms
-(`hadamard_closure_for_negative_rooted`, `gamma_representation`,
-`schur_preserves_nonpos`), eliminating `determinant_main_preserves_strict`
-as a standalone axiom.
+Theorem 1 is fully derived below from the remaining two axioms
+(`hadamard_closure_for_negative_rooted` and `schur_preserves_nonpos`)
+plus the proven Lemma 3 (`gamma_representation`).  This eliminates
+`determinant_main_preserves_strict` as a standalone axiom.
 -/
 
 noncomputable section
@@ -177,7 +178,6 @@ private lemma prod_one_add_range (k : ℕ) :
   | zero => simp
   | succ k ih =>
     rw [Finset.prod_range_succ, ih]
-    push_cast
     rw [Nat.factorial_succ]
     push_cast
     ring
@@ -232,7 +232,7 @@ private theorem convolutionPoly_coeff (n : ℕ) (f : ℕ → ℝ) (k : ℕ) (hk 
   unfold convolutionPoly
   rw [coeff_ordinaryGen_of_le n _ hk]
 
-private theorem convolutionPoly_eval_zero (n : ℕ) (f : ℕ → ℝ) (hn : 1 ≤ n) :
+private theorem convolutionPoly_eval_zero (n : ℕ) (f : ℕ → ℝ) (_hn : 1 ≤ n) :
     (convolutionPoly n f).eval 0 = f 0 * f n := by
   unfold convolutionPoly ordinaryGen
   rw [Polynomial.eval_finset_sum]
@@ -269,11 +269,11 @@ private theorem determinantKernel_eval_zero_at_nm1 (n : ℕ) (hn : 1 ≤ n) :
   have h_eq : n - (n - 1) = 1 := by omega
   rw [h_eq]
   have h_p01 : (pochhammer 0 1).eval (0 : ℝ) = 0 := by
-    unfold pochhammer; simp [Finset.prod_range_succ]
+    unfold pochhammer; simp
   have h_p1_nm1 : (pochhammer 1 (n - 1)).eval (0 : ℝ) = (Nat.factorial (n - 1) : ℝ) :=
     pochhammer_one_eval_zero (n - 1)
   have h_pn1_1 : (pochhammer (-1) 1).eval (0 : ℝ) = -1 := by
-    unfold pochhammer; simp [Finset.prod_range_succ]
+    unfold pochhammer; simp
   rw [h_p01, h_p1_nm1, h_pn1_1]
   ring
 
@@ -340,7 +340,8 @@ theorem determinantPolynomial_eval_zero
 
 /-! ## Vieta inequality (paper's `e_1·e_{n-1} > e_n`) -/
 
-/-- `Multiset.esymm` recursion under `cons`: `(a ::ₘ s).esymm (k+1) = s.esymm (k+1) + a · s.esymm k`. -/
+/-- `Multiset.esymm` recursion under `cons`:
+`(a ::ₘ s).esymm (k+1) = s.esymm (k+1) + a · s.esymm k`. -/
 private lemma multiset_esymm_cons (a : ℝ) (s : Multiset ℝ) (k : ℕ) :
     (a ::ₘ s).esymm (k + 1) = s.esymm (k + 1) + a * s.esymm k := by
   unfold Multiset.esymm
@@ -400,7 +401,8 @@ private lemma sum_mul_esymm_pred_card_ge (α : Multiset ℝ) (hα : ∀ a ∈ α
       intro b hb
       apply hs_nn
       exact Multiset.mem_of_le (Multiset.mem_powersetCard.mp ht).1 hb
-    -- Goal: ((a ::ₘ s).card : ℝ) * (a ::ₘ s).prod ≤ (a ::ₘ s).sum * (a ::ₘ s).esymm ((a ::ₘ s).card - 1)
+    -- Goal: ((a ::ₘ s).card : ℝ) * (a ::ₘ s).prod ≤
+    --   (a ::ₘ s).sum * (a ::ₘ s).esymm ((a ::ₘ s).card - 1)
     rw [Multiset.card_cons, Multiset.sum_cons, Multiset.prod_cons]
     rw [show (s.card + 1 - 1 : ℕ) = s.card from by omega]
     -- Goal: ((s.card + 1) : ℝ) * (a * s.prod) ≤ (a + s.sum) * (a ::ₘ s).esymm s.card
@@ -430,8 +432,8 @@ private lemma sum_mul_esymm_pred_card_ge (α : Multiset ℝ) (hα : ∀ a ∈ α
 key Vieta identity: coefficients are products of leading coefficient and
 elementary symmetric polynomials of negated roots. -/
 private theorem coeff_eq_lc_mul_esymm
-    (p : ℝ[X]) (n : ℕ) (hdeg : HasDegree p n)
-    (hroot : HasOnlyRealNegativeZeros p)
+    (p : ℝ[X]) (n : ℕ) (_hdeg : HasDegree p n)
+    (_hroot : HasOnlyRealNegativeZeros p)
     (α : Multiset ℝ) (hα_card : α.card = n)
     (hα_eq : p = C p.leadingCoeff * (α.map fun a => X + C a).prod)
     (k : ℕ) (hk : k ≤ n) :
@@ -483,7 +485,8 @@ theorem cauchy_schwarz_f1_fn1_gt_f0_fn
   have hfn_sq : (0 : ℝ) < f n ^ 2 := by
     rw [sq]; exact mul_self_pos.mpr hlc_ne
   -- Need: α.esymm (n - 1) * α.sum > α.prod.
-  -- From inequality: α.sum * α.esymm (α.card - 1) ≥ α.card * α.prod = n · α.prod ≥ 2 · α.prod > α.prod (for α.prod > 0).
+  -- From inequality: α.sum * α.esymm (α.card - 1) ≥ α.card * α.prod
+  --   = n · α.prod ≥ 2 · α.prod > α.prod (for α.prod > 0).
   have hα_nn : ∀ a ∈ α, 0 ≤ a := fun a ha => le_of_lt (hα_pos a ha)
   have hineq := sum_mul_esymm_pred_card_ge α hα_nn
   rw [hα_card] at hineq
@@ -519,7 +522,7 @@ private lemma ordinaryGen_rev_eq_reverse (n : ℕ) (f : ℕ → ℝ)
   by_cases hk : k ≤ n
   · rw [coeff_ordinaryGen_of_le n _ hk, Polynomial.coeff_reverse, hdeg.2,
         Polynomial.revAt_le hk, coeff_ordinaryGen_of_le n f (Nat.sub_le n k)]
-  · push_neg at hk
+  · have hk : n < k := Nat.lt_of_not_le hk
     rw [coeff_ordinaryGen_of_gt n _ hk, Polynomial.coeff_reverse, hdeg.2,
         Polynomial.revAt_eq_self_of_lt hk, coeff_ordinaryGen_of_gt n f hk]
 
@@ -686,7 +689,7 @@ private lemma convolutionPoly_eq_hadamard_iter (n : ℕ) (f : ℕ → ℝ) :
     rw [hadamard_coeff n _ _ k hk]
     rw [coeff_ordinaryGen_of_le n f hk, coeff_ordinaryGen_of_le n _ hk]
     rw [add_comm (1 : ℝ[X]) X, Polynomial.coeff_X_add_one_pow]
-  · push_neg at hk
+  · have hk : n < k := Nat.lt_of_not_le hk
     have h_lhs : (convolutionPoly n f).coeff k = 0 := by
       unfold convolutionPoly
       exact coeff_ordinaryGen_of_gt n _ hk
@@ -744,7 +747,7 @@ theorem convolutionPoly_hasOnlyRealNegativeZeros
       have hcv_eq : convolutionPoly n f = convolutionPoly n (fun k => - f k) := by
         unfold convolutionPoly
         apply Finset.sum_congr rfl
-        intro k _; congr 1; push_cast; ring
+        intro k _; congr 1; ring_nf
       rw [hcv_eq]
       have hoo : ordinaryGen n (fun k => -f k) = -(ordinaryGen n f) := by
         unfold ordinaryGen

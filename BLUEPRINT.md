@@ -15,13 +15,18 @@ universal-zero factorizations, etc.) have been removed.
 ## 1. Module structure
 
 ```
-GammaPochhammer.lean                  ─ root
-├── GammaPochhammer/Basic.lean        ─ definitions + paper results (4 axioms)
-└── GammaPochhammer/Determinant.lean  ─ Theorem 1 via Lemmas 1, 2, 3 (no sorrys)
+GammaPochhammer.lean                       ─ root
+├── GammaPochhammer/Basic.lean             ─ definitions + paper results (2 axioms)
+├── GammaPochhammer/GammaRep.lean          ─ Proof of Lemma 3 + ladder consumers (no sorrys)
+├── GammaPochhammer/Determinant.lean       ─ Theorem 1 via Lemmas 1, 2, 3 (no sorrys)
+└── GammaPochhammer/Classification.lean    ─ Proof of Theorem 3 (no sorrys)
 ```
 
-**Build status:** `lake build` succeeds with no `sorry`s. Theorem 1 is
-fully derived from Lemmas 1, 2, 3.
+**Build status:** `lake build` succeeds with no `sorry`s. Lemma 3 is proven
+in `GammaRep.lean` (eliminating the `gamma_representation` axiom); Theorem 3
+is proven in `Classification.lean` (eliminating the
+`centered_classification_axiom` axiom). Theorem 1 is fully derived from
+Lemmas 1, 2, 3.
 
 ---
 
@@ -29,41 +34,41 @@ fully derived from Lemmas 1, 2, 3.
 
 ### Paper §1 — Preliminaries and basic theorem
 
-| Paper | Lean (`Basic.lean`) |
+| Paper | Lean |
 |---|---|
-| Pochhammer `(z)_k` | `pochhammer` |
-| `P_n(z)` | `determinantPolynomial` |
-| **Theorem 1** (P_n real-negative-rooted) | `main_theorem` (uses axioms ①, ②, ③) |
-| **Lemma 1** (Hadamard closure) | `Hadamard_closure_for_negative_rooted_polynomials` (axiom ①) |
-| **Lemma 2** (Schur transform 𝓛) | `schur_transform_preserves_nonpos` + `schurTransform` (axiom ②) |
-| **Lemma 3** (γ-representation) | `gamma_representation_of_palindromic_negative_rooted` + `gammaBasis`, `IsGammaExpansion`, `gammaPolynomial`, `PalindromicOfDegree` (axiom ③) |
+| Pochhammer `(z)_k` | `pochhammer` (Basic) |
+| `P_n(z)` | `determinantPolynomial` (Basic) |
+| **Theorem 1** (P_n real-negative-rooted) | `main_theorem` (Determinant) — uses axioms ①, ② |
+| **Lemma 1** (Hadamard closure) | `Hadamard_closure_for_negative_rooted_polynomials` (Basic) — axiom ① |
+| **Lemma 2** (Schur transform 𝓛) | `schur_transform_preserves_nonpos` + `schurTransform` (Basic) — axiom ② |
+| **Lemma 3** (γ-representation) | `gamma_representation` + `gamma_representation_of_palindromic_negative_rooted` (GammaRep) — **proved**, supporting defs `gammaBasis`, `IsGammaExpansion`, `gammaPolynomial`, `PalindromicOfDegree` in Basic |
 
 ### Paper §2 — Higher Pochhammer kernel ladder
 
-| Paper | Lean (`Basic.lean`) |
+| Paper | Lean |
 |---|---|
-| `λ_{s,q}` coefficients | `lambda` |
-| `K_{n,k}^{[s,μ]}` (rung kernel) | `rungKernel` |
-| `T_{s,μ}^{(n)}(Q)` (rung operator) | `rungOperator` |
-| **A380113 triangle / `A(s,q)`** | `A380113` + `A380113_zero_zero`, `_left_edge`, `_internal` |
-| **Lemma 4** (central-difference identity) | `central_difference_identity`, `central_difference` |
-| **Lemma 5** (rung action) | `rung_action_on_gamma_basis`, `rung_action` |
-| **Theorem 2** (the ladder formula) | `ladder_formula`, `pochhammer_kernel_ladder_formula`, `pochhammer_kernel_ladder`, `pochhammer_kernel_ladder_strict_shift` |
-| **Corollary 1** (original kernel palindromic) | `original_kernel_palindromic` |
-| **Corollary 2** (single-product kernel, s=0) | `single_product_kernel` |
-| Proof of Theorem 1 from Lemmas 1, 2, 3 + ladder | `determinant_main_preserves_strict_proved` (in `Determinant.lean`) |
+| `λ_{s,q}` coefficients | `lambda` (Basic) |
+| `K_{n,k}^{[s,μ]}` (rung kernel) | `rungKernel` (Basic) |
+| `T_{s,μ}^{(n)}(Q)` (rung operator) | `rungOperator` (Basic) |
+| **A380113 triangle / `A(s,q)`** | `A380113` + `A380113_zero_zero`, `_left_edge`, `_internal` (Basic) |
+| **Lemma 4** (central-difference identity) | `central_difference_identity`, `central_difference` (Basic) |
+| **Lemma 5** (rung action) | `rung_action_on_gamma_basis`, `rung_action` (Basic) |
+| **Theorem 2** (the ladder formula) | `ladder_formula`, `pochhammer_kernel_ladder_formula` (Basic); `pochhammer_kernel_ladder`, `pochhammer_kernel_ladder_strict_shift` (GammaRep) |
+| **Corollary 1** (original kernel palindromic) | `original_kernel_palindromic` (GammaRep) |
+| **Corollary 2** (single-product kernel, s=0) | `single_product_kernel` (GammaRep) |
+| Proof of Theorem 1 from Lemmas 1, 2, 3 + ladder | `determinant_main_preserves_strict_proved` (Determinant) |
 
 ### Paper §3 — Centered two-product family uniqueness
 
-| Paper | Lean (`Basic.lean`) |
+| Paper | Lean |
 |---|---|
-| `K_{n,k}^{a,c}` (centered family) | `centeredKernel`, `centeredOperator` |
-| `UniversallyAdmissibleCentered` | `UniversallyAdmissibleCentered` |
-| **Theorem 3** (classification) | `centered_balanced_classification` (uses axiom ⑤) |
+| `K_{n,k}^{a,c}` (centered family) | `centeredKernel`, `centeredOperator` (Basic) |
+| `UniversallyAdmissibleCentered` | `UniversallyAdmissibleCentered` (Basic) |
+| **Theorem 3** (classification) | `centered_classification_proved` + `centered_balanced_classification` (Classification) — **proved**, supporting `Q_n4`, `Q_n6` perturbation families |
 
 ---
 
-## 3. The four project-specific axioms
+## 3. The two project-specific axioms
 
 All axioms are stated in `Basic.lean` and correspond to results classically
 known but absent from Mathlib (v4.29.1).
@@ -72,16 +77,35 @@ known but absent from Mathlib (v4.29.1).
 |---|---|---|---|
 | ① | `hadamard_closure_for_negative_rooted` | Lemma 1 (Schur–Hadamard 1914 / Aissen-Schoenberg-Whitney) | ★★★★★ |
 | ② | `schur_preserves_nonpos` | Lemma 2 (Schur–Maló, paper's proof uses HKO induction) | ★★★★★ |
-| ③ | `gamma_representation` | Lemma 3 (reciprocal-pair factorization, paper's proof is constructive) | ★★★☆☆ |
-| ④ | `centered_classification_axiom` | Theorem 3 — concrete γ-polynomial discriminant calculation | ★★★☆☆ |
 
-### Theorem 1 — now derived, not axiomatized
+### Theorem 1 — derived, not axiomatized
 
 The original axiom `determinant_main_preserves_strict` has been **eliminated**.
 `Determinant.lean` proves `determinant_main_preserves_strict_proved` from
-the three other axioms (①, ②, ③) by following the paper's proof of Theorem 1.
-The user-facing `main_theorem` lives in `Determinant.lean` and uses this
-proved version. The project axiom count is now 4 (was 5).
+the two PF/Schur axioms (①, ②) plus the proven Lemma 3, by following the
+paper's proof of Theorem 1. The user-facing `main_theorem` lives in
+`Determinant.lean` and uses this proved version.
+
+### Lemma 3 — proved, not axiomatized
+
+The former axiom `gamma_representation` (Lemma 3 / the γ-representation of
+palindromic polynomials with only real negative zeros) has been **proved**
+in `GammaPochhammer/GammaRep.lean` via the paper's reciprocal-pair
+factorization, by strong induction on the degree `n`. The proof is
+self-contained and uses no project-specific axioms.
+
+### Theorem 3 — proved, not axiomatized
+
+The former axiom `centered_classification_axiom` (Theorem 3 / the
+classification of universally-admissible centered balanced two-product
+kernels) has been **proved** in `GammaPochhammer/Classification.lean`
+following the paper's discriminant + IVT argument: `σ = u + v = 1` is
+forced via two `λ`-tests on `Q_n4 λ = (quadFactor λ)²`, then `u = 0` is
+forced via an `ε`-test on `Q_n6 ε = (quadFactor ε)³` plus the intermediate
+value theorem.  Sufficiency reduces to the determinant-kernel case via
+sign / palindromic symmetries and `original_kernel_palindromic`.
+
+The project axiom count is now 2 (was 5).
 
 ---
 
@@ -121,15 +145,15 @@ This module is a direct transcription of the paper's proof of Theorem 1.
 
 ## 5. Difficulty summary
 
-| Axiom | Discharge route | Effort |
-|---|---|---|
-| `hadamard_closure_for_negative_rooted` ① | Build Pólya-frequency-sequence theory + Schur composition theorem | Multi-month |
-| `schur_preserves_nonpos` ② | Build HKO interlacing theorem + limit/multiplicity argument | Multi-month |
-| `gamma_representation` ③ | Paper's reciprocal-pair argument (self-contained) | ~300 lines |
-| `centered_classification_axiom` ④ | Concrete γ-polynomial discriminant calculation (paper's argument) | ~200 lines |
+| Axiom | Discharge route | Effort | Status |
+|---|---|---|---|
+| `hadamard_closure_for_negative_rooted` ① | Build Pólya-frequency-sequence theory + Schur composition theorem | Multi-month | Open |
+| `schur_preserves_nonpos` ② | Build HKO interlacing theorem + limit/multiplicity argument | Multi-month | Open |
+| `gamma_representation` ③ | Paper's reciprocal-pair argument (self-contained) | ~900 lines | **Discharged** in `GammaRep.lean` |
+| `centered_classification_axiom` ④ | γ-polynomial discriminant + IVT (paper's argument) | ~1200 lines | **Discharged** in `Classification.lean` |
 
-The two Pólya-Schur axioms ① and ② require independent Mathlib infrastructure
-builds and are not currently planned. Axiom ③ would be the next pragmatic target.
+Only the two Pólya-Schur axioms ① and ② remain.  They require independent
+Mathlib infrastructure builds and are not currently planned.
 
 ---
 
@@ -137,18 +161,24 @@ builds and are not currently planned. Axiom ③ would be the next pragmatic targ
 
 ```
 $ lake build
-Build completed successfully (8251 jobs).
+Build completed successfully.
 
 $ #print axioms main_theorem
 [propext, Classical.choice,
- gamma_representation,
  hadamard_closure_for_negative_rooted,
  schur_preserves_nonpos, Quot.sound]
+
+$ #print axioms centered_balanced_classification
+[propext, Classical.choice, schur_preserves_nonpos, Quot.sound]
 ```
 
-`main_theorem` now depends only on the three classically-named axioms
-(Lemmas 1, 2, 3 of the paper). The standalone `determinant_main_preserves_strict`
-has been eliminated.
+`main_theorem` depends only on the two PF/Schur axioms (Lemmas 1 and 2 of
+the paper); the former `gamma_representation` axiom (Lemma 3) has been
+discharged in `GammaRep.lean`. `centered_balanced_classification`
+(Theorem 3) depends only on axiom ②; the former
+`centered_classification_axiom` has been discharged in
+`Classification.lean`. The standalone
+`determinant_main_preserves_strict` has been eliminated.
 
 ---
 
