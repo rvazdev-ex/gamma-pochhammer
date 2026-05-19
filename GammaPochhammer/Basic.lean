@@ -1705,12 +1705,10 @@ theorem shift_right_preserves_negative
     _ = (r : ℂ) - (μ : ℂ) := by rw [hzr]
     _ = ((r - μ : ℝ) : ℂ) := by norm_num
 
-axiom determinant_main_preserves_strict
-    (n : ℕ) (f : ℕ → ℝ) :
-    2 ≤ n →
-    HasDegree (ordinaryGen n f) n →
-    HasOnlyRealNegativeZeros (ordinaryGen n f) →
-    HasOnlyRealNegativeZeros (determinantPolynomial n f)
+/-- **Theorem 1 of the paper** is now proven, not axiomatized. See
+`GammaPochhammer.determinant_main_preserves_strict_proved` in `Determinant.lean`
+for the proof using Lemmas 1, 2, 3. The wrapper `main_theorem` in
+`Determinant.lean` provides the user-facing statement. -/
 
 axiom centered_classification_axiom
     (a c : ℝ) :
@@ -1836,13 +1834,9 @@ theorem original_kernel_palindromic
     HasOnlyRealNonposZeros (rungOperator n 1 0 Q) :=
   pochhammer_kernel_ladder n m ε 1 0 Q hε hn hm hpal hroot (le_refl 0)
 
-theorem main_theorem
-    (n : ℕ) (f : ℕ → ℝ)
-    (hn : 2 ≤ n)
-    (hdeg : HasDegree (ordinaryGen n f) n)
-    (hroot : HasOnlyRealNegativeZeros (ordinaryGen n f)) :
-    HasOnlyRealNegativeZeros (determinantPolynomial n f) :=
-  determinant_main_preserves_strict n f hn hdeg hroot
+-- `main_theorem` (Theorem 1 of the paper) is now stated and proven in
+-- `Determinant.lean`, which has access to the Vieta machinery needed for
+-- the proof. It is no longer here in `Basic.lean`.
 
 theorem single_product_kernel
     (n m ε : ℕ) (μ : ℝ) (Q : ℝ[X])

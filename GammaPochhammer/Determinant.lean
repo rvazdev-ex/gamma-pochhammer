@@ -245,18 +245,6 @@ private theorem convolutionPoly_eval_zero (n : ℕ) (f : ℕ → ℝ) (hn : 1 �
   · intro h
     exact absurd (Finset.mem_range.mpr (Nat.succ_pos n)) h
 
-/-- **Step (3) of the paper's proof.** The convolution polynomial has only
-real strictly negative zeros, given that `ordinaryGen n f` does and has
-degree `n`. Paper: two applications of Lemma 1 (Hadamard closure) — once
-to `F · F_rev`, once to that result with `(1+X)^n` — followed by
-excluding `0` via `convolutionPoly(0) = f(0)·f(n) > 0`. -/
-theorem convolutionPoly_hasOnlyRealNegativeZeros
-    (n : ℕ) (f : ℕ → ℝ)
-    (hdeg : HasDegree (ordinaryGen n f) n)
-    (hroot : HasOnlyRealNegativeZeros (ordinaryGen n f)) :
-    HasOnlyRealNegativeZeros (convolutionPoly n f) := by
-  sorry
-
 /-! ## Evaluation at 0 (paper §1 — concrete `P_n(0)` calculation) -/
 
 /-- `K_{n,k}(0) = 0` when `k + 2 ≤ n` (so `n - k ≥ 2`). Both Pochhammer
@@ -520,6 +508,351 @@ theorem cauchy_schwarz_f1_fn1_gt_f0_fn
   -- Want: (f n * α.esymm (n - 1)) * (f n * α.sum) > (f n * α.prod) * f n
   nlinarith [this, sq_nonneg (f n)]
 
+/-! ## Reversed polynomial via `Polynomial.reverse` -/
+
+/-- `ordinaryGen n (k ↦ f(n-k)) = (ordinaryGen n f).reverse` for f with HasDegree n. -/
+private lemma ordinaryGen_rev_eq_reverse (n : ℕ) (f : ℕ → ℝ)
+    (hdeg : HasDegree (ordinaryGen n f) n) :
+    ordinaryGen n (fun k => f (n - k)) = (ordinaryGen n f).reverse := by
+  apply Polynomial.ext
+  intro k
+  by_cases hk : k ≤ n
+  · rw [coeff_ordinaryGen_of_le n _ hk, Polynomial.coeff_reverse, hdeg.2,
+        Polynomial.revAt_le hk, coeff_ordinaryGen_of_le n f (Nat.sub_le n k)]
+  · push_neg at hk
+    rw [coeff_ordinaryGen_of_gt n _ hk, Polynomial.coeff_reverse, hdeg.2,
+        Polynomial.revAt_eq_self_of_lt hk, coeff_ordinaryGen_of_gt n f hk]
+
+/-- `f 0 ≠ 0` when ordinaryGen n f has strictly negative roots (0 is not a root). -/
+private lemma f0_ne_zero (n : ℕ) (f : ℕ → ℝ)
+    (hdeg : HasDegree (ordinaryGen n f) n)
+    (hroot : HasOnlyRealNegativeZeros (ordinaryGen n f)) :
+    f 0 ≠ 0 := by
+  intro hf0_zero
+  have h_root_zero : (ordinaryGen n f).eval (0 : ℝ) = 0 := by
+    unfold ordinaryGen
+    rw [Polynomial.eval_finset_sum, Finset.sum_eq_single 0]
+    · simp [hf0_zero]
+    · intros k _ hk0
+      have hk_pos : 0 < k := Nat.pos_of_ne_zero hk0
+      simp [Polynomial.eval_mul, Polynomial.eval_C, Polynomial.eval_pow, Polynomial.eval_X,
+            zero_pow (Nat.pos_iff_ne_zero.mp hk_pos)]
+    · intro h; exact absurd (Finset.mem_range.mpr (Nat.succ_pos n)) h
+  have h_complex_zero : (toComplex (ordinaryGen n f)).eval (0 : ℂ) = 0 :=
+    (isRoot_toComplex_iff_real (ordinaryGen n f) 0).mpr h_root_zero
+  rcases hroot with hzero | hr
+  · exact hdeg.1 hzero
+  obtain ⟨r, hr_neg, hr_eq⟩ := hr 0 h_complex_zero
+  have : r = 0 := by exact_mod_cast hr_eq.symm
+  linarith
+
+/-- `f n ≠ 0` (leading coefficient is nonzero by HasDegree). -/
+private lemma fn_ne_zero (n : ℕ) (f : ℕ → ℝ) (hdeg : HasDegree (ordinaryGen n f) n) :
+    f n ≠ 0 := by
+  intro hfn_zero
+  apply hdeg.1
+  have h_lc : (ordinaryGen n f).leadingCoeff = 0 := by
+    rw [Polynomial.leadingCoeff, hdeg.2, coeff_ordinaryGen_of_le n f (le_refl n)]
+    exact hfn_zero
+  exact Polynomial.leadingCoeff_eq_zero.mp h_lc
+
+/-- The reversed sequence polynomial has only real strictly negative zeros.
+Proof: for `z ≠ 0`, use `Polynomial.eval₂_reverse_eq_zero_iff` — roots of
+`F.reverse` are reciprocals of (non-zero) roots of `F`. For `z = 0`,
+`F.reverse(0) = F.leadingCoeff = f n ≠ 0`. -/
+private theorem ordinaryGen_rev_hasOnlyRealNegativeZeros
+    (n : ℕ) (f : ℕ → ℝ)
+    (hdeg : HasDegree (ordinaryGen n f) n)
+    (hroot : HasOnlyRealNegativeZeros (ordinaryGen n f)) :
+    HasOnlyRealNegativeZeros (ordinaryGen n (fun k => f (n - k))) := by
+  rw [ordinaryGen_rev_eq_reverse n f hdeg]
+  set F := ordinaryGen n f with hF_def
+  have hfn_ne : f n ≠ 0 := fn_ne_zero n f hdeg
+  right
+  intro z hz
+  by_cases hz_zero : z = 0
+  · exfalso
+    subst hz_zero
+    -- F.reverse(0) = F.leadingCoeff = f n ≠ 0.
+    have h_eval_real : F.reverse.eval (0 : ℝ) = f n := by
+      rw [← ordinaryGen_rev_eq_reverse n f hdeg]
+      unfold ordinaryGen
+      rw [Polynomial.eval_finset_sum, Finset.sum_eq_single 0]
+      · simp
+      · intros k _ hk0
+        have hk_pos : 0 < k := Nat.pos_of_ne_zero hk0
+        simp [Polynomial.eval_mul, Polynomial.eval_C, Polynomial.eval_pow, Polynomial.eval_X,
+              zero_pow (Nat.pos_iff_ne_zero.mp hk_pos)]
+      · intro h; exact absurd (Finset.mem_range.mpr (Nat.succ_pos n)) h
+    have h_eval_real_zero : F.reverse.eval (0 : ℝ) = 0 :=
+      (isRoot_toComplex_iff_real F.reverse 0).mp hz
+    rw [h_eval_real] at h_eval_real_zero
+    exact hfn_ne h_eval_real_zero
+  -- z ≠ 0
+  have hz_inv_ne : z⁻¹ ≠ 0 := inv_ne_zero hz_zero
+  let _ : Invertible z⁻¹ := invertibleOfNonzero hz_inv_ne
+  have h_iff := Polynomial.eval₂_reverse_eq_zero_iff (algebraMap ℝ ℂ) z⁻¹ F
+  have h_inv_inv : (⅟z⁻¹ : ℂ) = z := by rw [invOf_eq_inv]; exact inv_inv z
+  rw [h_inv_inv] at h_iff
+  have h_lhs : F.reverse.eval₂ (algebraMap ℝ ℂ) z = 0 := by
+    have : (toComplex F.reverse).eval z = 0 := hz
+    rw [toComplex, Polynomial.eval_map] at this
+    exact this
+  have h_rhs : F.eval₂ (algebraMap ℝ ℂ) z⁻¹ = 0 := h_iff.mp h_lhs
+  have h_rhs' : (toComplex F).eval z⁻¹ = 0 := by
+    rw [toComplex, Polynomial.eval_map]; exact h_rhs
+  rcases hroot with hzero | hr
+  · exact absurd hzero hdeg.1
+  obtain ⟨r, hr_neg, hr_eq⟩ := hr z⁻¹ h_rhs'
+  refine ⟨r⁻¹, inv_lt_zero.mpr hr_neg, ?_⟩
+  have hr_ne : r ≠ 0 := ne_of_lt hr_neg
+  have hr_C_ne : ((r : ℝ) : ℂ) ≠ 0 := by exact_mod_cast hr_ne
+  have hz_inv_eq : z⁻¹ = ((r : ℝ) : ℂ) := hr_eq
+  have hz_eq : z = ((r : ℝ) : ℂ)⁻¹ := by
+    have hzne : z ≠ 0 := hz_zero
+    rw [← hz_inv_eq, inv_inv]
+  rw [hz_eq]
+  push_cast
+  rfl
+
+/-- `(1+X)^n` has only real strictly negative zeros for `n ≥ 1`. -/
+private theorem one_add_X_pow_hasOnlyRealNegativeZeros (n : ℕ) (hn : 1 ≤ n) :
+    HasOnlyRealNegativeZeros ((1 + X : ℝ[X]) ^ n) := by
+  right
+  intro z hz
+  have heval : (toComplex ((1 + X : ℝ[X]) ^ n)).eval z = (1 + z) ^ n := by
+    simp [toComplex, Polynomial.map_pow, Polynomial.map_add, Polynomial.map_one,
+          Polynomial.map_X]
+  rw [heval] at hz
+  have hn_ne : n ≠ 0 := by omega
+  have hzp : 1 + z = 0 := pow_eq_zero_iff hn_ne |>.mp hz
+  refine ⟨-1, by norm_num, ?_⟩
+  have : z = -1 := by linear_combination hzp
+  rw [this]; push_cast; ring
+
+/-! ## Hadamard application -/
+
+/-- `ordinaryGen n f` has non-negative coefficients (up to degree n) when its
+leading coefficient is non-negative and its zeros are all real negative.
+Follows from the Vieta factorization. -/
+private lemma ordinaryGen_coeff_nonneg
+    (n : ℕ) (f : ℕ → ℝ)
+    (hdeg : HasDegree (ordinaryGen n f) n)
+    (hroot : HasOnlyRealNegativeZeros (ordinaryGen n f))
+    (hfn_nn : 0 ≤ f n) :
+    ∀ k ≤ n, 0 ≤ f k := by
+  obtain ⟨α, hα_card, hα_pos, hα_eq⟩ := exists_factorization_real_neg _ hroot
+  rw [hdeg.2] at hα_card
+  have hlc : (ordinaryGen n f).leadingCoeff = f n := by
+    rw [Polynomial.leadingCoeff, hdeg.2, coeff_ordinaryGen_of_le n f (le_refl n)]
+  intro k hk
+  have h_coeff := coeff_eq_lc_mul_esymm (ordinaryGen n f) n hdeg hroot α hα_card hα_eq k hk
+  rw [coeff_ordinaryGen_of_le n f hk, hlc] at h_coeff
+  rw [h_coeff]
+  apply mul_nonneg hfn_nn
+  unfold Multiset.esymm
+  apply Multiset.sum_nonneg
+  intro x hx
+  rw [Multiset.mem_map] at hx
+  obtain ⟨t, ht, rfl⟩ := hx
+  apply Multiset.prod_nonneg
+  intro b hb
+  exact le_of_lt (hα_pos b (Multiset.mem_of_le (Multiset.mem_powersetCard.mp ht).1 hb))
+
+/-- Coefficient of `hadamard n A B` at `k ≤ n`. -/
+private lemma hadamard_coeff (n : ℕ) (A B : ℝ[X]) (k : ℕ) (hk : k ≤ n) :
+    (hadamard n A B).coeff k = A.coeff k * B.coeff k := by
+  unfold hadamard
+  rw [Polynomial.finset_sum_coeff, Finset.sum_eq_single k]
+  · rw [Polynomial.coeff_C_mul, Polynomial.coeff_X_pow, if_pos rfl, mul_one]
+  · intros j _ hjk
+    rw [Polynomial.coeff_C_mul]
+    have : (X ^ j : ℝ[X]).coeff k = 0 := by
+      rw [Polynomial.coeff_X_pow]; rw [if_neg (Ne.symm hjk)]
+    rw [this]; ring
+  · intro h; exact absurd (Finset.mem_range.mpr (Nat.lt_succ_of_le hk)) h
+
+/-- The convolution polynomial equals the iterated Hadamard product
+`hadamard n (hadamard n F F_rev) ((1+X)^n)`. -/
+private lemma convolutionPoly_eq_hadamard_iter (n : ℕ) (f : ℕ → ℝ) :
+    convolutionPoly n f =
+      hadamard n (hadamard n (ordinaryGen n f) (ordinaryGen n (fun k => f (n - k))))
+        ((1 + X) ^ n) := by
+  apply Polynomial.ext
+  intro k
+  by_cases hk : k ≤ n
+  · rw [convolutionPoly_coeff n f k hk]
+    rw [hadamard_coeff n _ _ k hk]
+    rw [hadamard_coeff n _ _ k hk]
+    rw [coeff_ordinaryGen_of_le n f hk, coeff_ordinaryGen_of_le n _ hk]
+    rw [add_comm (1 : ℝ[X]) X, Polynomial.coeff_X_add_one_pow]
+  · push_neg at hk
+    have h_lhs : (convolutionPoly n f).coeff k = 0 := by
+      unfold convolutionPoly
+      exact coeff_ordinaryGen_of_gt n _ hk
+    rw [h_lhs]
+    symm
+    unfold hadamard
+    rw [Polynomial.finset_sum_coeff]
+    apply Finset.sum_eq_zero
+    intros j hj
+    have hj_le : j ≤ n := Nat.lt_succ_iff.mp (Finset.mem_range.mp hj)
+    have hjk_ne : j ≠ k := by omega
+    rw [Polynomial.coeff_C_mul]
+    have : (X ^ j : ℝ[X]).coeff k = 0 := by
+      rw [Polynomial.coeff_X_pow]; rw [if_neg (Ne.symm hjk_ne)]
+    rw [this]; ring
+
+/-- **Step (3) of the paper's proof.** The convolution polynomial has only
+real strictly negative zeros, given that `ordinaryGen n f` does and has
+degree `n`. Two applications of Lemma 1 (Hadamard closure) — once to `F · F_rev`,
+once with `(1+X)^n` — followed by excluding `0` via `convolutionPoly(0) =
+f(0)·f(n) > 0`. -/
+theorem convolutionPoly_hasOnlyRealNegativeZeros
+    (n : ℕ) (f : ℕ → ℝ)
+    (hdeg : HasDegree (ordinaryGen n f) n)
+    (hroot : HasOnlyRealNegativeZeros (ordinaryGen n f)) :
+    HasOnlyRealNegativeZeros (convolutionPoly n f) := by
+  -- Handle n = 0 separately (degenerate case).
+  rcases Nat.eq_zero_or_pos n with hn0 | hn_pos
+  · subst hn0
+    -- convolutionPoly 0 f = C(f 0 * f 0). Any constant satisfies HasOnlyRealNegativeZeros.
+    have hcv : convolutionPoly 0 f = C (f 0 * f 0) := by
+      unfold convolutionPoly ordinaryGen
+      simp
+    rw [hcv]
+    by_cases hc : f 0 * f 0 = 0
+    · left; rw [hc]; simp
+    · right
+      intro z hz
+      have heval : (toComplex (C (f 0 * f 0))).eval z = ((f 0 * f 0 : ℝ) : ℂ) := by
+        simp [toComplex]
+      rw [heval] at hz
+      have : (f 0 * f 0 : ℝ) = 0 := by exact_mod_cast hz
+      exact absurd this hc
+  -- Now n ≥ 1.
+  have hfn_ne : f n ≠ 0 := fn_ne_zero n f hdeg
+  have hf0_ne : f 0 ≠ 0 := f0_ne_zero n f hdeg hroot
+  -- WLOG f n > 0 (convolutionPoly is invariant under f ↔ -f).
+  suffices h : ∀ (f : ℕ → ℝ),
+      HasDegree (ordinaryGen n f) n →
+      HasOnlyRealNegativeZeros (ordinaryGen n f) →
+      0 < f n →
+      HasOnlyRealNegativeZeros (convolutionPoly n f) by
+    rcases lt_or_gt_of_ne hfn_ne with hfn_neg | hfn_pos
+    · -- f n < 0: use -f
+      have hcv_eq : convolutionPoly n f = convolutionPoly n (fun k => - f k) := by
+        unfold convolutionPoly
+        apply Finset.sum_congr rfl
+        intro k _; congr 1; push_cast; ring
+      rw [hcv_eq]
+      have hoo : ordinaryGen n (fun k => -f k) = -(ordinaryGen n f) := by
+        unfold ordinaryGen
+        rw [← Finset.sum_neg_distrib]
+        apply Finset.sum_congr rfl
+        intro k _; rw [Polynomial.C_neg]; ring
+      apply h (fun k => -f k)
+      · refine ⟨?_, ?_⟩
+        · rw [hoo]; intro h0; exact hdeg.1 (neg_eq_zero.mp h0)
+        · rw [hoo, Polynomial.natDegree_neg]; exact hdeg.2
+      · rw [hoo]
+        rcases hroot with hzero | hr
+        · left; rw [hzero]; ring
+        right
+        intro z hz; apply hr
+        have hcast : (toComplex (-(ordinaryGen n f))).eval z =
+                      -(toComplex (ordinaryGen n f)).eval z := by
+          simp [toComplex, Polynomial.map_neg]
+        rw [hcast, neg_eq_zero] at hz; exact hz
+      · show 0 < -f n; linarith
+    · exact h f hdeg hroot hfn_pos
+  -- Main proof, assuming 0 < f n.
+  clear hf0_ne hfn_ne
+  intro f hdeg hroot hfn_pos
+  have hfn_ne : f n ≠ 0 := ne_of_gt hfn_pos
+  have hf0_ne : f 0 ≠ 0 := f0_ne_zero n f hdeg hroot
+  have hf0_pos : 0 < f 0 := by
+    have hf0_nn : 0 ≤ f 0 :=
+      ordinaryGen_coeff_nonneg n f hdeg hroot (le_of_lt hfn_pos) 0 (Nat.zero_le n)
+    exact lt_of_le_of_ne hf0_nn (Ne.symm hf0_ne)
+  -- Set up F, F_rev.
+  set F := ordinaryGen n f
+  set Frev := ordinaryGen n (fun k => f (n - k))
+  -- F has nonneg coefficients up to degree n.
+  have hF_nonneg : ∀ k ≤ n, 0 ≤ F.coeff k := by
+    intro k hk
+    rw [coeff_ordinaryGen_of_le n f hk]
+    exact ordinaryGen_coeff_nonneg n f hdeg hroot (le_of_lt hfn_pos) k hk
+  have hFrev_nonneg : ∀ k ≤ n, 0 ≤ Frev.coeff k := by
+    intro k hk
+    rw [coeff_ordinaryGen_of_le n _ hk]
+    exact ordinaryGen_coeff_nonneg n f hdeg hroot (le_of_lt hfn_pos) (n - k) (Nat.sub_le n k)
+  -- F has only real non-positive zeros.
+  have hF_nonpos_root : HasOnlyRealNonposZeros F := by
+    rcases hroot with hzero | hr
+    · left; exact hzero
+    right
+    intro z hz
+    obtain ⟨r, hr_neg, hr_eq⟩ := hr z hz
+    exact ⟨r, le_of_lt hr_neg, hr_eq⟩
+  -- F_rev has only real non-positive zeros.
+  have hFrev_nonpos_root : HasOnlyRealNonposZeros Frev := by
+    have hFrev_neg := ordinaryGen_rev_hasOnlyRealNegativeZeros n f hdeg hroot
+    rcases hFrev_neg with hzero | hr
+    · left; exact hzero
+    right
+    intro z hz
+    obtain ⟨r, hr_neg, hr_eq⟩ := hr z hz
+    exact ⟨r, le_of_lt hr_neg, hr_eq⟩
+  -- Step 1: hadamard n F F_rev has nonpos zeros.
+  have hH1_root : HasOnlyRealNonposZeros (hadamard n F Frev) :=
+    hadamard_closure_for_negative_rooted n F Frev hF_nonneg hFrev_nonneg
+      hF_nonpos_root hFrev_nonpos_root
+  -- H1 has nonneg coefficients.
+  have hH1_nonneg : ∀ k ≤ n, 0 ≤ (hadamard n F Frev).coeff k := by
+    intro k hk
+    rw [hadamard_coeff n F Frev k hk]
+    exact mul_nonneg (hF_nonneg k hk) (hFrev_nonneg k hk)
+  -- (1+X)^n has nonpos zeros and nonneg coefficients.
+  have hB_root : HasOnlyRealNonposZeros ((1 + X : ℝ[X]) ^ n) := by
+    have := one_add_X_pow_hasOnlyRealNegativeZeros n hn_pos
+    rcases this with hzero | hr
+    · left; exact hzero
+    right
+    intro z hz
+    obtain ⟨r, hr_neg, hr_eq⟩ := hr z hz
+    exact ⟨r, le_of_lt hr_neg, hr_eq⟩
+  have hB_nonneg : ∀ k ≤ n, 0 ≤ ((1 + X : ℝ[X]) ^ n).coeff k := by
+    intro k _
+    rw [add_comm, Polynomial.coeff_X_add_one_pow]
+    exact_mod_cast Nat.zero_le _
+  -- Step 2: hadamard (hadamard F F_rev) (1+X)^n has nonpos zeros.
+  have hH2_root : HasOnlyRealNonposZeros
+      (hadamard n (hadamard n F Frev) ((1 + X) ^ n)) :=
+    hadamard_closure_for_negative_rooted n _ _ hH1_nonneg hB_nonneg hH1_root hB_root
+  -- Step 3: identify with convolutionPoly.
+  have h_cv_eq : convolutionPoly n f =
+      hadamard n (hadamard n F Frev) ((1 + X) ^ n) := convolutionPoly_eq_hadamard_iter n f
+  rw [h_cv_eq]
+  -- Step 4: exclude 0.
+  have hcv_pos : 0 < (hadamard n (hadamard n F Frev) ((1 + X) ^ n)).eval 0 := by
+    rw [← h_cv_eq, convolutionPoly_eval_zero n f hn_pos]
+    exact mul_pos hf0_pos hfn_pos
+  rcases hH2_root with hP0 | h_nonpos
+  · rw [hP0] at hcv_pos; simp at hcv_pos
+  right
+  intro z hz
+  obtain ⟨r, hr_le, hr_eq⟩ := h_nonpos z hz
+  refine ⟨r, ?_, hr_eq⟩
+  rcases lt_or_eq_of_le hr_le with h | h
+  · exact h
+  · exfalso
+    have hz_eq_0 : z = 0 := by rw [hr_eq, h]; norm_cast
+    rw [hz_eq_0] at hz
+    have hreal : (hadamard n (hadamard n F Frev) ((1 + X) ^ n)).eval 0 = 0 :=
+      (isRoot_toComplex_iff_real _ 0).mp hz
+    linarith
+
 /-! ## Main theorem — Theorem 1 of the paper -/
 
 /-- **Theorem 1 of the paper**, proved using Lemmas 1, 2, 3 (axiomatized
@@ -569,5 +902,15 @@ theorem determinant_main_preserves_strict_proved
     have hreal : (determinantPolynomial n f).eval 0 = 0 :=
       (isRoot_toComplex_iff_real (determinantPolynomial n f) 0).mp hz
     linarith
+
+/-- **Theorem 1 of the paper** — the main result, identical to
+`determinant_main_preserves_strict_proved`. -/
+theorem main_theorem
+    (n : ℕ) (f : ℕ → ℝ)
+    (hn : 2 ≤ n)
+    (hdeg : HasDegree (ordinaryGen n f) n)
+    (hroot : HasOnlyRealNegativeZeros (ordinaryGen n f)) :
+    HasOnlyRealNegativeZeros (determinantPolynomial n f) :=
+  determinant_main_preserves_strict_proved n f hn hdeg hroot
 
 end GammaPochhammer
