@@ -1,6 +1,5 @@
 # GammaPochhammer
 
-[![Build](https://github.com/rvazdev-ex/gamma-pochhammer/actions/workflows/blueprint.yml/badge.svg)](https://github.com/rvazdev-ex/gamma-pochhammer/actions/workflows/blueprint.yml)
 [![Lean 4](https://img.shields.io/badge/Lean-4.29.1-blueviolet)](./lean-toolchain)
 [![Mathlib](https://img.shields.io/badge/Mathlib-v4.29.1-blue)](./lakefile.toml)
 [![License](https://img.shields.io/badge/license-Apache--2.0-green)](./LICENSE)
@@ -9,7 +8,7 @@ A Lean 4 + [mathlib](https://leanprover-community.github.io/) formalization
 of the paper
 
 > **Pochhammer Gamma Kernels**
-> ([PDF](./paper/paper.tex) &middot;
+> ([PDF](./paper/paper.pdf) &middot;
 >  [arXiv:2312.07754 (Karp's problem)](https://arxiv.org/abs/2312.07754))
 
 The headline result (Theorem~1 of the paper) settles **Karp's conjecture**
@@ -24,11 +23,9 @@ sequence \((f_k)\).
 
 | Resource | Where |
 |---|---|
+| Paper (PDF) | [`paper/paper.pdf`](./paper/paper.pdf) |
 | Paper (LaTeX source) | [`paper/paper.tex`](./paper/paper.tex) |
-| Paper (PDF, built by CI) | <https://rvazdev-ex.github.io/gamma-pochhammer/paper.pdf> |
-| Blueprint &mdash; web, with dependency graph | <https://rvazdev-ex.github.io/gamma-pochhammer/blueprint/> |
-| Blueprint &mdash; PDF | <https://rvazdev-ex.github.io/gamma-pochhammer/blueprint/blueprint.pdf> |
-| API docs &mdash; doc-gen4 | <https://rvazdev-ex.github.io/gamma-pochhammer/docs/> |
+| Blueprint (LaTeX source, builds to web + PDF) | [`blueprint/src/`](./blueprint/src/) |
 | Paper-to-Lean correspondence | [`BLUEPRINT.md`](./BLUEPRINT.md) |
 
 ## Formalization status
@@ -73,8 +70,7 @@ to confirm only the two project axioms appear.
 │   └── lean_decls                    -- declaration manifest
 ├── BLUEPRINT.md                      -- high-level paper-to-Lean map
 ├── lakefile.toml                     -- Lean build config
-├── lean-toolchain                    -- pinned Lean version
-└── .github/workflows/blueprint.yml   -- CI: Lean + doc-gen4 + blueprint + Pages
+└── lean-toolchain                    -- pinned Lean version
 ```
 
 ## Building locally
@@ -115,21 +111,6 @@ lake -Kenv=dev build GammaPochhammer:docs
 # Output: .lake/build/doc/index.html
 ```
 
-## One-time GitHub Pages setup
-
-For the deployed site at
-<https://rvazdev-ex.github.io/gamma-pochhammer/> to publish:
-
-1. **Settings &rarr; Actions &rarr; General**:
-   under *Workflow permissions*, allow GitHub Actions to write
-   to the repository.
-2. **Settings &rarr; Pages &rarr; Source**: choose *GitHub Actions*.
-
-Pushes to `main` then trigger
-[`.github/workflows/blueprint.yml`](./.github/workflows/blueprint.yml),
-which builds the Lean project, doc-gen4 API docs, the blueprint
-(web + PDF), and the paper PDF, then deploys everything to Pages.
-
 ## Contributing
 
 The two open axioms (Lemma~1 and Lemma~2 of the paper) require
@@ -138,8 +119,8 @@ Hermite--Kakeya--Obreschkoff). Contributions toward either are
 welcome; see [`BLUEPRINT.md`](./BLUEPRINT.md) for the proof routes.
 
 When editing the blueprint, every `\lean{GammaPochhammer.foo}` tag in
-`blueprint/src/content.tex` must resolve to a real declaration, or
-`leanblueprint checkdecls` (run in CI) will fail.
+`blueprint/src/content.tex` must resolve to a real declaration; run
+`leanblueprint checkdecls` locally before pushing.
 
 ## License & citation
 
