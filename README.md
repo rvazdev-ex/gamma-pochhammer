@@ -132,11 +132,23 @@ lake build                # build GammaPochhammer
 **Build the blueprint**
 
 ```sh
-leanblueprint checkdecls   # verify every \lean{...} in content.tex resolves
-leanblueprint pdf          # → blueprint/print/print.pdf  (uses pdflatex)
-leanblueprint web          # → blueprint/web/index.html   (uses plasTeX)
-leanblueprint serve        # serve blueprint/web/ on localhost
+leanblueprint checkdecls         # verify every \lean{...} in content.tex resolves
+leanblueprint pdf                # → blueprint/print/print.pdf  (uses pdflatex)
+leanblueprint web                # → blueprint/web/index.html   (uses plasTeX)
+python3 blueprint/render_graph.py  # render dep graph + patch HTML (see below)
+leanblueprint serve              # serve blueprint/web/ on localhost
 ```
+
+The `render_graph.py` step is a small post-processor: it extracts the
+inline DOT graph that `plastexdepgraph` writes into
+`dep_graph_document.html`, renders it with the system `dot` to
+`blueprint/dep_graph.{svg,png,pdf}` (tracked) and the same files inside
+`blueprint/web/` (gitignored), then embeds the rendered SVG into the
+`#graph` div and flips `useWorker: true` to `false`. Without this, the
+client-side `d3-graphviz` rendering silently fails when the page is
+opened via `file://` (Web Workers can't fetch `graphvizlib.wasm`
+cross-origin), so the graph area stays blank for anyone not running
+`leanblueprint serve`.
 
 All three commands must be run from the repository root (they locate
 the blueprint via the surrounding Git repo).
