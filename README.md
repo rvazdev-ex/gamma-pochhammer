@@ -105,9 +105,12 @@ leanblueprint web          # builds blueprint/web/index.html
 
 ### API documentation
 
+`doc-gen4` is pinned in `lakefile.toml` and resolved by the standard
+`lake update` / `lake exe cache get` flow above, so no extra step is
+needed before building docs:
+
 ```sh
-lake -Kenv=dev update doc-gen4
-lake -Kenv=dev build GammaPochhammer:docs
+lake build GammaPochhammer:docs
 # Output: .lake/build/doc/index.html
 ```
 
