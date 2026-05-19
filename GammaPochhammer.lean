@@ -1,3 +1,2 @@
 import GammaPochhammer.Basic
-import GammaPochhammer.Schur
 import GammaPochhammer.Determinant
