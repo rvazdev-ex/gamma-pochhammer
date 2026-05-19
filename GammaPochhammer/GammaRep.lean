@@ -266,11 +266,16 @@ private theorem palindromic_factor_mul
     (hd_le_n : d ≤ n) (hQR : Q = P * R) :
     PalindromicOfDegree (n - d) R ∧ R.natDegree = n - d := by
   by_cases hR : R = 0
-  · -- R = 0 case: forces Q = 0, n = 0, d = 0.
+  · -- R = 0 case: forces Q = 0, hence n = 0, d = 0.
     subst hR
     rw [mul_zero] at hQR
-    rw [hQR] at hQdeg
-    simp at hQdeg
+    rw [hQR, Polynomial.natDegree_zero] at hQdeg
+    -- hQdeg : 0 = n
+    have hn_zero : n = 0 := hQdeg.symm
+    subst hn_zero
+    have hd_zero : d = 0 := by omega
+    subst hd_zero
+    -- Conclusion: PalindromicOfDegree 0 0 ∧ (0 : ℝ[X]).natDegree = 0.
     refine ⟨⟨?_, ?_⟩, ?_⟩
     · simp
     · intro k hk
@@ -305,8 +310,7 @@ private theorem palindromic_eval_neg_one {Q : ℝ[X]} {n : ℕ}
   have hsum : Q.eval (-1 : ℝ) =
       ∑ k ∈ Finset.range (n + 1), Q.coeff k * (-1 : ℝ) ^ k :=
     Polynomial.eval_eq_sum_range' (by omega) _
-  conv_lhs => rw [hsum]
-  rw [Finset.mul_sum]
+  rw [hsum, Finset.mul_sum]
   symm
   apply Finset.sum_nbij' (fun k => n - k) (fun k => n - k)
   · intro k hk
@@ -689,7 +693,7 @@ theorem gamma_representation_proved
             -- Reindex second sum.
             rw [show (∑ j ∈ Finset.range m, C (ζ * γ' j) * gammaBasis n (j + 1)) =
                 (∑ k ∈ Finset.Ico 1 (m + 1), C (ζ * γ' (k - 1)) * gammaBasis n k) from by
-              apply Finset.sum_nbij' (fun j _ => j + 1) (fun k _ => k - 1)
+              apply Finset.sum_nbij' (fun j => j + 1) (fun k => k - 1)
               · intro j hj
                 rw [Finset.mem_range] at hj; rw [Finset.mem_Ico]; omega
               · intro k hk
@@ -772,7 +776,7 @@ theorem gamma_representation_proved
               -- Reindex the second sum.
               rw [show ∑ j ∈ Finset.range (m - 1 + 1), C (ζ * γ' j) * X ^ (j + 1) =
                   ∑ k ∈ Finset.Ico 1 (m + 1), C (ζ * γ' (k - 1)) * X ^ k from by
-                apply Finset.sum_nbij' (fun j _ => j + 1) (fun k _ => k - 1)
+                apply Finset.sum_nbij' (fun j => j + 1) (fun k => k - 1)
                 · intro j hj
                   rw [Finset.mem_range] at hj
                   rw [Finset.mem_Ico]; omega
