@@ -1,0 +1,7 @@
+# latexmk configuration for `leanblueprint pdf`.
+# Restricts latexmk to compiling print.tex and pins the engine to pdflatex
+# (matches the package set declared in print.tex; switch to xelatex/lualatex
+# only if you add unicode-math or fontspec).
+$pdf_mode = 1;
+$pdflatex = 'pdflatex -synctex=1 -interaction=nonstopmode';
+@default_files = ('print.tex');
