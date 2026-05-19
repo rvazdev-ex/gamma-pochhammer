@@ -493,7 +493,7 @@ theorem gamma_representation_proved
           obtain ⟨R₁, hR₁⟩ : (X - C (-1 : ℝ)) ∣ Q :=
             (Polynomial.dvd_iff_isRoot (a := -1)).mpr h_neg1_root
           have hR₁_eq : Q = ((1 : ℝ[X]) + X) * R₁ := by
-            rw [hR₁]; rw [Polynomial.C_neg]; ring
+            rw [hR₁]; simp only [Polynomial.C_neg, Polynomial.C_1, sub_neg_eq_add]; ring
           obtain ⟨hR₁_pal, hR₁_deg⟩ :=
             palindromic_factor_mul hpal hQ_deg one_add_X_palindromic
               one_add_X_natDegree one_add_X_ne_zero (by omega) hR₁_eq
@@ -501,7 +501,7 @@ theorem gamma_representation_proved
             apply hasOnlyRealNegativeZeros_quotient hroot
             rw [hR₁_eq]
             rw [show ((1 : ℝ[X]) + X) = X - C (-1 : ℝ) from by
-              rw [Polynomial.C_neg]; ring]
+              simp only [Polynomial.C_neg, Polynomial.C_1, sub_neg_eq_add]; ring]
           have hR₁_odd : Odd (n - 1) := by
             rcases Nat.even_or_odd (n - 1) with h | h
             · exfalso
@@ -513,7 +513,7 @@ theorem gamma_representation_proved
           obtain ⟨S, hS⟩ : (X - C (-1 : ℝ)) ∣ R₁ :=
             (Polynomial.dvd_iff_isRoot (a := -1)).mpr h_R₁_neg1
           have hS_eq : R₁ = ((1 : ℝ[X]) + X) * S := by
-            rw [hS]; rw [Polynomial.C_neg]; ring
+            rw [hS]; simp only [Polynomial.C_neg, Polynomial.C_1, sub_neg_eq_add]; ring
           have hQ_S : Q = ((1 + X : ℝ[X]) ^ 2) * S := by
             rw [hR₁_eq, hS_eq]; ring
           have hQ_S_pair : Q = (((1 + X : ℝ[X]) ^ 2) + C 0 * X) * S := by
@@ -526,7 +526,7 @@ theorem gamma_representation_proved
             apply hasOnlyRealNegativeZeros_quotient hR₁_root
             rw [hS_eq]
             rw [show ((1 : ℝ[X]) + X) = X - C (-1 : ℝ) from by
-              rw [Polynomial.C_neg]; ring]
+              simp only [Polynomial.C_neg, Polynomial.C_1, sub_neg_eq_add]; ring]
           have hn_2 : n - 2 = 2 * (m - 1) + 0 := by omega
           have h_lt : n - 2 < n := by omega
           obtain ⟨γ', hγ'_exp, hγ'_root⟩ :=
@@ -582,7 +582,7 @@ theorem gamma_representation_proved
           obtain ⟨R₁, hR₁⟩ : (X - C (-α : ℝ)) ∣ Q :=
             (Polynomial.dvd_iff_isRoot (a := -α)).mpr h_α_root
           have hR₁_eq : Q = (X + C α : ℝ[X]) * R₁ := by
-            rw [hR₁]; rw [Polynomial.C_neg]; ring
+            rw [hR₁]; simp only [Polynomial.C_neg, Polynomial.C_1, sub_neg_eq_add]; ring
           -- R₁(-α⁻¹) = 0 since (X + C α) at -α⁻¹ is α - α⁻¹ ≠ 0.
           have h_eval_factor : ((X + C α : ℝ[X]).eval (-α⁻¹ : ℝ)) = α - α⁻¹ := by
             simp [Polynomial.eval_add, Polynomial.eval_X, Polynomial.eval_C]
@@ -613,7 +613,7 @@ theorem gamma_representation_proved
           obtain ⟨S, hS⟩ : (X - C (-α⁻¹ : ℝ)) ∣ R₁ :=
             (Polynomial.dvd_iff_isRoot (a := -α⁻¹)).mpr hR₁_root
           have hS_eq : R₁ = (X + C α⁻¹ : ℝ[X]) * S := by
-            rw [hS]; rw [Polynomial.C_neg]; ring
+            rw [hS]; simp only [Polynomial.C_neg, Polynomial.C_1, sub_neg_eq_add]; ring
           -- (X+α)(X+α⁻¹) = (1+X)^2 + (α + α⁻¹ - 2) X
           set ζ : ℝ := α + α⁻¹ - 2 with hζ_def
           have hζ_nn : 0 ≤ ζ := by
@@ -647,11 +647,11 @@ theorem gamma_representation_proved
               apply hasOnlyRealNegativeZeros_quotient hroot
               rw [hR₁_eq]
               rw [show (X + C α : ℝ[X]) = X - C (-α) from by
-                rw [Polynomial.C_neg]; ring]
+                simp only [Polynomial.C_neg, Polynomial.C_1, sub_neg_eq_add]; ring]
             apply hasOnlyRealNegativeZeros_quotient hR₁_neg
             rw [hS_eq]
             rw [show (X + C α⁻¹ : ℝ[X]) = X - C (-α⁻¹) from by
-              rw [Polynomial.C_neg]; ring]
+              simp only [Polynomial.C_neg, Polynomial.C_1, sub_neg_eq_add]; ring]
           have hn_2 : n - 2 = 2 * (m - 1) + 0 := by omega
           have h_lt : n - 2 < n := by omega
           obtain ⟨γ', hγ'_exp, hγ'_root⟩ :=
@@ -858,7 +858,7 @@ theorem gamma_representation_proved
       obtain ⟨R, hR⟩ : (X - C (-1 : ℝ)) ∣ Q :=
         (Polynomial.dvd_iff_isRoot (a := -1)).mpr h_neg1_root
       have hR_eq : Q = ((1 : ℝ[X]) + X) * R := by
-        rw [hR]; rw [Polynomial.C_neg]; ring
+        rw [hR]; simp only [Polynomial.C_neg, Polynomial.C_1, sub_neg_eq_add]; ring
       obtain ⟨hR_pal, hR_deg⟩ :=
         palindromic_factor_mul hpal hQ_deg one_add_X_palindromic
           one_add_X_natDegree one_add_X_ne_zero (by omega) hR_eq
@@ -866,7 +866,7 @@ theorem gamma_representation_proved
         apply hasOnlyRealNegativeZeros_quotient hroot
         rw [hR_eq]
         rw [show ((1 : ℝ[X]) + X) = X - C (-1 : ℝ) from by
-          rw [Polynomial.C_neg]; ring]
+          simp only [Polynomial.C_neg, Polynomial.C_1, sub_neg_eq_add]; ring]
       have hn1 : n - 1 = 2 * m + 0 := by omega
       have h_lt : n - 1 < n := by omega
       obtain ⟨γ', hγ'_exp, hγ'_root⟩ :=
