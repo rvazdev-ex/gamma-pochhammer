@@ -16,12 +16,12 @@ universal-zero factorizations, etc.) have been removed.
 
 ```
 GammaPochhammer.lean                  ─ root
-├── GammaPochhammer/Basic.lean        ─ definitions + paper results (5 axioms)
-└── GammaPochhammer/Determinant.lean  ─ Theorem 1 via Lemmas 1, 2, 3 (2 sorrys)
+├── GammaPochhammer/Basic.lean        ─ definitions + paper results (4 axioms)
+└── GammaPochhammer/Determinant.lean  ─ Theorem 1 via Lemmas 1, 2, 3 (no sorrys)
 ```
 
-**Build status:** `lake build` succeeds with 2 `sorry`s, both
-corresponding to specific steps in the paper's proof of Theorem 1.
+**Build status:** `lake build` succeeds with no `sorry`s. Theorem 1 is
+fully derived from Lemmas 1, 2, 3.
 
 ---
 
@@ -33,7 +33,7 @@ corresponding to specific steps in the paper's proof of Theorem 1.
 |---|---|
 | Pochhammer `(z)_k` | `pochhammer` |
 | `P_n(z)` | `determinantPolynomial` |
-| **Theorem 1** (P_n real-negative-rooted) | `main_theorem` (uses axiom ④) |
+| **Theorem 1** (P_n real-negative-rooted) | `main_theorem` (uses axioms ①, ②, ③) |
 | **Lemma 1** (Hadamard closure) | `Hadamard_closure_for_negative_rooted_polynomials` (axiom ①) |
 | **Lemma 2** (Schur transform 𝓛) | `schur_transform_preserves_nonpos` + `schurTransform` (axiom ②) |
 | **Lemma 3** (γ-representation) | `gamma_representation_of_palindromic_negative_rooted` + `gammaBasis`, `IsGammaExpansion`, `gammaPolynomial`, `PalindromicOfDegree` (axiom ③) |
@@ -51,7 +51,7 @@ corresponding to specific steps in the paper's proof of Theorem 1.
 | **Theorem 2** (the ladder formula) | `ladder_formula`, `pochhammer_kernel_ladder_formula`, `pochhammer_kernel_ladder`, `pochhammer_kernel_ladder_strict_shift` |
 | **Corollary 1** (original kernel palindromic) | `original_kernel_palindromic` |
 | **Corollary 2** (single-product kernel, s=0) | `single_product_kernel` |
-| Proof of Theorem 1 from Lemmas 1, 2, 3 + ladder | `determinant_main_preserves_strict_proved` (in `Determinant.lean`) — **2 sorrys** |
+| Proof of Theorem 1 from Lemmas 1, 2, 3 + ladder | `determinant_main_preserves_strict_proved` (in `Determinant.lean`) |
 
 ### Paper §3 — Centered two-product family uniqueness
 
