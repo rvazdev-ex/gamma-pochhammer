@@ -533,21 +533,19 @@ theorem gamma_representation_proved
             ih (n - 2) h_lt (m - 1) 0 (Or.inl rfl) hn_2 S hS_pal hS_root
           refine ⟨fun j => if j ≤ m - 1 then γ' j else 0, ?_, ?_⟩
           · unfold IsGammaExpansion at hγ'_exp ⊢
+            rw [show (m - 1) + 1 = m from by omega] at hγ'_exp
             rw [hQ_S, hγ'_exp, Finset.mul_sum]
             -- LHS = ∑_{j ∈ range m} (1+X)^2 * (C γ'_j * gammaBasis (n-2) j)
-            -- RHS = ∑_{j ∈ range (m+1)} C (γ_j) * gammaBasis n j
-            -- where γ_j = γ'_j for j ≤ m-1, γ_m = 0.
-            have h_m_eq : m + 1 = (m - 1 + 1) + 1 := by omega
-            rw [show Finset.range (m + 1) = Finset.range ((m - 1 + 1) + 1) from by
-              rw [h_m_eq]]
-            rw [Finset.sum_range_succ]
-            have h_top_zero :
-                C (if (m - 1 + 1) ≤ m - 1 then γ' (m - 1 + 1) else 0) *
-                  gammaBasis n (m - 1 + 1) = 0 := by
-              rw [if_neg (by omega : ¬ (m - 1 + 1) ≤ m - 1)]
+            -- RHS = ∑_{j ∈ range (m+1)} C (if j ≤ m - 1 then γ' j else 0) * gammaBasis n j
+            -- Convert RHS to ∑_{j ∈ range m} C γ'_j * gammaBasis n j.
+            conv_rhs =>
+              rw [show Finset.range (m + 1) = insert m (Finset.range m) from by
+                ext x
+                simp [Finset.mem_range, Finset.mem_insert]
+                omega]
+              rw [Finset.sum_insert (by simp [Finset.mem_range])]
+              rw [if_neg (by omega : ¬ m ≤ m - 1)]
               simp
-            rw [h_top_zero, add_zero]
-            rw [show (m - 1 + 1) = m from by omega]
             apply Finset.sum_congr rfl
             intro j hj
             rw [Finset.mem_range] at hj
@@ -562,14 +560,15 @@ theorem gamma_representation_proved
                 gammaPolynomial m (fun j => if j ≤ m - 1 then γ' j else 0) =
                   gammaPolynomial (m - 1) γ' := by
               unfold gammaPolynomial
-              rw [show m + 1 = ((m - 1) + 1) + 1 from by omega]
-              rw [Finset.sum_range_succ]
-              have h_top :
-                  C (if ((m - 1) + 1) ≤ m - 1 then γ' ((m - 1) + 1) else 0) *
-                    X ^ ((m - 1) + 1) = 0 := by
-                rw [if_neg (by omega : ¬ ((m - 1) + 1) ≤ m - 1)]
+              rw [show (m - 1) + 1 = m from by omega]
+              conv_lhs =>
+                rw [show Finset.range (m + 1) = insert m (Finset.range m) from by
+                  ext x
+                  simp [Finset.mem_range, Finset.mem_insert]
+                  omega]
+                rw [Finset.sum_insert (by simp [Finset.mem_range])]
+                rw [if_neg (by omega : ¬ m ≤ m - 1)]
                 simp
-              rw [h_top, add_zero]
               apply Finset.sum_congr rfl
               intro j hj
               rw [Finset.mem_range] at hj
@@ -665,6 +664,7 @@ theorem gamma_representation_proved
             ?_, ?_⟩
           · -- IsGammaExpansion proof.
             unfold IsGammaExpansion at hγ'_exp ⊢
+            rw [show (m - 1) + 1 = m from by omega] at hγ'_exp
             rw [hQ_pair_eq, hγ'_exp, add_mul, Finset.mul_sum, Finset.mul_sum]
             -- Rewrite each summand on LHS using gammaBasis identities.
             have h_sq : ∀ j ∈ Finset.range m,
