@@ -127,7 +127,7 @@ When editing the blueprint, every `\lean{GammaPochhammer.foo}` tag in
 
 ## License & citation
 
-Released under the [Apache 2.0 license](./LICENSE).
+Released under the [MIT license](./LICENSE).
 
 If you reference the formalization or the paper, please cite:
 
