@@ -261,14 +261,14 @@ axiom schur_preserves_nonpos
     HasOnlyRealNonposZeros B →
     HasOnlyRealNonposZeros (schurTransform ell α B)
 
-axiom gamma_representation
-    (n m ε : ℕ) (hε : ε = 0 ∨ ε = 1) (hn : n = 2 * m + ε)
-    (Q : ℝ[X]) :
-    PalindromicOfDegree n Q →
-    HasOnlyRealNegativeZeros Q →
-    ∃ γ : ℕ → ℝ,
-      IsGammaExpansion n m Q γ ∧
-      HasOnlyRealNonposZeros (gammaPolynomial m γ)
+-- `gamma_representation` (Lemma 3 of the paper) is **no longer an axiom**.
+-- It is now proved in `GammaPochhammer/GammaRep.lean` as
+-- `GammaPochhammer.gamma_representation_proved`, and re-exported there as
+-- `GammaPochhammer.gamma_representation`.  The five theorems that consumed
+-- this axiom (`gamma_representation_of_palindromic_negative_rooted`,
+-- `pochhammer_kernel_ladder`, `pochhammer_kernel_ladder_strict_shift`,
+-- `original_kernel_palindromic`, `single_product_kernel`) live in
+-- `GammaRep.lean` for the same reason.
 
 private def risingProd (w : ℝ) (j : ℕ) : ℝ :=
   ∏ i ∈ Finset.range j, (w + (i : ℝ))
@@ -436,21 +436,21 @@ private lemma sum_lambda_key_identity (s : ℕ) :
     refine Finset.sum_nbij' (fun q => s + q) (fun k => k - s) ?_ ?_ ?_ ?_ ?_
     · intro q hq
       rw [Finset.mem_Ico] at hq
-      show s + q ∈ Finset.Ico (s + 1) (2 * s + 1)
+      change s + q ∈ Finset.Ico (s + 1) (2 * s + 1)
       rw [Finset.mem_Ico]
       omega
     · intro k hk
       rw [Finset.mem_Ico] at hk
-      show k - s ∈ Finset.Ico 1 (s + 1)
+      change k - s ∈ Finset.Ico 1 (s + 1)
       rw [Finset.mem_Ico]
       omega
     · intro q hq
       rw [Finset.mem_Ico] at hq
-      show s + q - s = q
+      change s + q - s = q
       omega
     · intro k hk
       rw [Finset.mem_Ico] at hk
-      show s + (k - s) = k
+      change s + (k - s) = k
       omega
     · intro q hq
       rw [Finset.mem_Ico] at hq
@@ -468,7 +468,7 @@ private lemma sum_lambda_key_identity (s : ℕ) :
       Finset.range (2 * s + 1) =
         (Finset.range s ∪ ({s} : Finset ℕ)) ∪ Finset.Ico (s + 1) (2 * s + 1) := by
     ext x
-    simp [Finset.mem_range, Finset.mem_Ico, Finset.mem_union, Finset.mem_singleton]
+    simp [Finset.mem_range, Finset.mem_Ico, Finset.mem_union]
     omega
   have hdisj1 :
       Disjoint (Finset.range s ∪ ({s} : Finset ℕ)) (Finset.Ico (s + 1) (2 * s + 1)) := by
@@ -480,8 +480,9 @@ private lemma sum_lambda_key_identity (s : ℕ) :
   have hdisj2 : Disjoint (Finset.range s) ({s} : Finset ℕ) := by
     rw [Finset.disjoint_singleton_right, Finset.mem_range]; omega
   rw [hset, Finset.sum_union hdisj1, Finset.sum_union hdisj2, Finset.sum_singleton]
-  -- Now goal: (-1)^s · C(2s,s) + ∑_{Ico (s+1) (2s+1)} 2 · (-1)^k · C(2s,k)
-  --        = (∑_{range s} (-1)^k · C(2s,k) + (-1)^s · C(2s,s)) + ∑_{Ico (s+1) (2s+1)} (-1)^k · C(2s,k)
+  -- LHS: (-1)^s · C(2s,s) + ∑_{Ico (s+1) (2s+1)} 2 · (-1)^k · C(2s,k)
+  -- RHS: (∑_{range s} (-1)^k · C(2s,k) + (-1)^s · C(2s,s)) +
+  --      ∑_{Ico (s+1) (2s+1)} (-1)^k · C(2s,k)
   -- Reflection: ∑_{range s} (-1)^k · C(2s,k) = ∑_{Ico (s+1) (2s+1)} (-1)^k · C(2s,k).
   have hreflect :
       ∑ k ∈ Finset.range s, (-1 : ℝ) ^ k * ((2 * s).choose k : ℝ) =
@@ -499,7 +500,7 @@ private lemma sum_lambda_key_identity (s : ℕ) :
     intro j hj
     rw [Finset.mem_Ico] at hj
     have hle : j ≤ 2 * s := by omega
-    show (-1 : ℝ) ^ j * ((2 * s).choose j : ℝ)
+    change (-1 : ℝ) ^ j * ((2 * s).choose j : ℝ)
         = (-1 : ℝ) ^ (2 * s - j) * ((2 * s).choose (2 * s - j) : ℝ)
     rw [neg_one_pow_two_mul_sub hle]
     congr 1
@@ -621,7 +622,7 @@ private lemma centralDifferenceRHS_succ_j {s : ℕ} (hs : 0 < s) (j : ℕ) (w : 
       (risingProd w (j - s) * risingProd (w + (s : ℝ)) (j - s)) *
         (w + ((j : ℝ) - s)) * hchoose
   · -- Case 2: j < s.
-    push_neg at hsj
+    have hsj : j < s := Nat.lt_of_not_le hsj
     have hCjs : (j.choose s : ℝ) = 0 := by
       exact_mod_cast Nat.choose_eq_zero_of_lt hsj
     rcases Nat.eq_or_lt_of_le (show j ≤ s - 1 by omega) with hje | hje
@@ -797,29 +798,30 @@ private lemma ascPochhammer_vandermonde (a b : ℝ) (n : ℕ) :
       refine Finset.sum_nbij' (fun k => k + 1) (fun k => k - 1) ?_ ?_ ?_ ?_ ?_
       · intro k hk
         rw [Finset.mem_range] at hk
-        show k + 1 ∈ Finset.Ico 1 (n + 2)
+        change k + 1 ∈ Finset.Ico 1 (n + 2)
         rw [Finset.mem_Ico]; omega
       · intro k hk
         rw [Finset.mem_Ico] at hk
-        show k - 1 ∈ Finset.range (n + 1)
+        change k - 1 ∈ Finset.range (n + 1)
         rw [Finset.mem_range]; omega
-      · intro k _; show k + 1 - 1 = k; omega
+      · intro k _; change k + 1 - 1 = k; omega
       · intro k hk
         rw [Finset.mem_Ico] at hk
-        show k - 1 + 1 = k; omega
+        change k - 1 + 1 = k; omega
       · intro k hk
         rw [Finset.mem_range] at hk
         have hkn : k ≤ n := Nat.lt_succ_iff.mp hk
-        show (Nat.choose n k : ℝ) *
+        change (Nat.choose n k : ℝ) *
               ((ascPochhammer ℝ (k + 1)).eval a *
                 (ascPochhammer ℝ (n - k)).eval b) =
             (Nat.choose n (k + 1 - 1) : ℝ) *
               ((ascPochhammer ℝ (k + 1)).eval a *
                 (ascPochhammer ℝ (n + 1 - (k + 1))).eval b)
-        rw [show k + 1 - 1 = k from by omega, show n + 1 - (k + 1) = n - k from by omega]
+        rw [show k + 1 - 1 = k from by omega,
+            show n + 1 - (k + 1) = n - k from by omega]
     rw [hreindex]
-    -- Combine LHS_2 (= ∑ over range (n+1)) with the {0} term and the shifted sum to match the RHS Pascal.
-    -- Convert LHS_2 from range to Ico:
+    -- Combine LHS_2 with the {0} term and the shifted sum
+    -- to match the RHS Pascal.  Convert LHS_2 from range to Ico:
     have hLHS2_ico :
         ∑ k ∈ Finset.range (n + 1),
             (Nat.choose n k : ℝ) *
@@ -844,8 +846,7 @@ private lemma ascPochhammer_vandermonde (a b : ℝ) (n : ℕ) :
       rw [Finset.range_eq_Ico]
       rw [show (n + 1 + 1) = (n + 2) from by ring]
       rw [← Finset.sum_Ico_consecutive _ (Nat.zero_le 1) (by omega : 1 ≤ n + 2)]
-      rw [show Finset.Ico 0 1 = {0} from by
-            ext x; simp [Finset.mem_Ico, Finset.mem_singleton]]
+      rw [show Finset.Ico 0 1 = {0} from rfl]
       rw [Finset.sum_singleton]
       simp [Nat.choose_zero_right]
     -- For k ∈ Ico 1 (n+2), use Pascal C(n+1, k) = C(n, k-1) + C(n, k).
@@ -1071,9 +1072,8 @@ private lemma rung_action_eval (n s j : ℕ) (h2j : 2 * j ≤ n) (μ z : ℝ) :
     rw [← Finset.mul_sum]
     -- Apply Vandermonde-Chu.
     rw [ascPochhammer_vandermonde]
-    -- Now the argument is (z + μ + q + j) + (z + μ - q + j) = 2z + 2μ + 2j. Need to show.
+    -- Now the argument is (z + μ + q + j) + (z + μ - q + j) = 2z + 2μ + 2j.
     congr 2
-    push_cast
     ring
   rw [Finset.sum_congr rfl hinner]
   -- Factor (ascP (n - 2j)).eval (2z+2μ+2j) out of the q-sum.
@@ -1104,12 +1104,13 @@ theorem rung_action_on_gamma_basis
   apply Polynomial.funext
   intro z
   rw [rung_action_eval n s j h2j μ z]
-  -- RHS.eval z = C(j, s) * (ascP (j-s)).eval(z+μ) * (ascP (j-s)).eval(z+μ+s) * (ascP (n-2j)).eval(2z+2μ+2j)
+  -- RHS.eval z = C(j, s) * (ascP (j-s)).eval(z+μ) * (ascP (j-s)).eval(z+μ+s)
+  --   * (ascP (n-2j)).eval(2z+2μ+2j)
   rw [eval_mul, eval_mul, eval_mul, eval_C, pochhammer_eval, pochhammer_eval,
       linearPochhammer_eval]
   rw [show (z + (μ + ↑s)) = z + μ + ↑s from by ring]
   simp_rw [ascPochhammer_eval_eq_prod_range_real]
-  ring
+  ring_nf
 
 /-! Helpers for `ladder_formula`. -/
 
@@ -1123,7 +1124,8 @@ private lemma gammaPolynomial_coeff_of_le (m : ℕ) (γ : ℕ → ℝ) {k : ℕ}
   · intro hknot
     exact False.elim (hknot (Finset.mem_range.mpr (Nat.lt_succ_of_le hk)))
 
-/-- Duplication formula (even case): `(ascP (2N)).eval (2v) = 4^N · (ascP N).eval v · (ascP N).eval (v+1/2)`. -/
+/-- Duplication formula (even case):
+`(ascP (2N)).eval (2v) = 4^N · (ascP N).eval v · (ascP N).eval (v+1/2)`. -/
 private lemma ascPochhammer_two_mul_eval (N : ℕ) (v : ℝ) :
     (ascPochhammer ℝ (2 * N)).eval (2 * v) =
       (4 : ℝ) ^ N *
@@ -1190,9 +1192,10 @@ private lemma rung_eval_simplify (n m ε s k : ℕ) (hε : ε = 0 ∨ ε = 1)
     simp only [eval_mul, eval_comp, eval_add, eval_X, eval_natCast] at heval
     exact heval.symm
   -- Cast of (m - s - k) as a real.
-  have hcast_m : (z + μ + (s : ℝ) + (k : ℝ) + ((m - s - k : ℕ) : ℝ)) = z + μ + (m : ℝ) := by
+  have hcast_m :
+      (z + μ + (s : ℝ) + (k : ℝ) + ((m - s - k : ℕ) : ℝ)) = z + μ + (m : ℝ) := by
     rw [Nat.cast_sub hkms, Nat.cast_sub hsm]
-    push_cast; ring
+    ring
   rcases hε with rfl | rfl
   · -- ε = 0.
     simp only [add_zero, pow_zero, one_mul, ascPochhammer_zero, eval_one, mul_one]
@@ -1244,7 +1247,6 @@ private lemma ladder_B_coeff (m s : ℕ) (γ : ℕ → ℝ) (r : ℕ) (hr : r �
       _ = (4 : ℝ) ^ (m - s - r) * ((4 * (1 / 4) : ℝ) ^ r) := by rw [mul_pow]
       _ = (4 : ℝ) ^ (m - s - r) * 1 ^ r := by norm_num
       _ = (4 : ℝ) ^ (m - s - r) := by ring
-  push_cast
   linear_combination
     (((r + s).descFactorial s : ℝ) * γ (r + s)) * h4
 
@@ -1288,7 +1290,7 @@ theorem ladder_formula
     intros j _
     rw [eval_mul, eval_mul, eval_mul, eval_mul, eval_C, eval_C,
         pochhammer_eval, pochhammer_eval, linearPochhammer_eval]
-    push_cast; ring
+    ring_nf
   rw [Finset.sum_congr rfl h_LHS_each]
   -- Case split on s ≤ m.
   by_cases hsm : s ≤ m
@@ -1329,18 +1331,18 @@ theorem ladder_formula
       refine Finset.sum_nbij' (fun j => j - s) (fun k => k + s) ?_ ?_ ?_ ?_ ?_
       · intros j hj
         rw [Finset.mem_Ico] at hj
-        show j - s ∈ Finset.range (m - s + 1)
+        change j - s ∈ Finset.range (m - s + 1)
         rw [Finset.mem_range]; omega
       · intros k hk
         rw [Finset.mem_range] at hk
-        show k + s ∈ Finset.Ico s (m + 1)
+        change k + s ∈ Finset.Ico s (m + 1)
         rw [Finset.mem_Ico]; omega
       · intros j hj
         rw [Finset.mem_Ico] at hj
-        show j - s + s = j
+        change j - s + s = j
         omega
       · intros k _
-        show k + s - s = k
+        change k + s - s = k
         omega
       · intros j hj
         rw [Finset.mem_Ico] at hj
@@ -1369,7 +1371,9 @@ theorem ladder_formula
     rw [Finset.sum_congr rfl h_LHS_simp]
     -- Factor out the common 2^ε * (ascP (m-s+ε)).eval(z+μ+s).
     rw [← Finset.mul_sum]
-    -- Now LHS.eval z = 2^ε * (ascP (m-s+ε)).eval(z+μ+s) * Σ_k γ(k+s) * (k+s).choose s * 4^(m-s-k) * (ascP k).eval(z+μ) * (ascP (m-s-k)).eval(z+μ+k+s+1/2)
+    -- Now LHS.eval z = 2^ε * (ascP (m-s+ε)).eval(z+μ+s) *
+    --   Σ_k γ(k+s) * (k+s).choose s * 4^(m-s-k) *
+    --   (ascP k).eval(z+μ) * (ascP (m-s-k)).eval(z+μ+k+s+1/2)
     -- Evaluate RHS.
     rw [eval_mul, eval_mul, eval_C, pochhammer_eval, eval_comp]
     rw [eval_add, eval_X, eval_C]
@@ -1410,9 +1414,9 @@ theorem ladder_formula
     congr 1
     apply Finset.sum_congr rfl
     intros k _
-    -- Need: γ(k+s) * (k+s).choose s * 4^(m-s-k) * (ascP k).eval(z+μ) * (ascP (m-s-k)).eval(z+μ+k+s+1/2)
-    --     = (1/s!) * 4^(m-s-k) * descFactorial(k+s, s) * γ(k+s) * (ascP k).eval(z+μ) * (ascP (m-s-k)).eval(z+μ+k+s+1/2)
-    -- This holds because (k+s).choose s * s! = descFactorial(k+s, s).
+    -- Equates `γ(k+s) * (k+s).choose s * 4^(m-s-k) * ...` to
+    -- `(1/s!) * 4^(m-s-k) * descFactorial(k+s, s) * γ(k+s) * ...`
+    -- via (k+s).choose s * s! = descFactorial(k+s, s).
     have hdesc : ((k + s).descFactorial s : ℝ) =
         (Nat.factorial s : ℝ) * ((k + s).choose s : ℝ) := by
       have := Nat.descFactorial_eq_factorial_mul_choose (k + s) s
@@ -1422,7 +1426,7 @@ theorem ladder_formula
     rw [hdesc]
     field_simp
   · -- Edge case: s > m. Both sides reduce to 0.
-    push_neg at hsm
+    have hsm : m < s := Nat.lt_of_not_le hsm
     rw [show ∑ j ∈ Finset.range (m + 1),
             γ j * ((j.choose s : ℝ)) *
               (ascPochhammer ℝ (j - s)).eval (z + μ) *
@@ -1705,16 +1709,15 @@ theorem shift_right_preserves_negative
     _ = (r : ℂ) - (μ : ℂ) := by rw [hzr]
     _ = ((r - μ : ℝ) : ℂ) := by norm_num
 
-/-- **Theorem 1 of the paper** is now proven, not axiomatized. See
+/-! **Theorem 1 of the paper** is now proven, not axiomatized. See
 `GammaPochhammer.determinant_main_preserves_strict_proved` in `Determinant.lean`
 for the proof using Lemmas 1, 2, 3. The wrapper `main_theorem` in
-`Determinant.lean` provides the user-facing statement. -/
+`Determinant.lean` provides the user-facing statement.
 
-axiom centered_classification_axiom
-    (a c : ℝ) :
-    a ^ 2 ≠ c ^ 2 →
-    (UniversallyAdmissibleCentered a c ↔
-      ({a ^ 2, c ^ 2} : Set ℝ) = ({0, 1} : Set ℝ))
+`centered_classification_axiom` (Theorem 3 of the paper) is **no longer an
+axiom**.  It is now proved in `GammaPochhammer/Classification.lean` as
+`GammaPochhammer.centered_classification_proved`, and the user-facing
+`centered_balanced_classification` theorem lives there too. -/
 
 /-! ## Theorems corresponding to the paper -/
 
@@ -1733,15 +1736,8 @@ theorem schur_transform_preserves_nonpos
     HasOnlyRealNonposZeros (schurTransform ell α B) :=
   schur_preserves_nonpos ell hα B hB
 
-theorem gamma_representation_of_palindromic_negative_rooted
-    (n m ε : ℕ) (hε : ε = 0 ∨ ε = 1) (hn : n = 2 * m + ε)
-    (Q : ℝ[X])
-    (hpal : PalindromicOfDegree n Q)
-    (hroot : HasOnlyRealNegativeZeros Q) :
-    ∃ γ : ℕ → ℝ,
-      IsGammaExpansion n m Q γ ∧
-      HasOnlyRealNonposZeros (gammaPolynomial m γ) :=
-  gamma_representation n m ε hε hn Q hpal hroot
+-- `gamma_representation_of_palindromic_negative_rooted` is now in
+-- `GammaRep.lean`, where Lemma 3 is proven.
 
 theorem central_difference
     (s j : ℕ) (w : ℝ) :
@@ -1777,81 +1773,17 @@ theorem pochhammer_kernel_ladder_formula
         (X + C μ) :=
   ladder_formula n m ε s μ Q γ hε hn hγ
 
-theorem pochhammer_kernel_ladder
-    (n m ε s : ℕ) (μ : ℝ) (Q : ℝ[X])
-    (hε : ε = 0 ∨ ε = 1) (hn : n = 2 * m + ε)
-    (_hs : s ≤ m)
-    (hpal : PalindromicOfDegree n Q)
-    (hroot : HasOnlyRealNegativeZeros Q)
-    (hμ : 0 ≤ μ) :
-    HasOnlyRealNonposZeros (rungOperator n s μ Q) :=
-by
-  obtain ⟨γ, hγ, hγroot⟩ :=
-    gamma_representation n m ε hε hn Q hpal hroot
-  rw [ladder_formula n m ε s μ Q γ hε hn hγ]
-  apply mul_preserves_nonpos
-  · apply const_mul_preserves_nonpos
-    apply pochhammer_nonpos
-    positivity
-  · apply shift_right_preserves_nonpos _ hμ
-    apply schur_preserves_nonpos
-    · positivity
-    · apply const_mul_preserves_nonpos
-      apply scale_comp_preserves_nonpos
-      · norm_num
-      · exact derivative_preserves_nonpos s (gammaPolynomial m γ) hγroot
-
-theorem pochhammer_kernel_ladder_strict_shift
-    (n m ε s : ℕ) (μ : ℝ) (Q : ℝ[X])
-    (hε : ε = 0 ∨ ε = 1) (hn : n = 2 * m + ε)
-    (_hs : s ≤ m)
-    (hpal : PalindromicOfDegree n Q)
-    (hroot : HasOnlyRealNegativeZeros Q)
-    (hμ : 0 < μ) :
-    HasOnlyRealNegativeZeros (rungOperator n s μ Q) :=
-by
-  obtain ⟨γ, hγ, hγroot⟩ :=
-    gamma_representation n m ε hε hn Q hpal hroot
-  rw [ladder_formula n m ε s μ Q γ hε hn hγ]
-  apply mul_preserves_negative
-  · apply const_mul_preserves_negative
-    apply pochhammer_negative
-    positivity
-  · apply shift_right_preserves_negative _ hμ
-    apply schur_preserves_nonpos
-    · positivity
-    · apply const_mul_preserves_nonpos
-      apply scale_comp_preserves_nonpos
-      · norm_num
-      · exact derivative_preserves_nonpos s (gammaPolynomial m γ) hγroot
-
-theorem original_kernel_palindromic
-    (n m ε : ℕ) (Q : ℝ[X])
-    (hε : ε = 0 ∨ ε = 1) (hn : n = 2 * m + ε)
-    (hm : 1 ≤ m)
-    (hpal : PalindromicOfDegree n Q)
-    (hroot : HasOnlyRealNegativeZeros Q) :
-    HasOnlyRealNonposZeros (rungOperator n 1 0 Q) :=
-  pochhammer_kernel_ladder n m ε 1 0 Q hε hn hm hpal hroot (le_refl 0)
-
--- `main_theorem` (Theorem 1 of the paper) is now stated and proven in
+-- `pochhammer_kernel_ladder`, `pochhammer_kernel_ladder_strict_shift`,
+-- `original_kernel_palindromic`, and `single_product_kernel` are now in
+-- `GammaRep.lean`, since they consume the proved Lemma 3.
+--
+-- `main_theorem` (Theorem 1 of the paper) is stated and proven in
 -- `Determinant.lean`, which has access to the Vieta machinery needed for
--- the proof. It is no longer here in `Basic.lean`.
+-- the proof.
 
-theorem single_product_kernel
-    (n m ε : ℕ) (μ : ℝ) (Q : ℝ[X])
-    (hε : ε = 0 ∨ ε = 1) (hn : n = 2 * m + ε)
-    (hpal : PalindromicOfDegree n Q)
-    (hroot : HasOnlyRealNegativeZeros Q)
-    (hμ : 0 < μ) :
-    HasOnlyRealNegativeZeros (rungOperator n 0 μ Q) :=
-  pochhammer_kernel_ladder_strict_shift n m ε 0 μ Q hε hn (Nat.zero_le m) hpal hroot hμ
-
-theorem centered_balanced_classification
-    (a c : ℝ) (h : a ^ 2 ≠ c ^ 2) :
-    UniversallyAdmissibleCentered a c ↔
-      ({a ^ 2, c ^ 2} : Set ℝ) = ({0, 1} : Set ℝ) :=
-  centered_classification_axiom a c h
+-- `centered_balanced_classification` (Theorem 3 of the paper) is stated and
+-- proven in `Classification.lean` as `centered_classification_proved`, and
+-- re-exported there as `centered_balanced_classification`.
 
 /-- The normalized unsigned row used in the paper agrees with the stated
 closed form of OEIS A380113. -/

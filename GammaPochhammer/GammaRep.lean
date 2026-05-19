@@ -136,8 +136,7 @@ private theorem reflect_eq_self_of_palindromic {Q : ℝ[X]} {n : ℕ}
   by_cases h_le_k : k ≤ n
   · rw [Polynomial.revAt_le h_le_k]
     exact (h_sym k h_le_k).symm
-  · push_neg at h_le_k
-    rw [Polynomial.revAt_eq_self_of_lt h_le_k]
+  · rw [Polynomial.revAt_eq_self_of_lt (Nat.not_le.mp h_le_k)]
 
 private theorem palindromic_of_reflect_eq {R : ℝ[X]} {n : ℕ}
     (h_nd : R.natDegree ≤ n) (h_refl : Polynomial.reflect n R = R) :
@@ -192,7 +191,7 @@ private theorem one_add_X_palindromic : PalindromicOfDegree 1 ((1 : ℝ[X]) + X)
   · intro k hk
     interval_cases k
     · simp [Polynomial.coeff_add, Polynomial.coeff_X, Polynomial.coeff_one]
-    · show Polynomial.coeff ((1 : ℝ[X]) + X) 1 = Polynomial.coeff ((1 : ℝ[X]) + X) 0
+    · change Polynomial.coeff ((1 : ℝ[X]) + X) 1 = Polynomial.coeff ((1 : ℝ[X]) + X) 0
       simp [Polynomial.coeff_add, Polynomial.coeff_X, Polynomial.coeff_one]
 
 private theorem one_add_X_natDegree : ((1 : ℝ[X]) + X).natDegree = 1 := by
@@ -204,54 +203,26 @@ private theorem one_add_X_ne_zero : ((1 : ℝ[X]) + X) ≠ 0 := by
   rw [one_add_X_natDegree] at this
   omega
 
+/-- Expansion `(1+X)^2 + C ζ * X = X^2 + (2 + C ζ) * X + 1`. We avoid `ring`'s
+issue with `1 : ℝ[X]` versus `C 1` by going through a more elementary form. -/
+private theorem quadratic_factor_eq (ζ : ℝ) :
+    (1 + X : ℝ[X]) ^ 2 + C ζ * X = X ^ 2 + (C ζ + 2) * X + 1 := by
+  ring
+
 private theorem quadratic_factor_natDegree (ζ : ℝ) :
     ((1 + X : ℝ[X]) ^ 2 + C ζ * X).natDegree = 2 := by
-  have h_expand : (1 + X : ℝ[X]) ^ 2 + C ζ * X = C 1 + C (2 + ζ) * X + C 1 * X ^ 2 := by
-    ring
-  rw [h_expand]
-  -- The polynomial is `C 1 + C (2 + ζ) * X + C 1 * X^2`.
-  -- Its natDegree is 2 because the coefficient of X^2 is 1 ≠ 0.
-  have h_coeff2 : (C 1 + C (2 + ζ) * X + C 1 * X ^ 2 : ℝ[X]).coeff 2 = 1 := by
-    simp [Polynomial.coeff_add, Polynomial.coeff_C_mul, Polynomial.coeff_C,
-      Polynomial.coeff_X, Polynomial.coeff_X_pow]
-  have h_coeff_gt : ∀ k > 2,
-      (C 1 + C (2 + ζ) * X + C 1 * X ^ 2 : ℝ[X]).coeff k = 0 := by
-    intro k hk
-    simp [Polynomial.coeff_add, Polynomial.coeff_C_mul, Polynomial.coeff_C,
-      Polynomial.coeff_X, Polynomial.coeff_X_pow]
-    refine ⟨?_, ?_, ?_⟩ <;> omega
-  apply le_antisymm
-  · apply Polynomial.natDegree_le_iff_coeff_eq_zero.mpr
-    intro k hk
-    exact h_coeff_gt k hk
-  · exact Polynomial.le_natDegree_of_ne_zero (by rw [h_coeff2]; norm_num)
+  rw [quadratic_factor_eq]
+  compute_degree!
 
 private theorem quadratic_factor_palindromic (ζ : ℝ) :
     PalindromicOfDegree 2 ((1 + X : ℝ[X]) ^ 2 + C ζ * X) := by
-  have h_expand : (1 + X : ℝ[X]) ^ 2 + C ζ * X = C 1 + C (2 + ζ) * X + C 1 * X ^ 2 := by
-    ring
-  have h_coeff : ∀ k,
-      ((1 + X : ℝ[X]) ^ 2 + C ζ * X).coeff k =
-        if k = 0 then 1 else if k = 1 then 2 + ζ else if k = 2 then 1 else 0 := by
-    intro k
-    rw [h_expand]
-    simp [Polynomial.coeff_add, Polynomial.coeff_C_mul, Polynomial.coeff_C,
-      Polynomial.coeff_X, Polynomial.coeff_X_pow]
-    by_cases h0 : k = 0
-    · subst h0; simp
-    · simp [h0]
-      by_cases h1 : k = 1
-      · subst h1; simp
-      · simp [h1]
-        by_cases h2 : k = 2
-        · subst h2; simp
-        · simp [h2]
   refine ⟨by rw [quadratic_factor_natDegree], ?_⟩
   intro k hk
-  interval_cases k
-  · rw [h_coeff 0, h_coeff 2]; simp
-  · rfl
-  · rw [h_coeff 2, h_coeff 0]; simp
+  rw [quadratic_factor_eq]
+  -- Both sides reduce to the same coefficient of `X^2 + (C ζ + 2) * X + 1`.
+  interval_cases k <;>
+    simp [Polynomial.coeff_add, Polynomial.coeff_one, Polynomial.coeff_X,
+      Polynomial.coeff_X_pow, Polynomial.coeff_mul_X, Polynomial.coeff_C]
 
 private theorem quadratic_factor_ne_zero (ζ : ℝ) :
     ((1 + X : ℝ[X]) ^ 2 + C ζ * X) ≠ 0 := by
@@ -418,11 +389,12 @@ private theorem one_add_C_mul_X_hasOnlyRealNonposZeros {ζ : ℝ} (hζ : 0 ≤ �
           Polynomial.map_C, Polynomial.map_X]
       rfl
     rw [h_complex_map] at hz
-    simp at hz
+    simp only [Polynomial.eval_add, Polynomial.eval_mul, Polynomial.eval_C,
+      Polynomial.eval_X, Polynomial.eval_one] at hz
     -- hz : 1 + ζ * z = 0, so z = -1/ζ
     have hζ_C_ne : (ζ : ℂ) ≠ 0 := by exact_mod_cast hζ0
     have h_z_eq : z = -(ζ : ℂ)⁻¹ := by
-      have h1 : (ζ : ℂ) * z = -1 := by linarith
+      have h1 : (ζ : ℂ) * z = -1 := by linear_combination hz
       have h2 : z = -1 / (ζ : ℂ) := by
         rw [eq_div_iff hζ_C_ne]
         linear_combination h1
@@ -463,8 +435,9 @@ theorem gamma_representation_proved
       rcases Nat.eq_zero_or_pos m with hm0 | hm_pos
       · -- m = 0, so n = 0
         subst hm0
-        simp at hn_eq
-        subst hn_eq
+        have hn0 : n = 0 := by omega
+        subst hn0
+        clear hn_eq
         have hQ_const : Q = C (Q.coeff 0) :=
           Polynomial.eq_C_of_natDegree_eq_zero hQ_deg
         refine ⟨fun j => if j = 0 then Q.coeff 0 else 0, ?_, ?_⟩
@@ -472,13 +445,15 @@ theorem gamma_representation_proved
           rw [hQ_const]; simp
         · right
           intro z hz
-          unfold gammaPolynomial at hz
-          simp only [Finset.range_one, Finset.sum_singleton, if_pos rfl, pow_zero,
-            mul_one] at hz
+          -- `gammaPolynomial 0 γ = C (Q.coeff 0)` since γ 0 = Q.coeff 0.
+          have h_gP : gammaPolynomial 0 (fun j => if j = 0 then Q.coeff 0 else 0) =
+              C (Q.coeff 0) := by
+            unfold gammaPolynomial
+            simp
+          rw [h_gP] at hz
           have h_complex : toComplex (C (Q.coeff 0)) = C (Q.coeff 0 : ℂ) := by
             unfold toComplex; rw [Polynomial.map_C]; rfl
-          rw [h_complex] at hz
-          simp at hz
+          rw [h_complex, Polynomial.eval_C] at hz
           exact absurd (by exact_mod_cast hz) hcoeff0
       · -- m ≥ 1, n ≥ 2
         have hm : 1 ≤ m := hm_pos
@@ -491,9 +466,11 @@ theorem gamma_representation_proved
         have h_α_root : Q.eval (-α) = 0 := by
           rw [hα_def]; simpa using h_negα_root
         by_cases hα1 : α = 1
-        · -- α = 1: factor out (1 + X)^2
-          subst hα1
-          have h_neg1_root : Q.eval (-1 : ℝ) = 0 := h_α_root
+        · -- α = 1: factor out (1 + X)^2.
+          -- Avoid `subst hα1` because `α` is a `set`/`let`-binding.
+          have h_neg1_root : Q.eval (-1 : ℝ) = 0 := by
+            have h_eq : (-α : ℝ) = -1 := by rw [hα1]
+            rw [← h_eq]; exact h_α_root
           obtain ⟨R₁, hR₁⟩ : (X - C (-1 : ℝ)) ∣ Q :=
             (Polynomial.dvd_iff_isRoot (a := -1)).mpr h_neg1_root
           have hR₁_eq : Q = ((1 : ℝ[X]) + X) * R₁ := by
@@ -502,7 +479,7 @@ theorem gamma_representation_proved
             palindromic_factor_mul hpal hQ_deg one_add_X_palindromic
               one_add_X_natDegree one_add_X_ne_zero (by omega) hR₁_eq
           have hR₁_root : HasOnlyRealNegativeZeros R₁ := by
-            apply hasOnlyRealNegativeZeros_quotient hroot
+            refine hasOnlyRealNegativeZeros_quotient hroot (r := -1) ?_
             rw [hR₁_eq]
             rw [show ((1 : ℝ[X]) + X) = X - C (-1 : ℝ) from by
               simp only [Polynomial.C_neg, Polynomial.C_1, sub_neg_eq_add]; ring]
@@ -527,7 +504,7 @@ theorem gamma_representation_proved
               (quadratic_factor_natDegree 0) (quadratic_factor_ne_zero 0)
               (by omega) hQ_S_pair
           have hS_root : HasOnlyRealNegativeZeros S := by
-            apply hasOnlyRealNegativeZeros_quotient hR₁_root
+            refine hasOnlyRealNegativeZeros_quotient hR₁_root (r := -1) ?_
             rw [hS_eq]
             rw [show ((1 : ℝ[X]) + X) = X - C (-1 : ℝ) from by
               simp only [Polynomial.C_neg, Polynomial.C_1, sub_neg_eq_add]; ring]
@@ -538,24 +515,22 @@ theorem gamma_representation_proved
           refine ⟨fun j => if j ≤ m - 1 then γ' j else 0, ?_, ?_⟩
           · unfold IsGammaExpansion at hγ'_exp ⊢
             rw [show (m - 1) + 1 = m from by omega] at hγ'_exp
+            -- Collapse the RHS sum over `range (m+1)` to a sum over `range m`,
+            -- since γ m = 0.
+            rw [show ∑ j ∈ Finset.range (m + 1),
+                  C (if j ≤ m - 1 then γ' j else 0) * gammaBasis n j =
+                ∑ j ∈ Finset.range m, C (γ' j) * gammaBasis n j from by
+              rw [Finset.sum_range_succ, if_neg (by omega : ¬ m ≤ m - 1)]
+              simp only [Polynomial.C_0, zero_mul, add_zero]
+              apply Finset.sum_congr rfl
+              intros j hj
+              rw [Finset.mem_range] at hj
+              rw [if_pos (by omega : j ≤ m - 1)]]
             rw [hQ_S, hγ'_exp, Finset.mul_sum]
-            -- LHS = ∑_{j ∈ range m} (1+X)^2 * (C γ'_j * gammaBasis (n-2) j)
-            -- RHS = ∑_{j ∈ range (m+1)} C (if j ≤ m - 1 then γ' j else 0) * gammaBasis n j
-            -- Convert RHS to ∑_{j ∈ range m} C γ'_j * gammaBasis n j.
-            conv_rhs =>
-              rw [show Finset.range (m + 1) = insert m (Finset.range m) from by
-                ext x
-                simp [Finset.mem_range, Finset.mem_insert]
-                omega]
-              rw [Finset.sum_insert (by simp [Finset.mem_range])]
-              rw [if_neg (by omega : ¬ m ≤ m - 1)]
-              simp
             apply Finset.sum_congr rfl
             intro j hj
             rw [Finset.mem_range] at hj
-            have hj_le : j ≤ m - 1 := Nat.lt_succ_iff.mp hj
             have h2j : 2 * j + 2 ≤ n := by omega
-            rw [if_pos hj_le]
             rw [show ((1 + X : ℝ[X]) ^ 2) * (C (γ' j) * gammaBasis (n - 2) j) =
                 C (γ' j) * ((1 + X : ℝ[X]) ^ 2 * gammaBasis (n - 2) j) from by ring]
             rw [one_add_X_sq_mul_gammaBasis_pred2 n j h2j]
@@ -565,19 +540,15 @@ theorem gamma_representation_proved
                   gammaPolynomial (m - 1) γ' := by
               unfold gammaPolynomial
               rw [show (m - 1) + 1 = m from by omega]
-              conv_lhs =>
-                rw [show Finset.range (m + 1) = insert m (Finset.range m) from by
-                  ext x
-                  simp [Finset.mem_range, Finset.mem_insert]
-                  omega]
-                rw [Finset.sum_insert (by simp [Finset.mem_range])]
-                rw [if_neg (by omega : ¬ m ≤ m - 1)]
-                simp
-              apply Finset.sum_congr rfl
-              intro j hj
-              rw [Finset.mem_range] at hj
-              have hj_le : j ≤ m - 1 := Nat.lt_succ_iff.mp hj
-              rw [if_pos hj_le]
+              rw [show ∑ j ∈ Finset.range (m + 1),
+                    C (if j ≤ m - 1 then γ' j else 0) * X ^ j =
+                  ∑ j ∈ Finset.range m, C (γ' j) * X ^ j from by
+                rw [Finset.sum_range_succ, if_neg (by omega : ¬ m ≤ m - 1)]
+                simp only [Polynomial.C_0, zero_mul, add_zero]
+                apply Finset.sum_congr rfl
+                intros j hj
+                rw [Finset.mem_range] at hj
+                rw [if_pos (by omega : j ≤ m - 1)]]
             rw [h_poly_eq]
             exact hγ'_root
         · -- α ≠ 1: factor out (X + α)(X + α⁻¹)
@@ -586,7 +557,7 @@ theorem gamma_representation_proved
           obtain ⟨R₁, hR₁⟩ : (X - C (-α : ℝ)) ∣ Q :=
             (Polynomial.dvd_iff_isRoot (a := -α)).mpr h_α_root
           have hR₁_eq : Q = (X + C α : ℝ[X]) * R₁ := by
-            rw [hR₁]; simp only [Polynomial.C_neg, Polynomial.C_1, sub_neg_eq_add]; ring
+            rw [hR₁]; simp only [Polynomial.C_neg, sub_neg_eq_add]
           -- R₁(-α⁻¹) = 0 since (X + C α) at -α⁻¹ is α - α⁻¹ ≠ 0.
           have h_eval_factor : ((X + C α : ℝ[X]).eval (-α⁻¹ : ℝ)) = α - α⁻¹ := by
             simp [Polynomial.eval_add, Polynomial.eval_X, Polynomial.eval_C]
@@ -617,7 +588,7 @@ theorem gamma_representation_proved
           obtain ⟨S, hS⟩ : (X - C (-α⁻¹ : ℝ)) ∣ R₁ :=
             (Polynomial.dvd_iff_isRoot (a := -α⁻¹)).mpr hR₁_root
           have hS_eq : R₁ = (X + C α⁻¹ : ℝ[X]) * S := by
-            rw [hS]; simp only [Polynomial.C_neg, Polynomial.C_1, sub_neg_eq_add]; ring
+            rw [hS]; simp only [Polynomial.C_neg, sub_neg_eq_add]
           -- (X+α)(X+α⁻¹) = (1+X)^2 + (α + α⁻¹ - 2) X
           set ζ : ℝ := α + α⁻¹ - 2 with hζ_def
           have hζ_nn : 0 ≤ ζ := by
@@ -628,18 +599,19 @@ theorem gamma_representation_proved
           have h_quad_eq :
               ((X + C α : ℝ[X]) * (X + C α⁻¹)) = (1 + X)^2 + C ζ * X := by
             have h_α_inv_α : α * α⁻¹ = 1 := mul_inv_cancel₀ hα_ne
-            have h_CC : (C α : ℝ[X]) * (C α⁻¹) = C 1 := by
-              rw [← Polynomial.C_mul, h_α_inv_α]
-            calc
-              (X + C α : ℝ[X]) * (X + C α⁻¹)
-                  = X^2 + (C α + C α⁻¹) * X + (C α * C α⁻¹) := by ring
-              _ = X^2 + C (α + α⁻¹) * X + C 1 := by
-                    rw [← Polynomial.C_add, h_CC]
-              _ = X^2 + C (ζ + 2) * X + C 1 := by
-                    rw [show α + α⁻¹ = ζ + 2 from by rw [hζ_def]; ring]
-              _ = (1 + X)^2 + C ζ * X := by
-                    rw [Polynomial.C_add, Polynomial.C_one]
-                    ring
+            have h_CC : (C α : ℝ[X]) * (C α⁻¹) = 1 := by
+              rw [← Polynomial.C_mul, h_α_inv_α]; exact Polynomial.C_1
+            -- `C α + C α⁻¹` simplifies to `C ζ + 2` (in `ℝ[X]`).
+            have h_sum_eq : (C α : ℝ[X]) + C α⁻¹ = C ζ + 2 := by
+              rw [← Polynomial.C_add]
+              rw [show α + α⁻¹ = ζ + 1 + 1 from by rw [hζ_def]; ring]
+              rw [Polynomial.C_add, Polynomial.C_add, Polynomial.C_1]
+              ring
+            -- Expand the LHS, factor in `C α + C α⁻¹`, then conclude.
+            have h_expand : (X + C α : ℝ[X]) * (X + C α⁻¹) =
+                X ^ 2 + (C α + C α⁻¹) * X + 1 := by
+              rw [← h_CC]; ring
+            rw [h_expand, h_sum_eq]; ring
           have hQ_pair_eq : Q = ((1 + X : ℝ[X])^2 + C ζ * X) * S := by
             rw [hR₁_eq, hS_eq, ← h_quad_eq]; ring
           obtain ⟨hS_pal, hS_deg⟩ :=
@@ -648,14 +620,14 @@ theorem gamma_representation_proved
               (by omega) hQ_pair_eq
           have hS_root : HasOnlyRealNegativeZeros S := by
             have hR₁_neg : HasOnlyRealNegativeZeros R₁ := by
-              apply hasOnlyRealNegativeZeros_quotient hroot
+              refine hasOnlyRealNegativeZeros_quotient hroot (r := -α) ?_
               rw [hR₁_eq]
               rw [show (X + C α : ℝ[X]) = X - C (-α) from by
-                simp only [Polynomial.C_neg, Polynomial.C_1, sub_neg_eq_add]; ring]
-            apply hasOnlyRealNegativeZeros_quotient hR₁_neg
+                simp only [Polynomial.C_neg, sub_neg_eq_add]]
+            refine hasOnlyRealNegativeZeros_quotient hR₁_neg (r := -α⁻¹) ?_
             rw [hS_eq]
             rw [show (X + C α⁻¹ : ℝ[X]) = X - C (-α⁻¹) from by
-              simp only [Polynomial.C_neg, Polynomial.C_1, sub_neg_eq_add]; ring]
+              simp only [Polynomial.C_neg, sub_neg_eq_add]]
           have hn_2 : n - 2 = 2 * (m - 1) + 0 := by omega
           have h_lt : n - 2 < n := by omega
           obtain ⟨γ', hγ'_exp, hγ'_root⟩ :=
@@ -724,7 +696,7 @@ theorem gamma_representation_proved
               apply Finset.sum_congr rfl
               intro j hj
               rw [Finset.mem_range] at hj
-              have hj_le : j ≤ m - 1 := Nat.lt_succ_iff.mp hj
+              have hj_le : j ≤ m - 1 := by omega
               rw [if_pos hj_le]]
             rw [show (∑ k ∈ Finset.Ico 1 (m + 1), C (ζ * γ' (k - 1)) * gammaBasis n k) =
                 (∑ k ∈ Finset.range (m + 1),
@@ -813,7 +785,7 @@ theorem gamma_representation_proved
                   ext x; simp [Finset.mem_range, Finset.mem_insert]; omega]
                 rw [Finset.sum_insert (by simp [Finset.mem_range])]
                 rw [if_neg (by omega : ¬ m ≤ m - 1)]
-                simp
+                simp only [Polynomial.C_0, zero_mul, zero_add]
                 apply Finset.sum_congr rfl
                 intro j hj
                 rw [Finset.mem_range] at hj
@@ -834,7 +806,9 @@ theorem gamma_representation_proved
                 apply Finset.sum_congr rfl
                 intro k hk
                 rw [Finset.mem_Ico] at hk
-                rw [if_pos hk.1, if_pos (by omega : k - 1 ≤ m - 1)]]
+                have hk_pos : 0 < k := hk.1
+                have hk_m : k - 1 ≤ m - 1 := by omega
+                rw [if_pos hk_pos, if_pos hk_m]]
               rw [← Finset.sum_add_distrib]
               apply Finset.sum_congr rfl
               intro j _
@@ -867,7 +841,7 @@ theorem gamma_representation_proved
         palindromic_factor_mul hpal hQ_deg one_add_X_palindromic
           one_add_X_natDegree one_add_X_ne_zero (by omega) hR_eq
       have hR_root : HasOnlyRealNegativeZeros R := by
-        apply hasOnlyRealNegativeZeros_quotient hroot
+        refine hasOnlyRealNegativeZeros_quotient hroot (r := -1) ?_
         rw [hR_eq]
         rw [show ((1 : ℝ[X]) + X) = X - C (-1 : ℝ) from by
           simp only [Polynomial.C_neg, Polynomial.C_1, sub_neg_eq_add]; ring]
@@ -886,5 +860,104 @@ theorem gamma_representation_proved
       rw [show ((1 + X : ℝ[X])) * (C (γ' j) * gammaBasis (n - 1) j) =
           C (γ' j) * ((1 + X : ℝ[X]) * gammaBasis (n - 1) j) from by ring]
       rw [one_add_X_mul_gammaBasis_pred n j h2j]
+
+/-! ## Public API: Lemma 3 of the paper, and the consumers that depend on it -/
+
+/-- **Lemma 3 of the paper** (γ-representation), proved without axioms.  This
+replaces the former `axiom gamma_representation` in `Basic.lean`. -/
+theorem gamma_representation
+    (n m ε : ℕ) (hε : ε = 0 ∨ ε = 1) (hn : n = 2 * m + ε)
+    (Q : ℝ[X])
+    (hpal : PalindromicOfDegree n Q)
+    (hroot : HasOnlyRealNegativeZeros Q) :
+    ∃ γ : ℕ → ℝ,
+      IsGammaExpansion n m Q γ ∧
+      HasOnlyRealNonposZeros (gammaPolynomial m γ) :=
+  gamma_representation_proved n m ε hε hn Q hpal hroot
+
+/-- User-facing version of Lemma 3 of the paper. -/
+theorem gamma_representation_of_palindromic_negative_rooted
+    (n m ε : ℕ) (hε : ε = 0 ∨ ε = 1) (hn : n = 2 * m + ε)
+    (Q : ℝ[X])
+    (hpal : PalindromicOfDegree n Q)
+    (hroot : HasOnlyRealNegativeZeros Q) :
+    ∃ γ : ℕ → ℝ,
+      IsGammaExpansion n m Q γ ∧
+      HasOnlyRealNonposZeros (gammaPolynomial m γ) :=
+  gamma_representation n m ε hε hn Q hpal hroot
+
+/-- **Theorem 2 of the paper** — the Pochhammer kernel ladder applied to a
+palindromic, negative-rooted `Q`: the `s`-th rung operator preserves the
+"only real nonpositive zeros" property whenever `0 ≤ μ`. -/
+theorem pochhammer_kernel_ladder
+    (n m ε s : ℕ) (μ : ℝ) (Q : ℝ[X])
+    (hε : ε = 0 ∨ ε = 1) (hn : n = 2 * m + ε)
+    (_hs : s ≤ m)
+    (hpal : PalindromicOfDegree n Q)
+    (hroot : HasOnlyRealNegativeZeros Q)
+    (hμ : 0 ≤ μ) :
+    HasOnlyRealNonposZeros (rungOperator n s μ Q) := by
+  obtain ⟨γ, hγ, hγroot⟩ :=
+    gamma_representation n m ε hε hn Q hpal hroot
+  rw [ladder_formula n m ε s μ Q γ hε hn hγ]
+  apply mul_preserves_nonpos
+  · apply const_mul_preserves_nonpos
+    apply pochhammer_nonpos
+    positivity
+  · apply shift_right_preserves_nonpos _ hμ
+    apply schur_preserves_nonpos
+    · positivity
+    · apply const_mul_preserves_nonpos
+      apply scale_comp_preserves_nonpos
+      · norm_num
+      · exact derivative_preserves_nonpos s (gammaPolynomial m γ) hγroot
+
+/-- Strict-shift form of the kernel ladder: with `0 < μ` the conclusion
+strengthens to `HasOnlyRealNegativeZeros`. -/
+theorem pochhammer_kernel_ladder_strict_shift
+    (n m ε s : ℕ) (μ : ℝ) (Q : ℝ[X])
+    (hε : ε = 0 ∨ ε = 1) (hn : n = 2 * m + ε)
+    (_hs : s ≤ m)
+    (hpal : PalindromicOfDegree n Q)
+    (hroot : HasOnlyRealNegativeZeros Q)
+    (hμ : 0 < μ) :
+    HasOnlyRealNegativeZeros (rungOperator n s μ Q) := by
+  obtain ⟨γ, hγ, hγroot⟩ :=
+    gamma_representation n m ε hε hn Q hpal hroot
+  rw [ladder_formula n m ε s μ Q γ hε hn hγ]
+  apply mul_preserves_negative
+  · apply const_mul_preserves_negative
+    apply pochhammer_negative
+    positivity
+  · apply shift_right_preserves_negative _ hμ
+    apply schur_preserves_nonpos
+    · positivity
+    · apply const_mul_preserves_nonpos
+      apply scale_comp_preserves_nonpos
+      · norm_num
+      · exact derivative_preserves_nonpos s (gammaPolynomial m γ) hγroot
+
+/-- **Corollary 1 of the paper** — the original determinant kernel acting on
+a palindromic, negative-rooted polynomial returns a polynomial with only real
+nonpositive zeros. -/
+theorem original_kernel_palindromic
+    (n m ε : ℕ) (Q : ℝ[X])
+    (hε : ε = 0 ∨ ε = 1) (hn : n = 2 * m + ε)
+    (hm : 1 ≤ m)
+    (hpal : PalindromicOfDegree n Q)
+    (hroot : HasOnlyRealNegativeZeros Q) :
+    HasOnlyRealNonposZeros (rungOperator n 1 0 Q) :=
+  pochhammer_kernel_ladder n m ε 1 0 Q hε hn hm hpal hroot (le_refl 0)
+
+/-- **Corollary 2 of the paper** — the `s = 0` single-product kernel preserves
+"real negative zeros" whenever the shift `μ` is strictly positive. -/
+theorem single_product_kernel
+    (n m ε : ℕ) (μ : ℝ) (Q : ℝ[X])
+    (hε : ε = 0 ∨ ε = 1) (hn : n = 2 * m + ε)
+    (hpal : PalindromicOfDegree n Q)
+    (hroot : HasOnlyRealNegativeZeros Q)
+    (hμ : 0 < μ) :
+    HasOnlyRealNegativeZeros (rungOperator n 0 μ Q) :=
+  pochhammer_kernel_ladder_strict_shift n m ε 0 μ Q hε hn (Nat.zero_le m) hpal hroot hμ
 
 end GammaPochhammer

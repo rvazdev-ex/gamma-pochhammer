@@ -1,3 +1,4 @@
 import GammaPochhammer.Basic
 import GammaPochhammer.Determinant
 import GammaPochhammer.GammaRep
+import GammaPochhammer.Classification
