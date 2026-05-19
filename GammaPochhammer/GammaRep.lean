@@ -746,8 +746,16 @@ theorem gamma_representation_proved
             rw [← Finset.sum_add_distrib]
             apply Finset.sum_congr rfl
             intro j _
+            rw [show
+              C (if j ≤ m - 1 then γ' j else 0) * gammaBasis n j +
+                C (if 0 < j then
+                  ζ * (if j - 1 ≤ m - 1 then γ' (j - 1) else 0) else 0) *
+                gammaBasis n j =
+              (C (if j ≤ m - 1 then γ' j else 0) +
+                C (if 0 < j then
+                  ζ * (if j - 1 ≤ m - 1 then γ' (j - 1) else 0) else 0)) *
+                gammaBasis n j from by ring]
             rw [← Polynomial.C_add]
-            ring_nf
           · -- gammaPolynomial m γ has only real nonpos zeros.
             have h_poly_eq :
                 gammaPolynomial m
@@ -826,8 +834,16 @@ theorem gamma_representation_proved
               rw [← Finset.sum_add_distrib]
               apply Finset.sum_congr rfl
               intro j _
+              rw [show
+                C (if j ≤ m - 1 then γ' j else 0) * X ^ j +
+                  C (if 0 < j then
+                    ζ * (if j - 1 ≤ m - 1 then γ' (j - 1) else 0) else 0) *
+                  X ^ j =
+                (C (if j ≤ m - 1 then γ' j else 0) +
+                  C (if 0 < j then
+                    ζ * (if j - 1 ≤ m - 1 then γ' (j - 1) else 0) else 0)) *
+                  X ^ j from by ring]
               rw [← Polynomial.C_add]
-              ring_nf
             rw [h_poly_eq]
             apply mul_preserves_nonpos
             · exact one_add_C_mul_X_hasOnlyRealNonposZeros hζ_nn
