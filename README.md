@@ -116,7 +116,7 @@ lake build GammaPochhammer:docs
 
 ## Contributing
 
-The two open axioms (Lemma~1 and Lemma~2 of the paper) require
+The two open axioms (Lemma 1 and Lemma 2 of the paper) require
 independent mathlib infrastructure (Aissen--Schoenberg--Whitney /
 Hermite--Kakeya--Obreschkoff). Contributions toward either are
 welcome; see [`BLUEPRINT.md`](./BLUEPRINT.md) for the proof routes.
