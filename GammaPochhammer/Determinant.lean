@@ -29,10 +29,10 @@ degree exactly `n` and only real strictly negative zeros, the polynomial
    Cauchy-Schwarz argument) to deduce `P_n(0) > 0`, excluding `0` from
    the zero set.
 
-Closing the two remaining `sorry`s below derives Theorem 1 from the
-three other axioms (`hadamard_closure_for_negative_rooted`,
-`gamma_representation`, `schur_preserves_nonpos`), eliminating
-`determinant_main_preserves_strict` as a standalone axiom.
+Theorem 1 is fully derived below from the three other axioms
+(`hadamard_closure_for_negative_rooted`, `gamma_representation`,
+`schur_preserves_nonpos`), eliminating `determinant_main_preserves_strict`
+as a standalone axiom.
 -/
 
 noncomputable section
