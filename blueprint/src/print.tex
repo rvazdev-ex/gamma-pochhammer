@@ -1,0 +1,34 @@
+% Print/PDF build of the blueprint. Built with `leanblueprint pdf`.
+\documentclass[a4paper,11pt]{report}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[english]{babel}
+\usepackage{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{hyperref}
+\usepackage[capitalize,nameinlink]{cleveref}
+\usepackage{tikz-cd}
+\usepackage{xcolor}
+
+% The `blueprint` style is shipped with leanblueprint; in print mode it just
+% turns the \lean / \leanok / \uses markers into no-ops (or annotation marks)
+% so the source can be shared between the web and PDF builds.
+\usepackage[print]{blueprint}
+
+\title{Gamma Operators for Pochhammer Kernels --- Lean Blueprint}
+\author{R. Valencia}
+\date{\today}
+
+\input{macros/common}
+
+\begin{document}
+\maketitle
+\tableofcontents
+
+\input{content}
+
+\bibliographystyle{alpha}
+\bibliography{../print}
+
+\end{document}

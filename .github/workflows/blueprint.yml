@@ -1,0 +1,172 @@
+name: Build blueprint and docs
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+# Allow only one concurrent deployment per ref.
+concurrency:
+  group: "pages-${{ github.ref }}"
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+
+    steps:
+      # ---------- 0. Checkout ----------
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      # ---------- 1. Lean toolchain & build ----------
+      - name: Install elan (Lean toolchain manager)
+        run: |
+          set -euxo pipefail
+          curl https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -sSf | sh -s -- -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+
+      - name: Cache mathlib & build artifacts
+        uses: actions/cache@v4
+        with:
+          path: |
+            .lake
+            ~/.cache/mathlib
+          key: lake-${{ runner.os }}-${{ hashFiles('lake-manifest.json', 'lean-toolchain', 'lakefile.toml') }}
+          restore-keys: |
+            lake-${{ runner.os }}-
+
+      - name: Get cached mathlib build (oleans)
+        run: |
+          set -euxo pipefail
+          lake exe cache get || true
+
+      - name: Build GammaPochhammer (no sorry check)
+        run: lake build
+
+      # ---------- 2. API docs via doc-gen4 ----------
+      - name: Build API docs (doc-gen4)
+        run: |
+          set -euxo pipefail
+          lake -R -Kenv=dev update doc-gen4
+          lake -R -Kenv=dev build GammaPochhammer:docs
+
+      # ---------- 3. Blueprint ----------
+      - name: Install TeX Live and graph dependencies
+        run: |
+          set -euxo pipefail
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            texlive-latex-recommended \
+            texlive-latex-extra \
+            texlive-fonts-recommended \
+            texlive-fonts-extra \
+            texlive-science \
+            texlive-pictures \
+            texlive-xetex \
+            latexmk \
+            graphviz
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install leanblueprint
+        run: |
+          set -euxo pipefail
+          pip install --upgrade pip
+          pip install leanblueprint
+
+      - name: Check that every \lean{...} resolves to a real declaration
+        run: |
+          set -euxo pipefail
+          # Generates blueprint/lean_decls if missing; fails if any
+          # \lean{NAME} in the LaTeX has no matching declaration.
+          leanblueprint checkdecls
+
+      - name: Build blueprint PDF
+        run: leanblueprint pdf
+
+      - name: Build blueprint web (plasTeX + dependency graph)
+        run: leanblueprint web
+
+      # ---------- 3b. Paper PDF ----------
+      - name: Build paper PDF
+        run: |
+          set -euxo pipefail
+          cd paper
+          latexmk -pdf -interaction=nonstopmode -halt-on-error paper.tex
+
+      # ---------- 4. Assemble the site ----------
+      - name: Stage Pages site
+        run: |
+          set -euxo pipefail
+          mkdir -p _site/blueprint
+          # blueprint web build
+          cp -r blueprint/web/. _site/blueprint/
+          # blueprint PDF
+          cp blueprint/print/print.pdf _site/blueprint/blueprint.pdf || true
+          # paper PDF
+          cp paper/paper.pdf _site/paper.pdf
+          # API docs
+          if [ -d .lake/build/doc ]; then
+            mkdir -p _site/docs
+            cp -r .lake/build/doc/. _site/docs/
+          fi
+          # landing page with links to every artifact
+          cat > _site/index.html <<'HTML'
+          <!doctype html>
+          <meta charset="utf-8">
+          <title>GammaPochhammer</title>
+          <style>
+            body{font-family:system-ui,sans-serif;max-width:42rem;margin:3rem auto;padding:0 1rem;line-height:1.55;color:#222}
+            h1{font-size:1.6rem;margin-bottom:.25rem}
+            .sub{color:#666;margin-top:0}
+            a{color:#0366d6;text-decoration:none}
+            a:hover{text-decoration:underline}
+            ul{padding-left:1.2rem}
+            li{margin:.5rem 0}
+            code{background:#f5f5f5;padding:.1em .3em;border-radius:3px;font-size:.95em}
+          </style>
+          <h1>GammaPochhammer</h1>
+          <p class="sub">A Lean 4 + mathlib formalization of
+            <em>Gamma Operators for Pochhammer Kernels</em>.</p>
+          <ul>
+            <li><a href="blueprint/">Blueprint (web, with dependency graph)</a></li>
+            <li><a href="blueprint/blueprint.pdf">Blueprint (PDF)</a></li>
+            <li><a href="paper.pdf">Paper (PDF)</a></li>
+            <li><a href="docs/">API documentation (doc-gen4)</a></li>
+            <li><a href="https://github.com/rvazdev-ex/gamma-pochhammer">Source on GitHub</a></li>
+          </ul>
+          HTML
+
+      - name: Upload Pages artifact
+        if: github.event_name != 'pull_request'
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+
+  # ---------- 5. Deploy (push to main only) ----------
+  deploy:
+    if: github.event_name != 'pull_request'
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

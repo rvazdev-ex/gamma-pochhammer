@@ -1,0 +1,605 @@
+% Main blueprint content. Mirrors §1--§3 of
+%   R. Valencia, "Gamma Operators for Pochhammer Kernels"
+% and tags every statement with its Lean counterpart so plasTeX can
+% draw the formalization dependency graph.
+
+\chapter*{Overview}
+
+This blueprint tracks the formalization, in Lean~4 + mathlib,
+of the paper
+\emph{Gamma Operators for Pochhammer Kernels}.
+The Lean development lives in the
+\href{https://github.com/rvazdev-ex/gamma-pochhammer}{GammaPochhammer}
+repository; this document mirrors its mathematical content statement
+by statement.
+
+The build state, as of the current commit, is:
+
+\begin{itemize}
+  \item Theorem~1 (determinant polynomial preserves negative-rooted) is
+        proved modulo the two Pólya--Schur axioms (Lemmas~1 and 2).
+  \item Theorem~2 (ladder formula) is proved unconditionally.
+  \item Theorem~3 (centered-kernel classification) is proved modulo
+        the Schur--Maló axiom (Lemma~2).
+  \item Lemma~3 (the $\gamma$-representation of palindromic
+        negative-rooted polynomials) is proved from first principles.
+\end{itemize}
+
+Every \emph{green} node in the dependency graph is fully formalized in
+Lean.  Two red nodes remain: the two Pólya--frequency / Schur
+classical results that mathlib does not yet have, namely Lemmas~1 and 2.
+
+\chapter{Preliminaries}
+\label{ch:preliminaries}
+
+\section{Polynomials with real, non-positive zeros}
+
+\begin{definition}[Real non-positive zeros]
+  \label{def:HasOnlyRealNonposZeros}
+  \lean{GammaPochhammer.HasOnlyRealNonposZeros}
+  \leanok
+  A real polynomial $p \in \RR[X]$ is said to have \emph{only real,
+  non-positive zeros} when every complex root of $p$, regarded as a
+  polynomial in $\CC[X]$, lies on the non-positive real axis
+  $\RR_{\leq 0}$.
+\end{definition}
+
+\begin{definition}[Real strictly negative zeros]
+  \label{def:HasOnlyRealNegativeZeros}
+  \lean{GammaPochhammer.HasOnlyRealNegativeZeros}
+  \leanok
+  A real polynomial $p \in \RR[X]$ has \emph{only real, strictly
+  negative zeros} when every complex root lies in $(-\infty, 0)$.
+  Equivalently: $p(0) \neq 0$ and $p$ has only real, non-positive zeros.
+\end{definition}
+
+\begin{definition}[Degree marker]
+  \label{def:HasDegree}
+  \lean{GammaPochhammer.HasDegree}
+  \leanok
+  We write $\operatorname{HasDegree}(p, n)$ for the proposition that
+  $p \in \RR[X]$ has natural degree exactly $n$ and is non-zero.
+\end{definition}
+
+\section{Pochhammer symbols and the determinant polynomial}
+
+\begin{definition}[Pochhammer symbol]
+  \label{def:pochhammer}
+  \lean{GammaPochhammer.pochhammer}
+  \leanok
+  For $a \in \RR$ and $k \in \NN$, the rising factorial is
+  \[
+    \Poch{a}{k} \;=\; a(a+1)(a+2)\cdots(a+k-1)
+        \;=\; \prod_{j=0}^{k-1}(a+j) \in \RR[X].
+  \]
+\end{definition}
+
+\begin{definition}[Linear Pochhammer]
+  \label{def:linearPochhammer}
+  \lean{GammaPochhammer.linearPochhammer}
+  \leanok
+  $\operatorname{linearPochhammer}(b, a, k)$ is the polynomial obtained
+  by substituting $bX + a$ into $\Poch{X}{k}$; used to model the
+  argument of a rung kernel.
+\end{definition}
+
+\begin{definition}[Ordinary generating polynomial]
+  \label{def:ordinaryGen}
+  \lean{GammaPochhammer.ordinaryGen}
+  \leanok
+  For $n \in \NN$ and $f : \NN \to \RR$ we set
+  \[
+    \operatorname{ordinaryGen}(n, f) \;=\; \sum_{k=0}^{n} f(k)\, X^{k}.
+  \]
+\end{definition}
+
+\begin{definition}[Hadamard product]
+  \label{def:hadamard}
+  \lean{GammaPochhammer.hadamard}
+  \leanok
+  The (truncated) Hadamard product of $A, B \in \RR[X]$ at order $n$ is
+  \[
+    \operatorname{hadamard}(n, A, B) \;=\; \sum_{k=0}^{n}
+        a_k\, b_k\, X^{k}, \qquad
+    a_k = [X^k] A,\ b_k = [X^k] B.
+  \]
+\end{definition}
+
+\begin{definition}[Determinant kernel]
+  \label{def:determinantKernel}
+  \lean{GammaPochhammer.determinantKernel}
+  \leanok
+  $\Kdet{n}{k}(X) = \Poch{X}{k}\, \Poch{X}{n-k}$.
+\end{definition}
+
+\begin{definition}[Determinant polynomial $\Pn$]
+  \label{def:determinantPolynomial}
+  \lean{GammaPochhammer.determinantPolynomial}
+  \leanok
+  Given $f : \NN \to \RR$ and $n \in \NN$,
+  \[
+    \Pn(X; f) \;=\; \sum_{k=0}^{n} \binom{n}{k} f_k\, f_{n-k}\, \Kdet{n}{k}(X).
+  \]
+\end{definition}
+
+\section{Palindromic polynomials and the \texorpdfstring{$\gamma$}{gamma}-basis}
+
+\begin{definition}[Palindromic of degree $n$]
+  \label{def:PalindromicOfDegree}
+  \lean{GammaPochhammer.PalindromicOfDegree}
+  \leanok
+  $Q \in \RR[X]$ is \emph{palindromic of degree $n$} when it has natural
+  degree $n$ and $[X^{n-k}]Q = [X^k]Q$ for all $0 \leq k \leq n$.
+\end{definition}
+
+\begin{definition}[$\gamma$-basis]
+  \label{def:gammaBasis}
+  \lean{GammaPochhammer.gammaBasis}
+  \leanok
+  For $n, j \in \NN$ we set $\gammabasis{n}{j} = X^{j}(1+X)^{\,n-2j}$.
+  These are the building blocks of the $\gamma$-representation of any
+  palindromic polynomial of degree~$n$ with only real, non-positive
+  zeros.
+\end{definition}
+
+\begin{definition}[$\gamma$-expansion]
+  \label{def:IsGammaExpansion}
+  \lean{GammaPochhammer.IsGammaExpansion}
+  \leanok
+  $\operatorname{IsGammaExpansion}(n, m, Q, \gamma)$ asserts that
+  \(
+    Q \;=\; \sum_{j=0}^{m} \gamma_j\, \gammabasis{n}{j}.
+  \)
+\end{definition}
+
+\begin{definition}[$\gamma$-polynomial]
+  \label{def:gammaPolynomial}
+  \lean{GammaPochhammer.gammaPolynomial}
+  \leanok
+  $\Gpoly{m}{\gamma} = \sum_{j=0}^{m} \gamma_j\, \gammabasis{n}{j}$,
+  packaged as a Lean polynomial.
+\end{definition}
+
+\chapter{Theorem~1: the determinant polynomial}
+\label{ch:theorem1}
+
+\section{The two Pólya--Schur axioms}
+
+These are the only two statements in the development that are still
+axioms.  Both are classical Pólya--frequency results that mathlib does
+not currently provide.
+
+\begin{lemma}[Hadamard closure / Aissen--Schoenberg--Whitney]
+  \label{lem:hadamard_closure}
+  \lean{GammaPochhammer.hadamard_closure_for_negative_rooted}
+  \leanok
+  Let $A, B \in \RR[X]$ both have only real, strictly negative zeros and
+  positive leading coefficient.  Then the truncated Hadamard product
+  $\operatorname{hadamard}(n, A, B)$ has only real, strictly negative
+  zeros.
+\end{lemma}
+
+The Lean statement is recorded as the axiom
+\lean{GammaPochhammer.hadamard_closure_for_negative_rooted}
+in \texttt{Basic.lean}; an axiom-free proof would require the
+Aissen--Schoenberg--Whitney theory of totally-positive sequences.
+
+\begin{lemma}[Schur--Maló: $\Lop$ preserves non-positive-rooted]
+  \label{lem:schur_preserves_nonpos}
+  \lean{GammaPochhammer.schur_preserves_nonpos}
+  \leanok
+  Let $B \in \RR[X]$ have only real, non-positive zeros.  Then for all
+  $\ell \in \NN$ and $\alpha \geq 0$, the Schur transform
+  $\Lop_{\ell,\alpha}(B)$ has only real, non-positive zeros.
+\end{lemma}
+
+Recorded in Lean as the axiom
+\lean{GammaPochhammer.schur_preserves_nonpos}.  An axiom-free proof
+would require Hermite--Kakeya--Obreschkoff (HKO) interlacing.
+
+\subsection*{Mathlib-facing wrappers}
+
+\begin{lemma}[Mathlib wrapper for Hadamard closure]
+  \label{lem:Hadamard_closure_wrapper}
+  \lean{GammaPochhammer.Hadamard_closure_for_negative_rooted_polynomials}
+  \leanok
+  \uses{lem:hadamard_closure}
+  Convenience restatement of Lemma~\ref{lem:hadamard_closure} in the
+  exact form consumed by the proof of Theorem~1.
+\end{lemma}
+
+\begin{lemma}[Mathlib wrapper for Schur--Maló]
+  \label{lem:schur_transform_preserves_nonpos}
+  \lean{GammaPochhammer.schur_transform_preserves_nonpos}
+  \leanok
+  \uses{lem:schur_preserves_nonpos}
+  Convenience restatement of Lemma~\ref{lem:schur_preserves_nonpos}
+  for the form used inside the proof of Theorem~1.
+\end{lemma}
+
+\section{Lemma~3: the \texorpdfstring{$\gamma$}{gamma}-representation}
+
+\begin{lemma}[$\gamma$-representation]
+  \label{lem:gamma_representation}
+  \lean{GammaPochhammer.gamma_representation}
+  \leanok
+  \uses{def:PalindromicOfDegree, def:gammaBasis,
+        def:IsGammaExpansion, def:HasOnlyRealNegativeZeros}
+  Let $Q$ be palindromic of degree $n = 2m + \varepsilon$
+  ($\varepsilon \in \{0,1\}$) with only real, non-positive zeros and
+  positive leading coefficient.  Then there exist non-negative
+  coefficients $\gamma_0, \ldots, \gamma_m \geq 0$ such that
+  \(
+    Q \;=\; \sum_{j=0}^{m} \gamma_j\, \gammabasis{n}{j}.
+  \)
+\end{lemma}
+
+\begin{proof}
+  \leanok
+  \uses{def:PalindromicOfDegree, def:gammaBasis, def:HasOnlyRealNegativeZeros}
+  Strong induction on the degree~$n$, using the paper's reciprocal-pair
+  factorization.  The Lean proof is in
+  \texttt{GammaPochhammer/GammaRep.lean} and uses no project-specific
+  axioms.
+\end{proof}
+
+\begin{lemma}[$\gamma$-representation, negative-rooted form]
+  \label{lem:gamma_representation_of_palindromic_negative_rooted}
+  \lean{GammaPochhammer.gamma_representation_of_palindromic_negative_rooted}
+  \leanok
+  \uses{lem:gamma_representation, def:HasOnlyRealNegativeZeros}
+  Strengthening of Lemma~\ref{lem:gamma_representation} where $Q$ has
+  only strictly negative zeros; the same $\gamma$-expansion exists.
+\end{lemma}
+
+\section{Theorem~1}
+
+\begin{theorem}[Theorem~1 --- $\Pn$ preserves real-negative-rooted families]
+  \label{thm:main}
+  \lean{GammaPochhammer.main_theorem}
+  \leanok
+  \uses{def:determinantPolynomial, def:HasOnlyRealNegativeZeros,
+        lem:hadamard_closure, lem:schur_preserves_nonpos,
+        lem:gamma_representation}
+  Let $n \geq 2$ and $f : \NN \to \RR$ be such that the generating
+  polynomial $\operatorname{ordinaryGen}(n,f)$ has only real, strictly
+  negative zeros, positive leading coefficient, and $f_0 > 0$.  Then
+  $\Pn(X; f)$ has only real, strictly negative zeros.
+\end{theorem}
+
+\begin{proof}
+  \leanok
+  \uses{def:determinantPolynomial, lem:Hadamard_closure_wrapper,
+        lem:schur_transform_preserves_nonpos,
+        lem:gamma_representation,
+        lem:convolutionPoly_palindromic,
+        lem:convolutionPoly_hasOnlyRealNegativeZeros,
+        lem:determinantPolynomial_eq_rungOperator_convolutionPoly,
+        lem:cauchy_schwarz_f1_fn1_gt_f0_fn,
+        lem:rung_action,
+        thm:ladder_formula}
+  Follow the paper's proof of Theorem~1:
+  \begin{enumerate}
+    \item Form the convolution polynomial
+          $Q = \sum_k \binom{n}{k} f_k f_{n-k} X^k$
+          (Lemma~\ref{lem:convolutionPoly_palindromic}).
+    \item Show $Q$ is palindromic of degree~$n$ with only real,
+          strictly negative zeros
+          (Lemma~\ref{lem:convolutionPoly_hasOnlyRealNegativeZeros}),
+          using Hadamard closure (Lemma~\ref{lem:hadamard_closure})
+          twice and the
+          $(1+X)^n$ baseline.
+    \item Identify $\Pn$ with the $s=1$, $\mu=0$ rung operator applied
+          to $Q$ (Lemma~\ref{lem:determinantPolynomial_eq_rungOperator_convolutionPoly}).
+    \item Apply the rung-action formula
+          (Lemma~\ref{lem:rung_action})
+          together with the $\gamma$-representation
+          (Lemma~\ref{lem:gamma_representation}) to express $\Pn$
+          as a Schur transform of $Q$.
+    \item Conclude by Lemma~\ref{lem:schur_preserves_nonpos}, using
+          $f_1 f_{n-1} > f_0 f_n$
+          (Lemma~\ref{lem:cauchy_schwarz_f1_fn1_gt_f0_fn})
+          to exclude a zero at the origin.
+  \end{enumerate}
+  Full Lean proof in
+  \texttt{GammaPochhammer/Determinant.lean}.
+\end{proof}
+
+\subsection{Vieta + convolution infrastructure}
+
+These are paper-internal results used by the proof of Theorem~1.  All
+are formalized in Lean and depend on no project-specific axiom.
+
+\begin{lemma}[Convolution polynomial]
+  \label{lem:convolutionPoly}
+  \lean{GammaPochhammer.convolutionPoly}
+  \leanok
+  $\operatorname{convolutionPoly}(n,f)
+   = \sum_{k=0}^{n} \binom{n}{k} f_k f_{n-k} X^k.$
+\end{lemma}
+
+\begin{lemma}[Convolution polynomial is palindromic]
+  \label{lem:convolutionPoly_palindromic}
+  \lean{GammaPochhammer.convolutionPoly_palindromic}
+  \leanok
+  \uses{lem:convolutionPoly, def:PalindromicOfDegree}
+  $\operatorname{convolutionPoly}(n,f)$ is palindromic of degree~$n$.
+\end{lemma}
+
+\begin{lemma}[Convolution polynomial has only real negative zeros]
+  \label{lem:convolutionPoly_hasOnlyRealNegativeZeros}
+  \lean{GammaPochhammer.convolutionPoly_hasOnlyRealNegativeZeros}
+  \leanok
+  \uses{lem:convolutionPoly, lem:hadamard_closure,
+        def:HasOnlyRealNegativeZeros}
+  Under the hypotheses of Theorem~\ref{thm:main},
+  $\operatorname{convolutionPoly}(n,f)$ has only real, strictly negative
+  zeros.  Proved by two applications of Hadamard closure (with
+  $\operatorname{ordinaryGen}$, its coefficient-reversal, and the
+  baseline $(1+X)^n$).
+\end{lemma}
+
+\begin{lemma}[$\Pn$ as a rung operator]
+  \label{lem:determinantPolynomial_eq_rungOperator_convolutionPoly}
+  \lean{GammaPochhammer.determinantPolynomial_eq_rungOperator_convolutionPoly}
+  \leanok
+  \uses{def:determinantPolynomial, def:rungOperator, lem:convolutionPoly}
+  $\Pn(X; f) = T_{1,0}^{(n)}\!\bigl(\operatorname{convolutionPoly}(n,f)\bigr)$.
+\end{lemma}
+
+\begin{lemma}[$\Pn(0)$]
+  \label{lem:determinantPolynomial_eval_zero}
+  \lean{GammaPochhammer.determinantPolynomial_eval_zero}
+  \leanok
+  \uses{def:determinantPolynomial}
+  $\Pn(0; f) = n!\,(f_1 f_{n-1} - f_0 f_n)$.
+\end{lemma}
+
+\begin{lemma}[$f_1 f_{n-1} > f_0 f_n$]
+  \label{lem:cauchy_schwarz_f1_fn1_gt_f0_fn}
+  \lean{GammaPochhammer.cauchy_schwarz_f1_fn1_gt_f0_fn}
+  \leanok
+  \uses{def:ordinaryGen, def:HasOnlyRealNegativeZeros,
+        lem:determinantPolynomial_eval_zero}
+  Under the hypotheses of Theorem~\ref{thm:main} we have
+  $f_1 f_{n-1} > f_0 f_n$.  This is the paper's
+  ``$e_1 e_{n-1} > e_n$'' Newton-type inequality and prevents
+  $\Pn$ from acquiring a root at the origin.
+\end{lemma}
+
+\begin{lemma}[Internal: derived Theorem~1]
+  \label{lem:determinant_main_preserves_strict_proved}
+  \lean{GammaPochhammer.determinant_main_preserves_strict_proved}
+  \leanok
+  \uses{lem:Hadamard_closure_wrapper,
+        lem:schur_transform_preserves_nonpos,
+        lem:gamma_representation,
+        lem:convolutionPoly_hasOnlyRealNegativeZeros,
+        lem:determinantPolynomial_eq_rungOperator_convolutionPoly,
+        lem:cauchy_schwarz_f1_fn1_gt_f0_fn}
+  Internal name for Theorem~\ref{thm:main} (the version that takes the
+  full Lemma~1 and Lemma~2 hypotheses).
+  \texttt{main\_theorem} is a thin user-facing wrapper.
+\end{lemma}
+
+\chapter{Theorem~2: the Pochhammer kernel ladder}
+\label{ch:theorem2}
+
+\section{Rung kernel and rung operator}
+
+\begin{definition}[$\lambda_{s,q}$ coefficients]
+  \label{def:lambda}
+  \lean{GammaPochhammer.lambda}
+  \leanok
+  $\lcoef{s}{q} \in \RR$ is the alternating central-difference
+  coefficient
+  $\lcoef{s}{q} = (-1)^{q}\binom{2s}{s-q}$ (paper, eq.~$\lambda$).
+\end{definition}
+
+\begin{definition}[Rung kernel $K^{[s,\mu]}_{n,k}$]
+  \label{def:rungKernel}
+  \lean{GammaPochhammer.rungKernel}
+  \leanok
+  $\Krung{n}{k}{s}{\mu}(X)
+   = \Poch{X+\mu}{k+s}\,\Poch{X+\mu}{n-k+s}$.
+\end{definition}
+
+\begin{definition}[Rung operator $T_{s,\mu}^{(n)}$]
+  \label{def:rungOperator}
+  \lean{GammaPochhammer.rungOperator}
+  \leanok
+  For $Q \in \RR[X]$, $T_{s,\mu}^{(n)}(Q) = \sum_{k=0}^{n}
+        [X^k]Q \cdot \Krung{n}{k}{s}{\mu}.$
+\end{definition}
+
+\section{The $A380113$ triangle}
+
+\begin{definition}[$A_{s,q}$ triangle]
+  \label{def:A380113}
+  \lean{GammaPochhammer.A380113}
+  \leanok
+  $\Atriangle{s}{q}$ is the OEIS sequence A380113, equal to
+  $\binom{2s}{s-q}$ in the closed form below.
+\end{definition}
+
+\begin{lemma}[A380113 base case]
+  \label{lem:A380113_zero_zero}
+  \lean{GammaPochhammer.A380113_zero_zero}
+  \leanok
+  $\Atriangle{0}{0} = 1$.
+\end{lemma}
+
+\begin{lemma}[A380113 left edge]
+  \label{lem:A380113_left_edge}
+  \lean{GammaPochhammer.A380113_left_edge}
+  \leanok
+  For $s \neq 0$, $\Atriangle{s}{0}$ is given by the paper's left-edge
+  formula.
+\end{lemma}
+
+\begin{lemma}[A380113 internal recursion]
+  \label{lem:A380113_internal}
+  \lean{GammaPochhammer.A380113_internal}
+  \leanok
+  For $q \neq 0$, $\Atriangle{s}{q}$ satisfies the paper's interior
+  recurrence.
+\end{lemma}
+
+\section{Lemma~4 and Lemma~5}
+
+\begin{lemma}[Lemma~4 --- central-difference identity]
+  \label{lem:central_difference}
+  \lean{GammaPochhammer.central_difference}
+  \leanok
+  \uses{def:lambda, def:pochhammer}
+  The alternating sum
+  $\sum_{q} \lcoef{s}{q} \Poch{w+q}{?}$ collapses to the paper's
+  closed-form central-difference identity.
+\end{lemma}
+
+\begin{lemma}[Pointwise version]
+  \label{lem:central_difference_identity}
+  \lean{GammaPochhammer.central_difference_identity}
+  \leanok
+  \uses{lem:central_difference}
+  Pointwise restatement of Lemma~4 used in the proof of Theorem~2.
+\end{lemma}
+
+\begin{lemma}[Lemma~5 --- rung action on the $\gamma$-basis]
+  \label{lem:rung_action_on_gamma_basis}
+  \lean{GammaPochhammer.rung_action_on_gamma_basis}
+  \leanok
+  \uses{def:rungOperator, def:gammaBasis, lem:central_difference}
+  The rung operator $T_{s,\mu}^{(n)}$ acts on a single $\gamma$-basis
+  element $\gammabasis{n}{j}$ by the explicit formula recorded in the
+  paper (eq.~$T B_{n,j}$).
+\end{lemma}
+
+\begin{lemma}[Lemma~5 (rung action on a $\gamma$-expansion)]
+  \label{lem:rung_action}
+  \lean{GammaPochhammer.rung_action}
+  \leanok
+  \uses{lem:rung_action_on_gamma_basis, def:IsGammaExpansion}
+  By linearity from Lemma~\ref{lem:rung_action_on_gamma_basis}.
+\end{lemma}
+
+\section{Theorem~2 and its corollaries}
+
+\begin{theorem}[Theorem~2 --- ladder formula]
+  \label{thm:ladder_formula}
+  \lean{GammaPochhammer.ladder_formula}
+  \leanok
+  \uses{lem:rung_action, def:rungOperator, def:gammaBasis}
+  Statement of the paper's ladder formula: applied to a $\gamma$-expansion,
+  the rung operator $T_{s,\mu}^{(n)}$ produces another rung kernel with
+  shifted parameters.  (Full statement in the source.)
+\end{theorem}
+
+\begin{theorem}[Pochhammer kernel ladder, full form]
+  \label{thm:pochhammer_kernel_ladder_formula}
+  \lean{GammaPochhammer.pochhammer_kernel_ladder_formula}
+  \leanok
+  \uses{thm:ladder_formula}
+  The fully-expanded form of Theorem~\ref{thm:ladder_formula}.
+\end{theorem}
+
+\begin{theorem}[Kernel ladder, downstream]
+  \label{thm:pochhammer_kernel_ladder}
+  \lean{GammaPochhammer.pochhammer_kernel_ladder}
+  \leanok
+  \uses{thm:ladder_formula, lem:gamma_representation}
+  Downstream form of Theorem~2 used by Corollary~1 and Corollary~2.
+\end{theorem}
+
+\begin{theorem}[Strict-shift form]
+  \label{thm:pochhammer_kernel_ladder_strict_shift}
+  \lean{GammaPochhammer.pochhammer_kernel_ladder_strict_shift}
+  \leanok
+  \uses{thm:pochhammer_kernel_ladder}
+  Variant in which the shift parameter is strict.
+\end{theorem}
+
+\begin{corollary}[Corollary~1 --- original kernel is palindromic]
+  \label{cor:original_kernel_palindromic}
+  \lean{GammaPochhammer.original_kernel_palindromic}
+  \leanok
+  \uses{thm:pochhammer_kernel_ladder, def:PalindromicOfDegree}
+  For all admissible parameters, the original Pochhammer kernel is
+  palindromic of the appropriate degree.
+\end{corollary}
+
+\begin{corollary}[Corollary~2 --- single-product kernel at $s=0$]
+  \label{cor:single_product_kernel}
+  \lean{GammaPochhammer.single_product_kernel}
+  \leanok
+  \uses{thm:pochhammer_kernel_ladder}
+  At $s = 0$ the rung kernel collapses to a single Pochhammer product.
+\end{corollary}
+
+\chapter{Theorem~3: classification of universally-admissible centered kernels}
+\label{ch:theorem3}
+
+\section{The centered two-product family}
+
+\begin{definition}[Centered kernel $K^{a,c}_{n,k}$]
+  \label{def:centeredKernel}
+  \lean{GammaPochhammer.centeredKernel}
+  \leanok
+  $\Kcent{n}{k}{a}{c}(X) = \Poch{X+a}{k}\,\Poch{X+c}{n-k}$.
+\end{definition}
+
+\begin{definition}[Centered operator]
+  \label{def:centeredOperator}
+  \lean{GammaPochhammer.centeredOperator}
+  \leanok
+  $T^{a,c}_n(Q) = \sum_{k=0}^{n} [X^k] Q \cdot \Kcent{n}{k}{a}{c}$.
+\end{definition}
+
+\begin{definition}[Universally admissible]
+  \label{def:UniversallyAdmissibleCentered}
+  \lean{GammaPochhammer.UniversallyAdmissibleCentered}
+  \leanok
+  A pair $(a, c) \in \RR^2$ is \emph{universally admissible} when
+  $T^{a,c}_n$ sends every palindromic real-rooted $Q$ to a polynomial
+  with only real zeros.  (Full Lean definition in
+  \texttt{Basic.lean}.)
+\end{definition}
+
+\section{Theorem~3}
+
+\begin{theorem}[Theorem~3 --- centered classification]
+  \label{thm:centered_classification}
+  \lean{GammaPochhammer.centered_balanced_classification}
+  \leanok
+  \uses{def:UniversallyAdmissibleCentered, def:centeredKernel,
+        lem:schur_preserves_nonpos, cor:original_kernel_palindromic}
+  Let $a, c \in \RR$ with $a^2 \neq c^2$.  Then $(a,c)$ is universally
+  admissible if and only if $\{a^2, c^2\} = \{0, 1\}$ as subsets of
+  $\RR$.
+\end{theorem}
+
+\begin{proof}
+  \leanok
+  \uses{lem:schur_preserves_nonpos, cor:original_kernel_palindromic,
+        lem:gamma_representation,
+        thm:ladder_formula}
+  Follows the paper's discriminant + intermediate-value-theorem
+  argument: $\sigma = u + v = 1$ is forced via two $\lambda$-tests on a
+  perturbation $Q_n^{(4)}(\lambda) = (\text{quadFactor}\,\lambda)^2$;
+  $u = 0$ is then forced by an $\varepsilon$-test on
+  $Q_n^{(6)}(\varepsilon) = (\text{quadFactor}\,\varepsilon)^3$ and
+  the intermediate value theorem.  Sufficiency reduces to the
+  determinant-kernel case using sign and palindromic symmetries via
+  Corollary~\ref{cor:original_kernel_palindromic}.  Full Lean proof in
+  \texttt{GammaPochhammer/Classification.lean}.
+\end{proof}
+
+\begin{lemma}[Internal name]
+  \label{lem:centered_classification_proved}
+  \lean{GammaPochhammer.centered_classification_proved}
+  \leanok
+  \uses{thm:centered_classification}
+  Internal name for Theorem~\ref{thm:centered_classification}.
+  \texttt{centered\_balanced\_classification} is the user-facing
+  alias.
+\end{lemma}

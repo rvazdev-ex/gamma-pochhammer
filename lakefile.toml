@@ -14,5 +14,13 @@ name = "mathlib"
 scope = "leanprover-community"
 rev = "v4.29.1"
 
+# doc-gen4 builds the API documentation that the blueprint links to.
+# The revision is pinned to the Lean toolchain tag so it stays in sync
+# with mathlib. Only fetched when the user/CI explicitly builds docs.
+[[require]]
+name = "«doc-gen4»"
+scope = "leanprover"
+rev = "v4.29.1"
+
 [[lean_lib]]
 name = "GammaPochhammer"
