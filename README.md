@@ -8,7 +8,7 @@
 A Lean 4 + [mathlib](https://leanprover-community.github.io/) formalization
 of the paper
 
-> **Pochhammer Gamma Kernels** &mdash; R. Valencia
+> **Pochhammer Gamma Kernels** &mdash
 > ([PDF](./paper/paper.tex) &middot;
 >  [arXiv:2312.07754 (Karp's problem)](https://arxiv.org/abs/2312.07754))
 
