@@ -32,164 +32,9 @@ namespace GammaPochhammer
 
 The centered kernel involves two products of ascending Pochhammer symbols
 shifted by `±a`.  Acting on `gammaBasis n j`, Vandermonde collapses the
-inner `k`-sum to a clean factored form.
+inner `k`-sum to a clean factored form (using `ascPochhammer_vandermonde`
+exported from `Basic.lean`).
 -/
-
-/-- Re-statement of the Vandermonde--Chu identity for ascending Pochhammer
-symbols.  (The same lemma is `private` inside `Basic.lean`; we re-prove it
-here to keep `Classification.lean` independent of that file's private API.) -/
-private lemma ascPochhammer_vandermonde (a b : ℝ) (n : ℕ) :
-    ∑ k ∈ Finset.range (n + 1),
-        (Nat.choose n k : ℝ) *
-          ((ascPochhammer ℝ k).eval a * (ascPochhammer ℝ (n - k)).eval b) =
-      (ascPochhammer ℝ n).eval (a + b) := by
-  induction n generalizing a b with
-  | zero => simp
-  | succ n ih =>
-    have hRHS : (ascPochhammer ℝ (n + 1)).eval (a + b) =
-        (ascPochhammer ℝ n).eval (a + b) * (a + b + (n : ℝ)) := by
-      rw [ascPochhammer_succ_right, eval_mul, eval_add, eval_X, eval_natCast]
-    rw [hRHS, ← ih a b, Finset.sum_mul]
-    have hsplit : ∀ k ∈ Finset.range (n + 1),
-        (Nat.choose n k : ℝ) *
-            ((ascPochhammer ℝ k).eval a *
-              (ascPochhammer ℝ (n - k)).eval b) *
-            (a + b + (n : ℝ)) =
-          (Nat.choose n k : ℝ) *
-              ((ascPochhammer ℝ (k + 1)).eval a *
-                (ascPochhammer ℝ (n - k)).eval b) +
-            (Nat.choose n k : ℝ) *
-              ((ascPochhammer ℝ k).eval a *
-                (ascPochhammer ℝ (n + 1 - k)).eval b) := by
-      intros k hk
-      rw [Finset.mem_range] at hk
-      have hkn : k ≤ n := Nat.lt_succ_iff.mp hk
-      have h1 : (ascPochhammer ℝ (k + 1)).eval a =
-          (ascPochhammer ℝ k).eval a * (a + (k : ℝ)) := by
-        rw [ascPochhammer_succ_right, eval_mul, eval_add, eval_X, eval_natCast]
-      have h2 : (ascPochhammer ℝ (n + 1 - k)).eval b =
-          (ascPochhammer ℝ (n - k)).eval b * (b + ((n - k : ℕ) : ℝ)) := by
-        rw [show n + 1 - k = (n - k) + 1 from by omega, ascPochhammer_succ_right,
-            eval_mul, eval_add, eval_X, eval_natCast]
-      have hcast : ((n - k : ℕ) : ℝ) = (n : ℝ) - (k : ℝ) := Nat.cast_sub hkn
-      rw [h1, h2, hcast]; ring
-    rw [Finset.sum_congr rfl hsplit, Finset.sum_add_distrib]
-    have hreindex :
-        ∑ k ∈ Finset.range (n + 1),
-            (Nat.choose n k : ℝ) *
-              ((ascPochhammer ℝ (k + 1)).eval a *
-                (ascPochhammer ℝ (n - k)).eval b) =
-          ∑ k ∈ Finset.Ico 1 (n + 2),
-            (Nat.choose n (k - 1) : ℝ) *
-              ((ascPochhammer ℝ k).eval a *
-                (ascPochhammer ℝ (n + 1 - k)).eval b) := by
-      refine Finset.sum_nbij' (fun k => k + 1) (fun k => k - 1) ?_ ?_ ?_ ?_ ?_
-      · intro k hk
-        rw [Finset.mem_range] at hk
-        change k + 1 ∈ Finset.Ico 1 (n + 2)
-        rw [Finset.mem_Ico]; omega
-      · intro k hk
-        rw [Finset.mem_Ico] at hk
-        change k - 1 ∈ Finset.range (n + 1)
-        rw [Finset.mem_range]; omega
-      · intro k _; change k + 1 - 1 = k; omega
-      · intro k hk
-        rw [Finset.mem_Ico] at hk
-        change k - 1 + 1 = k; omega
-      · intro k hk
-        rw [Finset.mem_range] at hk
-        have hkn : k ≤ n := Nat.lt_succ_iff.mp hk
-        change (Nat.choose n k : ℝ) *
-              ((ascPochhammer ℝ (k + 1)).eval a *
-                (ascPochhammer ℝ (n - k)).eval b) =
-            (Nat.choose n (k + 1 - 1) : ℝ) *
-              ((ascPochhammer ℝ (k + 1)).eval a *
-                (ascPochhammer ℝ (n + 1 - (k + 1))).eval b)
-        rw [show k + 1 - 1 = k from by omega, show n + 1 - (k + 1) = n - k from by omega]
-    rw [hreindex]
-    have hLHS2_ico :
-        ∑ k ∈ Finset.range (n + 1),
-            (Nat.choose n k : ℝ) *
-              ((ascPochhammer ℝ k).eval a *
-                (ascPochhammer ℝ (n + 1 - k)).eval b) =
-          ∑ k ∈ Finset.Ico 0 (n + 1),
-            (Nat.choose n k : ℝ) *
-              ((ascPochhammer ℝ k).eval a *
-                (ascPochhammer ℝ (n + 1 - k)).eval b) := by
-      rw [Finset.range_eq_Ico]
-    have hRHS_split :
-        ∑ k ∈ Finset.range (n + 1 + 1),
-            (Nat.choose (n + 1) k : ℝ) *
-              ((ascPochhammer ℝ k).eval a *
-                (ascPochhammer ℝ (n + 1 - k)).eval b) =
-          ((ascPochhammer ℝ 0).eval a * (ascPochhammer ℝ (n + 1)).eval b) +
-          ∑ k ∈ Finset.Ico 1 (n + 2),
-            (Nat.choose (n + 1) k : ℝ) *
-              ((ascPochhammer ℝ k).eval a *
-                (ascPochhammer ℝ (n + 1 - k)).eval b) := by
-      rw [Finset.range_eq_Ico]
-      rw [show (n + 1 + 1) = (n + 2) from by ring]
-      rw [← Finset.sum_Ico_consecutive _ (Nat.zero_le 1) (by omega : 1 ≤ n + 2)]
-      rw [show Finset.Ico 0 1 = {0} from rfl]
-      rw [Finset.sum_singleton]
-      simp [Nat.choose_zero_right]
-    have hRHS_pascal :
-        ∑ k ∈ Finset.Ico 1 (n + 2),
-            (Nat.choose (n + 1) k : ℝ) *
-              ((ascPochhammer ℝ k).eval a *
-                (ascPochhammer ℝ (n + 1 - k)).eval b) =
-          ∑ k ∈ Finset.Ico 1 (n + 2),
-              ((Nat.choose n (k - 1) : ℝ) *
-                ((ascPochhammer ℝ k).eval a *
-                  (ascPochhammer ℝ (n + 1 - k)).eval b)) +
-          ∑ k ∈ Finset.Ico 1 (n + 2),
-              ((Nat.choose n k : ℝ) *
-                ((ascPochhammer ℝ k).eval a *
-                  (ascPochhammer ℝ (n + 1 - k)).eval b)) := by
-      rw [← Finset.sum_add_distrib]
-      apply Finset.sum_congr rfl
-      intros k hk
-      rw [Finset.mem_Ico] at hk
-      have hpascal : ((n + 1).choose k : ℝ) =
-          (n.choose (k - 1) : ℝ) + (n.choose k : ℝ) := by
-        have hkk : (k - 1) + 1 = k := by omega
-        have hp := Nat.choose_succ_succ n (k - 1)
-        simp only [Nat.succ_eq_add_one] at hp
-        rw [hkk] at hp
-        have : (n + 1).choose k = n.choose (k - 1) + n.choose k := by linarith
-        exact_mod_cast this
-      rw [hpascal]; ring
-    have hLHS2_eq : ∑ k ∈ Finset.range (n + 1),
-            (Nat.choose n k : ℝ) *
-              ((ascPochhammer ℝ k).eval a *
-                (ascPochhammer ℝ (n + 1 - k)).eval b) =
-          ((ascPochhammer ℝ 0).eval a * (ascPochhammer ℝ (n + 1)).eval b) +
-          ∑ k ∈ Finset.Ico 1 (n + 2),
-              ((Nat.choose n k : ℝ) *
-                ((ascPochhammer ℝ k).eval a *
-                  (ascPochhammer ℝ (n + 1 - k)).eval b)) := by
-      rw [hLHS2_ico]
-      have hext : ∑ k ∈ Finset.Ico 1 (n + 2),
-              ((Nat.choose n k : ℝ) *
-                ((ascPochhammer ℝ k).eval a *
-                  (ascPochhammer ℝ (n + 1 - k)).eval b)) =
-            ∑ k ∈ Finset.Ico 1 (n + 1),
-              ((Nat.choose n k : ℝ) *
-                ((ascPochhammer ℝ k).eval a *
-                  (ascPochhammer ℝ (n + 1 - k)).eval b)) := by
-        rw [show n + 2 = (n + 1) + 1 from by ring]
-        rw [Finset.sum_Ico_succ_top (by omega : 1 ≤ n + 1)]
-        have : n.choose (n + 1) = 0 :=
-          Nat.choose_eq_zero_of_lt (Nat.lt_succ_self n)
-        rw [show ((n.choose (n + 1) : ℕ) : ℝ) = 0 from by exact_mod_cast this]
-        ring
-      rw [hext]
-      rw [show Finset.Ico 0 (n + 1) = insert 0 (Finset.Ico 1 (n + 1)) from by
-            ext x; simp [Finset.mem_Ico, Finset.mem_insert]; omega]
-      rw [Finset.sum_insert (by simp [Finset.mem_Ico])]
-      simp [Nat.choose_zero_right]
-    rw [hRHS_split, hRHS_pascal, hLHS2_eq]
-    ring
 
 /-- Pointwise evaluation of a centered single-product sum on `gammaBasis n j`. -/
 private lemma centered_single_eval (n j : ℕ) (h2j : 2 * j ≤ n) (α z : ℝ) :
@@ -411,28 +256,19 @@ private lemma centeredOperator_neg_neg_of_palindromic
     centeredOperator n (-a) (-c) Q = centeredOperator n a c Q := by
   unfold centeredOperator
   obtain ⟨_, hsym⟩ := hpal
-  -- Reindex k ↦ n - k on the LHS; combine with palindromic symmetry and
-  -- `centeredKernel_reindex` to land on the RHS termwise.
-  symm
-  apply Finset.sum_nbij' (fun k => n - k) (fun k => n - k)
-  · intro k hk
-    rw [Finset.mem_range] at hk; rw [Finset.mem_range]; omega
-  · intro k hk
-    rw [Finset.mem_range] at hk; rw [Finset.mem_range]; omega
-  · intro k hk
-    rw [Finset.mem_range] at hk; show n - (n - k) = k; omega
-  · intro k hk
-    rw [Finset.mem_range] at hk; show n - (n - k) = k; omega
-  · intro k hk
-    rw [Finset.mem_range] at hk
-    have hk_le : k ≤ n := by omega
-    -- Goal: C (Q.coeff k) * centeredKernel n k a c
-    --     = C (Q.coeff (n - k)) * centeredKernel n (n - k) (-a) (-c)
-    rw [centeredKernel_reindex n k hk_le (-a) (-c)]
-    rw [show (-(-a) : ℝ) = a from by ring, show (-(-c) : ℝ) = c from by ring]
-    congr 1
-    congr 1
-    exact (hsym k hk_le)
+  rw [sum_range_reflect_succ n
+        (fun k => C (Q.coeff k) * centeredKernel n k (-a) (-c))]
+  apply Finset.sum_congr rfl
+  intro k hk
+  rw [Finset.mem_range] at hk
+  have hk_le : k ≤ n := by omega
+  -- Goal: C (Q.coeff (n - k)) * centeredKernel n (n - k) (-a) (-c)
+  --     = C (Q.coeff k) * centeredKernel n k a c
+  rw [centeredKernel_reindex n k hk_le (-a) (-c)]
+  rw [show (-(-a) : ℝ) = a from by ring, show (-(-c) : ℝ) = c from by ring]
+  congr 1
+  congr 1
+  exact (hsym k hk_le).symm
 
 /-! ## Sufficiency direction
 
@@ -623,40 +459,23 @@ private lemma quadFactor_natDegree {lam : ℝ} (hlam : 0 < lam) :
   exact ne_of_gt hlam
 
 /-- The coefficients of `quadFactor λ`. -/
-private lemma quadFactor_coeff_zero (lam : ℝ) : (quadFactor lam).coeff 0 = lam := by
+private lemma quadFactor_coeff (lam : ℝ) (k : ℕ) (hk : k ≤ 2) :
+    (quadFactor lam).coeff k =
+      if k = 0 then lam else if k = 1 then 2 * lam + 1 else lam := by
   unfold quadFactor
-  rw [Polynomial.coeff_add, Polynomial.coeff_add]
-  rw [Polynomial.coeff_C_mul, Polynomial.coeff_X_pow]
-  rw [Polynomial.coeff_C_mul, Polynomial.coeff_X]
-  rw [Polynomial.coeff_C]
-  simp
-
-private lemma quadFactor_coeff_one (lam : ℝ) :
-    (quadFactor lam).coeff 1 = 2 * lam + 1 := by
-  unfold quadFactor
-  rw [Polynomial.coeff_add, Polynomial.coeff_add]
-  rw [Polynomial.coeff_C_mul, Polynomial.coeff_X_pow]
-  rw [Polynomial.coeff_C_mul, Polynomial.coeff_X]
-  rw [Polynomial.coeff_C]
-  simp
-
-private lemma quadFactor_coeff_two (lam : ℝ) : (quadFactor lam).coeff 2 = lam := by
-  unfold quadFactor
-  rw [Polynomial.coeff_add, Polynomial.coeff_add]
-  rw [Polynomial.coeff_C_mul, Polynomial.coeff_X_pow]
-  rw [Polynomial.coeff_C_mul, Polynomial.coeff_X]
-  rw [Polynomial.coeff_C]
-  simp
+  rw [Polynomial.coeff_add, Polynomial.coeff_add,
+      Polynomial.coeff_C_mul, Polynomial.coeff_X_pow,
+      Polynomial.coeff_C_mul, Polynomial.coeff_X,
+      Polynomial.coeff_C]
+  interval_cases k <;> simp
 
 /-- `quadFactor λ` is palindromic of degree 2. -/
 private lemma quadFactor_palindromic {lam : ℝ} (hlam : 0 < lam) :
     PalindromicOfDegree 2 (quadFactor lam) := by
   refine ⟨by rw [quadFactor_natDegree hlam], ?_⟩
   intro k hk
-  interval_cases k
-  · rw [quadFactor_coeff_zero, show (2 - 0 : ℕ) = 2 from rfl, quadFactor_coeff_two]
-  · rfl
-  · rw [quadFactor_coeff_two, show (2 - 2 : ℕ) = 0 from rfl, quadFactor_coeff_zero]
+  rw [quadFactor_coeff lam k hk, quadFactor_coeff lam (2 - k) (by omega)]
+  interval_cases k <;> rfl
 
 private lemma quadFactor_ne_zero {lam : ℝ} (hlam : 0 < lam) :
     quadFactor lam ≠ 0 := by
@@ -684,7 +503,7 @@ private lemma sqrt_lt_two_lam_plus_one {lam : ℝ} (hlam : 0 < lam) :
 private lemma quadFactor_hasOnlyRealNegativeZeros {lam : ℝ} (hlam : 0 < lam) :
     HasOnlyRealNegativeZeros (quadFactor lam) := by
   -- Factor as `C lam * (X + C u) * (X + C v)` with `u, v > 0`.
-  set s := Real.sqrt (4 * lam + 1) with hs_def
+  set s := Real.sqrt (4 * lam + 1)
   have h_4l_pos : 0 < 4 * lam + 1 := by linarith
   have hs_pos : 0 < s := Real.sqrt_pos.mpr h_4l_pos
   have hs_lt : s < 2 * lam + 1 := sqrt_lt_two_lam_plus_one hlam
@@ -770,64 +589,12 @@ private lemma quadFactor_pow_palindromic
     PalindromicOfDegree (2 * k) ((quadFactor lam) ^ k) := by
   induction k with
   | zero =>
-    -- (quadFactor λ)^0 = 1.
     refine ⟨?_, ?_⟩
     · simp
-    · intro j hj
-      interval_cases j
-      rfl
+    · intro j hj; interval_cases j; rfl
   | succ k ih =>
-    -- Palindromic of degree 2k * palindromic of degree 2 = palindromic of degree 2k+2.
-    obtain ⟨hnd_k, hsym_k⟩ := ih
-    obtain ⟨hnd_q, hsym_q⟩ := quadFactor_palindromic hlam
-    -- Use the fact: product of palindromic-degree-m and palindromic-degree-n
-    -- is palindromic-degree-(m+n).
-    refine ⟨?_, ?_⟩
-    · -- natDegree bound.
-      rw [pow_succ]
-      calc ((quadFactor lam) ^ k * quadFactor lam).natDegree
-          ≤ ((quadFactor lam) ^ k).natDegree + (quadFactor lam).natDegree :=
-            Polynomial.natDegree_mul_le
-        _ ≤ 2 * k + 2 := by
-            have hq : (quadFactor lam).natDegree = 2 := quadFactor_natDegree hlam
-            rw [hq]
-            omega
-        _ = 2 * (k + 1) := by ring
-    · -- Palindromic symmetry: use reflect-based characterization.
-      -- (P^(k+1)).reflect (2(k+1)) = P^(k+1), via
-      -- reflect (m + n) (P * Q) = reflect m P * reflect n Q.
-      intro j hj
-      have hPknd_pow : ((quadFactor lam) ^ k).natDegree ≤ 2 * k := hnd_k
-      have hQnd : (quadFactor lam).natDegree = 2 :=
-        quadFactor_natDegree hlam
-      -- reflect (2k) (P^k) = P^k.
-      have hreflect_Pk : Polynomial.reflect (2 * k) ((quadFactor lam) ^ k) =
-          (quadFactor lam) ^ k := by
-        ext i
-        rw [Polynomial.coeff_reflect]
-        by_cases hi : i ≤ 2 * k
-        · rw [Polynomial.revAt_le hi]; exact (hsym_k i hi).symm
-        · rw [Polynomial.revAt_eq_self_of_lt (Nat.not_le.mp hi)]
-      -- reflect 2 (quadFactor λ) = quadFactor λ.
-      have hreflect_q : Polynomial.reflect 2 (quadFactor lam) = quadFactor lam := by
-        ext i
-        rw [Polynomial.coeff_reflect]
-        by_cases hi : i ≤ 2
-        · rw [Polynomial.revAt_le hi]; exact (hsym_q i hi).symm
-        · rw [Polynomial.revAt_eq_self_of_lt (Nat.not_le.mp hi)]
-      -- reflect (2k + 2) (P^k * P) = reflect (2k) P^k * reflect 2 P = P^k * P = P^(k+1).
-      have hreflect_succ : Polynomial.reflect (2 * (k + 1)) ((quadFactor lam) ^ (k + 1)) =
-          (quadFactor lam) ^ (k + 1) := by
-        rw [pow_succ]
-        rw [show 2 * (k + 1) = 2 * k + 2 from by ring]
-        rw [Polynomial.reflect_mul ((quadFactor lam) ^ k) (quadFactor lam)
-              hPknd_pow (by rw [hQnd])]
-        rw [hreflect_Pk, hreflect_q]
-      -- Now extract coefficient symmetry from reflect.
-      have h_coeff := congr_arg (fun p => Polynomial.coeff p j) hreflect_succ
-      simp only at h_coeff
-      rw [Polynomial.coeff_reflect, Polynomial.revAt_le hj] at h_coeff
-      exact h_coeff.symm
+    rw [pow_succ, show 2 * (k + 1) = 2 * k + 2 from by ring]
+    exact ih.mul (quadFactor_palindromic hlam)
 
 /-! ## n = 4 test polynomial and image computation -/
 
@@ -892,6 +659,44 @@ private lemma centeredOperator_C_mul (n : ℕ) (a c b : ℝ) (P : ℝ[X]) :
     rw [Polynomial.C_mul]]
   ring
 
+/-! ### Small-degree ascPochhammer evaluations (used by both `Q_n4` and `Q_n6`) -/
+
+private lemma ascP0_eval (x : ℝ) : (ascPochhammer ℝ 0).eval x = 1 := by simp
+
+private lemma ascP1_eval (x : ℝ) : (ascPochhammer ℝ 1).eval x = x := by
+  rw [ascPochhammer_one]; simp
+
+private lemma ascP2_eval (x : ℝ) : (ascPochhammer ℝ 2).eval x = x * (x + 1) := by
+  rw [show (2 : ℕ) = 1 + 1 from rfl, ascPochhammer_succ_right]
+  simp [ascPochhammer_one]
+
+private lemma ascP3_eval (x : ℝ) :
+    (ascPochhammer ℝ 3).eval x = x * (x + 1) * (x + 2) := by
+  rw [show (3 : ℕ) = 1 + 1 + 1 from rfl]
+  repeat rw [ascPochhammer_succ_right]
+  simp only [Polynomial.eval_mul, Polynomial.eval_add, Polynomial.eval_X,
+    Polynomial.eval_natCast]
+  rw [show ascPochhammer ℝ 0 = 1 from rfl]
+  simp
+
+private lemma ascP4_eval (x : ℝ) :
+    (ascPochhammer ℝ 4).eval x = x * (x + 1) * (x + 2) * (x + 3) := by
+  rw [show (4 : ℕ) = 1 + 1 + 1 + 1 from rfl]
+  repeat rw [ascPochhammer_succ_right]
+  simp only [Polynomial.eval_mul, Polynomial.eval_add, Polynomial.eval_X,
+    Polynomial.eval_natCast]
+  rw [show ascPochhammer ℝ 0 = 1 from rfl]
+  simp
+
+private lemma ascP6_eval (x : ℝ) :
+    (ascPochhammer ℝ 6).eval x = x * (x + 1) * (x + 2) * (x + 3) * (x + 4) * (x + 5) := by
+  rw [show (6 : ℕ) = 1 + 1 + 1 + 1 + 1 + 1 from rfl]
+  repeat rw [ascPochhammer_succ_right]
+  simp only [Polynomial.eval_mul, Polynomial.eval_add, Polynomial.eval_X,
+    Polynomial.eval_natCast]
+  rw [show ascPochhammer ℝ 0 = 1 from rfl]
+  simp
+
 /-! ### Image of `Q_n4 λ` under the centered operator
 
 Combining linearity with `centered_action_on_gammaBasis` gives an explicit
@@ -916,41 +721,14 @@ private lemma centeredOperator_Q_n4_eval (a c lam z : ℝ) :
     Polynomial.eval_sub]
   unfold centeredFactor
   simp only [Polynomial.eval_mul, pochhammer_eval, linearPochhammer_eval]
-  -- Now everything is in terms of (ascPochhammer ℝ k).eval ...
-  -- Compute these for k = 0, 1, 2, 4.
-  have hAP0 : ∀ x : ℝ, (ascPochhammer ℝ 0).eval x = 1 := fun x => by simp
-  have hAP1 : ∀ x : ℝ, (ascPochhammer ℝ 1).eval x = x := fun x => by
-    rw [ascPochhammer_one]; simp
-  have hAP2 : ∀ x : ℝ, (ascPochhammer ℝ 2).eval x = x * (x + 1) := fun x => by
-    rw [show (2 : ℕ) = 1 + 1 from rfl, ascPochhammer_succ_right]
-    simp [ascPochhammer_one]
-  have hAP4 : ∀ x : ℝ, (ascPochhammer ℝ 4).eval x =
-      x * (x + 1) * (x + 2) * (x + 3) := fun x => by
-    rw [show (4 : ℕ) = 1 + 1 + 1 + 1 from rfl]
-    repeat rw [ascPochhammer_succ_right]
-    simp only [Polynomial.eval_mul, Polynomial.eval_add, Polynomial.eval_X,
-      Polynomial.eval_natCast]
-    rw [show ascPochhammer ℝ 0 = 1 from rfl]
-    simp
-  -- Replace each ascPochhammer eval with its explicit form.
-  -- The j = 0 contribution vanishes (centeredFactor a 0 = centeredFactor c 0 = 1).
-  -- The j = 1 contribution uses ascPochhammer 1 and 2.
-  -- The j = 2 contribution uses ascPochhammer 2 and 0.
-  -- Use simp_rw to rewrite all instances.
+  have hAP0 := ascP0_eval
+  have hAP1 := ascP1_eval
+  have hAP2 := ascP2_eval
+  have hAP4 := ascP4_eval
   simp_rw [hAP0, hAP1, hAP2, hAP4]
   ring
 
 /-! ### Helper: real / complex eval bridge -/
-
-/-- The complex evaluation of `toComplex p` at a real cast equals the real
-evaluation of `p`, cast to ℂ. -/
-private lemma toComplex_eval_real (p : ℝ[X]) (r : ℝ) :
-    (toComplex p).eval (r : ℂ) = ((p.eval r : ℝ) : ℂ) := by
-  have hcast : ((r : ℝ) : ℂ) = (algebraMap ℝ ℂ) r := rfl
-  rw [hcast]
-  unfold toComplex
-  rw [Polynomial.eval_map, Polynomial.eval₂_at_apply]
-  rfl
 
 /-- If `P` has only real nonpositive zeros and `r > 0` is real, then `P.eval r ≠ 0`. -/
 private lemma eval_pos_ne_zero {P : ℝ[X]} {r : ℝ}
@@ -959,9 +737,8 @@ private lemma eval_pos_ne_zero {P : ℝ[X]} {r : ℝ}
   intro h_eval
   rcases hP with h | h
   · exact hP_ne h
-  · have h_complex : (toComplex P).eval (r : ℂ) = 0 := by
-      rw [toComplex_eval_real]
-      exact_mod_cast h_eval
+  · have h_complex : (toComplex P).eval (r : ℂ) = 0 :=
+      (isRoot_toComplex_iff_real P r).mpr h_eval
     obtain ⟨s, hs, hrs⟩ := h _ h_complex
     have hrs' : (r : ℂ) = (s : ℂ) := hrs
     have : r = s := by exact_mod_cast hrs'
@@ -999,7 +776,7 @@ private lemma sigma_le_one_of_admissible (a c : ℝ) (huv : a ^ 2 < c ^ 2)
   have hQ_pal : PalindromicOfDegree 4 (Q_n4 lam) := Q_n4_palindromic hlam_pos
   have hQ_root : HasOnlyRealNegativeZeros (Q_n4 lam) :=
     Q_n4_hasOnlyRealNegativeZeros hlam_pos
-  set P := centeredOperator 4 a c (Q_n4 lam) with hP_def
+  set P := centeredOperator 4 a c (Q_n4 lam)
   -- By admissibility, P has only real nonpositive zeros.
   have hP_nonpos : HasOnlyRealNonposZeros P := hadmit 4 (Q_n4 lam) hQ_pal hQ_root
   -- Evaluate P at 0 and 1.
@@ -1056,7 +833,7 @@ private lemma sigma_ge_one_of_admissible (a c : ℝ) (huv : a ^ 2 < c ^ 2)
   have hQ_pal : PalindromicOfDegree 4 (Q_n4 lam) := Q_n4_palindromic hlam_pos
   have hQ_root : HasOnlyRealNegativeZeros (Q_n4 lam) :=
     Q_n4_hasOnlyRealNegativeZeros hlam_pos
-  set P := centeredOperator 4 a c (Q_n4 lam) with hP_def
+  set P := centeredOperator 4 a c (Q_n4 lam)
   have hP_nonpos : HasOnlyRealNonposZeros P := hadmit 4 (Q_n4 lam) hQ_pal hQ_root
   -- At λ = 1/2, P.eval z = (c² - a²) * (6 z² + 12 z + 7 - σ).
   -- The inner factor has positive minimum (at z = -1) of value 1 - σ > 0,
@@ -1140,8 +917,8 @@ private lemma sigma_ge_one_of_admissible (a c : ℝ) (huv : a ^ 2 < c ^ 2)
     -- r ≤ 0; in particular r is real and P.eval r = 0.
     have h_complex : (toComplex P).eval (r : ℂ) = 0 := by
       rw [← hrz]; exact hz₀
-    rw [toComplex_eval_real] at h_complex
-    have h_real_eval : P.eval r = 0 := by exact_mod_cast h_complex
+    have h_real_eval : P.eval r = 0 :=
+      (isRoot_toComplex_iff_real P r).mp h_complex
     have := hP_pos r
     linarith
 
@@ -1209,36 +986,12 @@ private lemma centeredOperator_Q_n6_eval (a c eps z : ℝ) :
     Polynomial.eval_sub]
   unfold centeredFactor
   simp only [Polynomial.eval_mul, pochhammer_eval, linearPochhammer_eval]
-  have hAP0 : ∀ x : ℝ, (ascPochhammer ℝ 0).eval x = 1 := fun x => by simp
-  have hAP1 : ∀ x : ℝ, (ascPochhammer ℝ 1).eval x = x := fun x => by
-    rw [ascPochhammer_one]; simp
-  have hAP2 : ∀ x : ℝ, (ascPochhammer ℝ 2).eval x = x * (x + 1) := fun x => by
-    rw [show (2 : ℕ) = 1 + 1 from rfl, ascPochhammer_succ_right]
-    simp [ascPochhammer_one]
-  have hAP3 : ∀ x : ℝ, (ascPochhammer ℝ 3).eval x =
-      x * (x + 1) * (x + 2) := fun x => by
-    rw [show (3 : ℕ) = 1 + 1 + 1 from rfl]
-    repeat rw [ascPochhammer_succ_right]
-    simp only [Polynomial.eval_mul, Polynomial.eval_add, Polynomial.eval_X,
-      Polynomial.eval_natCast]
-    rw [show ascPochhammer ℝ 0 = 1 from rfl]
-    simp
-  have hAP4 : ∀ x : ℝ, (ascPochhammer ℝ 4).eval x =
-      x * (x + 1) * (x + 2) * (x + 3) := fun x => by
-    rw [show (4 : ℕ) = 1 + 1 + 1 + 1 from rfl]
-    repeat rw [ascPochhammer_succ_right]
-    simp only [Polynomial.eval_mul, Polynomial.eval_add, Polynomial.eval_X,
-      Polynomial.eval_natCast]
-    rw [show ascPochhammer ℝ 0 = 1 from rfl]
-    simp
-  have hAP6 : ∀ x : ℝ, (ascPochhammer ℝ 6).eval x =
-      x * (x + 1) * (x + 2) * (x + 3) * (x + 4) * (x + 5) := fun x => by
-    rw [show (6 : ℕ) = 1 + 1 + 1 + 1 + 1 + 1 from rfl]
-    repeat rw [ascPochhammer_succ_right]
-    simp only [Polynomial.eval_mul, Polynomial.eval_add, Polynomial.eval_X,
-      Polynomial.eval_natCast]
-    rw [show ascPochhammer ℝ 0 = 1 from rfl]
-    simp
+  have hAP0 := ascP0_eval
+  have hAP1 := ascP1_eval
+  have hAP2 := ascP2_eval
+  have hAP3 := ascP3_eval
+  have hAP4 := ascP4_eval
+  have hAP6 := ascP6_eval
   simp_rw [hAP0, hAP1, hAP2, hAP3, hAP4, hAP6]
   ring
 
@@ -1295,7 +1048,7 @@ private lemma u_eq_zero_of_admissible (a c : ℝ) (huv : a ^ 2 < c ^ 2)
   have hQ_pal : PalindromicOfDegree 6 (Q_n6 eps) := Q_n6_palindromic heps_pos
   have hQ_root : HasOnlyRealNegativeZeros (Q_n6 eps) :=
     Q_n6_hasOnlyRealNegativeZeros heps_pos
-  set P := centeredOperator 6 a c (Q_n6 eps) with hP_def
+  set P := centeredOperator 6 a c (Q_n6 eps)
   have hP_nonpos : HasOnlyRealNonposZeros P := hadmit 6 (Q_n6 eps) hQ_pal hQ_root
   -- eval at 0: should be negative.
   have h_eval_0 : P.eval 0 = 360 * eps ^ 2 * (c ^ 2 - a ^ 2) +
@@ -1389,9 +1142,9 @@ private lemma universallyAdmissible_swap (a c : ℝ) :
     rw [h_swap]
     exact (hasOnlyRealNonposZeros_neg _).mpr (h n Q hpal hroot)
 
-/-- **Theorem 3 of the paper** — the proved version of
-`centered_classification_axiom`. -/
-theorem centered_classification_proved (a c : ℝ) (h : a ^ 2 ≠ c ^ 2) :
+/-- **Theorem 3 of the paper** — classification of universally-admissible
+centered balanced two-product kernels. -/
+theorem centered_balanced_classification (a c : ℝ) (h : a ^ 2 ≠ c ^ 2) :
     UniversallyAdmissibleCentered a c ↔
       ({a ^ 2, c ^ 2} : Set ℝ) = ({0, 1} : Set ℝ) := by
   constructor
@@ -1431,11 +1184,5 @@ theorem centered_classification_proved (a c : ℝ) (h : a ^ 2 ≠ c ^ 2) :
         · left; exact hv.symm
   · -- Sufficiency.
     exact centered_admissible_of_set_eq_zero_one a c
-
-/-- User-facing alias for Theorem 3 of the paper. -/
-theorem centered_balanced_classification (a c : ℝ) (h : a ^ 2 ≠ c ^ 2) :
-    UniversallyAdmissibleCentered a c ↔
-      ({a ^ 2, c ^ 2} : Set ℝ) = ({0, 1} : Set ℝ) :=
-  centered_classification_proved a c h
 
 end GammaPochhammer
