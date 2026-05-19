@@ -8,7 +8,7 @@
 A Lean 4 + [mathlib](https://leanprover-community.github.io/) formalization
 of the paper
 
-> **Pochhammer Gamma Kernels** &mdash
+> **Pochhammer Gamma Kernels**
 > ([PDF](./paper/paper.tex) &middot;
 >  [arXiv:2312.07754 (Karp's problem)](https://arxiv.org/abs/2312.07754))
 
@@ -148,8 +148,8 @@ Released under the [Apache 2.0 license](./LICENSE).
 If you reference the formalization or the paper, please cite:
 
 ```bibtex
-@misc{valencia-gamma-pochhammer,
-  author       = {R. Valencia},
+@misc{rvazdev-ex-gamma-pochhammer,
+  author       = {rvazdev-ex},
   title        = {Pochhammer Gamma Kernels},
   year         = {2026},
   howpublished = {\url{https://github.com/rvazdev-ex/gamma-pochhammer}},
