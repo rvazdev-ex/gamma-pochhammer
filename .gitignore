@@ -15,7 +15,7 @@ blueprint/src/print.toc
 blueprint/src/*.aux
 blueprint/src/*.log
 
-# Paper LaTeX build artifacts (paper.tex is tracked, paper.pdf is built in CI)
+# Paper LaTeX build artifacts (paper.tex + paper.pdf are tracked)
 paper/*.aux
 paper/*.log
 paper/*.out
@@ -25,7 +25,6 @@ paper/*.fdb_latexmk
 paper/*.synctex.gz
 paper/*.bbl
 paper/*.blg
-paper/paper.pdf
 
 # doc-gen4 output
 .lake/build/doc/
