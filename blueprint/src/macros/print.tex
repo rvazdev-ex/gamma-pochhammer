@@ -1,0 +1,12 @@
+% Print-only macros: the blueprint markers (\lean, \leanok, \uses, ...)
+% are rendered by the plasTeX plugin in the web build, but for the
+% standalone PDF build they need to be defined as no-ops so the source
+% can be shared between the two builds.
+
+\newcommand{\lean}[1]{}
+\newcommand{\leanok}{}
+\newcommand{\mathlibok}{}
+\newcommand{\notready}{}
+\newcommand{\discussion}[1]{}
+\newcommand{\uses}[1]{}
+\newcommand{\proves}[1]{}

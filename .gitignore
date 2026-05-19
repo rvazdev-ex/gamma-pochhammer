@@ -3,17 +3,17 @@
 # Blueprint generated outputs
 blueprint/web/
 blueprint/print/
-blueprint/src/print.pdf
-blueprint/src/print.aux
-blueprint/src/print.bbl
-blueprint/src/print.blg
-blueprint/src/print.fls
-blueprint/src/print.fdb_latexmk
-blueprint/src/print.log
-blueprint/src/print.out
-blueprint/src/print.toc
 blueprint/src/*.aux
+blueprint/src/*.bbl
+blueprint/src/*.blg
+blueprint/src/*.fdb_latexmk
+blueprint/src/*.fls
 blueprint/src/*.log
+blueprint/src/*.out
+blueprint/src/*.paux
+blueprint/src/*.pdf
+blueprint/src/*.synctex.gz
+blueprint/src/*.toc
 
 # Paper LaTeX build artifacts (paper.tex + paper.pdf are tracked)
 paper/*.aux

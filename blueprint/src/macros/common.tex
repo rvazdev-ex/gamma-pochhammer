@@ -1,5 +1,20 @@
 % Shared math macros for both the web and print builds of the blueprint.
 
+% Theorem-like environments used by content.tex. These need to be declared
+% in the shared macro file so that plasTeX (web build) and LaTeX (PDF build)
+% both recognize them. The blueprint plasTeX plugin attaches the dependency
+% graph markers (\lean, \uses, ...) to these environments.
+\newtheorem{theorem}{Theorem}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+
 \newcommand{\NN}{\mathbb{N}}
 \newcommand{\ZZ}{\mathbb{Z}}
 \newcommand{\QQ}{\mathbb{Q}}

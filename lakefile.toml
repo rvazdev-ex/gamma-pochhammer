@@ -26,5 +26,12 @@ name = "mathlib"
 scope = "leanprover-community"
 rev = "v4.29.1"
 
+# `checkdecls` provides the `lake exe checkdecls` executable used by
+# `leanblueprint checkdecls` to verify every \lean{...} tag in the
+# blueprint resolves to a real Lean declaration.
+[[require]]
+name = "checkdecls"
+git = "https://github.com/PatrickMassot/checkdecls.git"
+
 [[lean_lib]]
 name = "GammaPochhammer"

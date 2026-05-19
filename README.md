@@ -64,8 +64,11 @@ to confirm only the two project axioms appear.
 │   │   ├── content.tex               -- paper-to-Lean dependency map
 │   │   ├── web.tex                   -- plasTeX entry point
 │   │   ├── print.tex                 -- LaTeX PDF entry point
-│   │   └── macros/common.tex
-│   ├── plastex.cfg                   -- HTML renderer config
+│   │   ├── plastex.cfg               -- plasTeX (HTML) renderer config
+│   │   ├── latexmkrc                 -- latexmk config for the PDF build
+│   │   ├── blueprint.sty             -- LaTeX stub for \usepackage{blueprint}
+│   │   ├── extra_styles.css          -- extra CSS for the HTML build
+│   │   └── macros/                   -- common.tex, print.tex, web.tex
 │   ├── print.bib                     -- bibliography
 │   └── lean_decls                    -- declaration manifest
 ├── BLUEPRINT.md                      -- high-level paper-to-Lean map
@@ -96,12 +99,47 @@ latexmk -pdf paper.tex
 
 ### Blueprint
 
+The blueprint has three independent targets: declaration check, PDF, and
+HTML. They share a single source tree under `blueprint/src/`.
+
+**Prerequisites**
+
+* Python 3.10+ with `leanblueprint` (PyPI):
+  ```sh
+  pip install leanblueprint
+  ```
+  `leanblueprint` itself depends on plasTeX, `plastexdepgraph`, and
+  `plastexshowmore`; pip pulls them in.
+* A TeX distribution providing `latexmk` and `pdflatex` (TeX Live or
+  MiKTeX). The `latexmkrc` in `blueprint/src/` pins the engine to
+  `pdflatex`; switch it to `xelatex`/`lualatex` only if you add
+  `unicode-math` or `fontspec` to `print.tex`.
+* The Lean library must build first: `leanblueprint checkdecls` calls
+  `lake exe checkdecls`, which needs the compiled oleans.
+
+**One-time setup after cloning**
+
+`leanblueprint checkdecls` is provided by a Lake dependency
+(`PatrickMassot/checkdecls`). It is declared in `lakefile.toml`, but a
+fresh clone must materialize it once:
+
 ```sh
-pip install leanblueprint
-leanblueprint checkdecls   # verify every \lean{...} resolves
-leanblueprint pdf          # builds blueprint/print/print.pdf
-leanblueprint web          # builds blueprint/web/index.html
+lake update checkdecls    # fetch the checkdecls Lake package
+lake exe cache get        # download prebuilt mathlib oleans
+lake build                # build GammaPochhammer
 ```
+
+**Build the blueprint**
+
+```sh
+leanblueprint checkdecls   # verify every \lean{...} in content.tex resolves
+leanblueprint pdf          # → blueprint/print/print.pdf  (uses pdflatex)
+leanblueprint web          # → blueprint/web/index.html   (uses plasTeX)
+leanblueprint serve        # serve blueprint/web/ on localhost
+```
+
+All three commands must be run from the repository root (they locate
+the blueprint via the surrounding Git repo).
 
 ### API documentation
 
