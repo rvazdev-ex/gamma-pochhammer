@@ -188,3 +188,52 @@ If you reference the formalization or the paper, please cite:
   howpublished = {\url{https://github.com/rvazdev-ex/gamma-pochhammer}},
 }
 ```
+
+## Bibliography
+
+The full bibliography of the paper. See
+[`paper/paper.tex`](./paper/paper.tex) for the `bibitem` source.
+
+1. **[AissenSchoenbergWhitney]** M. Aissen, I. J. Schoenberg, and A. M.
+   Whitney. *On the generating functions of totally positive sequences. I.*
+   J. Analyse Math. **2** (1952), 93--103.
+2. **[Athanasiadis2018]** C. A. Athanasiadis. *Gamma-positivity in
+   combinatorics and geometry.* Sém. Lothar. Combin. **77** ([2016--2018]),
+   Article B77i, 64 pp.
+   [arXiv:1711.05983](https://arxiv.org/abs/1711.05983).
+3. **[BorceaBranden2009]** J. Borcea and P. Brändén. *Pólya--Schur master
+   theorems for circular domains and their boundaries.* Ann. of Math. (2)
+   **170** (2009), no. 1, 465--492.
+   [Online](https://annals.math.princeton.edu/2009/170-1/p14).
+4. **[Branden2008]** P. Brändén. *Actions on permutations and unimodality
+   of descent polynomials.* European J. Combin. **29** (2008), no. 2,
+   514--531. [arXiv:math/0610185](https://arxiv.org/abs/math/0610185).
+5. **[Brenti1989]** F. Brenti. *Unimodal, log-concave and Pólya frequency
+   sequences in combinatorics.* Mem. Amer. Math. Soc. **81** (1989), no.
+   413, viii+106 pp.
+6. **[Edrei]** A. Edrei. *On the generating functions of totally positive
+   sequences. II.* J. Analyse Math. **2** (1952), 104--109.
+7. **[FoataSchutzenberger]** D. Foata and M.-P. Schützenberger. *Théorie
+   géométrique des polynômes eulériens.* Lecture Notes in Mathematics,
+   Vol. 138, Springer-Verlag, Berlin--New York, 1970.
+8. **[FoataStrehl1974]** D. Foata and V. Strehl. *Rearrangements of the
+   symmetric group and enumerative properties of the tangent and secant
+   numbers.* Math. Z. **137** (1974), 257--264.
+   [doi:10.1007/BF01237393](https://doi.org/10.1007/BF01237393).
+9. **[FoataStrehl1976]** D. Foata and V. Strehl. *Euler numbers and
+   variations of permutations.* In *Colloquio Internazionale sulle Teorie
+   Combinatorie, Tomo I*, Atti dei Convegni Lincei, No. 17, Accademia
+   Nazionale dei Lincei, Rome, 1976, pp. 119--131.
+10. **[KarpProblem2023]** D. Karp. *Toeplitz determinants of Pochhammers.*
+    In L. Kryvonos, *Open problems on polynomials, their zero distribution
+    and related questions: 2023*, arXiv:2312.07754v1, 2023.
+    [arXiv:2312.07754](https://arxiv.org/html/2312.07754v1).
+11. **[Obreschkoff1963]** N. Obreschkoff. *Verteilung und Berechnung der
+    Nullstellen reeller Polynome.* VEB Deutscher Verlag der
+    Wissenschaften, Berlin, 1963.
+12. **[OEISA380113]** The OEIS Foundation Inc. *A380113: Triangle read by
+    rows: the inverse matrix of the central factorials, normalized.* The
+    On-Line Encyclopedia of Integer Sequences.
+    [oeis.org/A380113](https://oeis.org/A380113).
+13. **[Wagner1992]** D. G. Wagner. *Total positivity of Hadamard
+    products.* J. Math. Anal. Appl. **163** (1992), no. 2, 459--483.
