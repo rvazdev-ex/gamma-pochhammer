@@ -40,7 +40,7 @@ Lemmas 1, 2, 3.
 | `P_n(z)` | `determinantPolynomial` (Basic) |
 | **Theorem 1** (P_n real-negative-rooted) | `main_theorem` (Determinant) — uses axioms ①, ② |
 | **Lemma 1** (Hadamard closure) | `hadamard_closure_for_negative_rooted` (Basic) — axiom ① |
-| **Lemma 2** (Schur transform 𝓛) | `schur_preserves_nonpos` + `schurTransform` (Basic) — axiom ② |
+| **Lemma 2** (Schur transform 𝓢) | `schur_preserves_nonpos` + `schurTransform` (Basic) — axiom ② |
 | **Lemma 3** (γ-representation) | `gamma_representation` (GammaRep) — **proved**, supporting defs `gammaBasis`, `IsGammaExpansion`, `gammaPolynomial`, `PalindromicOfDegree` in Basic |
 
 ### Paper §2 — Higher Pochhammer kernel ladder

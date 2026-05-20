@@ -87,7 +87,7 @@ This is the finite Aissen--Schoenberg--Whitney--Edrei characterization of \(\PF_
 
 For \(\ell\geq0\) and \(\alpha>0\), define
 \begin{equation}\label{eq:L}
-  \mathcal L_{\ell,\alpha}
+  \mathcal S_{\ell,\alpha}
   \left(\sum_{r=0}^{\ell}b_rt^r\right)(z)
   =
   \sum_{r=0}^{\ell}b_r(z)_r(z+r+\alpha)_{\ell-r}.
@@ -96,7 +96,7 @@ For \(\ell\geq0\) and \(\alpha>0\), define
 \begin{lemma}[Schur-type transform]\label{lem:schur}
 Let \(B(t)=\sum_{r=0}^{\ell}b_rt^r\) have degree at most \(\ell\). If \(B\) has only real nonpositive zeros, then
 \[
-  \mathcal L_{\ell,\alpha}(B)(z)
+  \mathcal S_{\ell,\alpha}(B)(z)
 \]
 has only real nonpositive zeros.
 \end{lemma}
@@ -115,7 +115,7 @@ We prove the stronger assertion that all zeros lie in
 \]
 and are separated by at least \(1\). The case \(\ell=0\) is immediate. For \(\ell=1\), write \(B(t)=t+\lambda\), \(\lambda>0\). Then
 \[
-  \mathcal L_{1,\alpha}(B)(z)
+  \mathcal S_{1,\alpha}(B)(z)
   =
   \lambda(z+\alpha)+z,
 \]
@@ -131,7 +131,7 @@ Assume the claim for \(\ell-1\). Write
 \]
 and set
 \[
-  p(z)=\mathcal L_{\ell-1,\alpha}(C)(z).
+  p(z)=\mathcal S_{\ell-1,\alpha}(C)(z).
 \]
 By induction, the zeros of \(p\) may be written
 \[
@@ -142,7 +142,7 @@ By induction, the zeros of \(p\) may be written
 in the strict generic case. If \(B(t)=\sum_{r=0}^{\ell}b_rt^r\), then \(b_r=\lambda a_r+a_{r-1}\), where \(a_{-1}=a_\ell=0\). Therefore
 \[
 \begin{aligned}
-  \mathcal L_{\ell,\alpha}(B)(z)
+  \mathcal S_{\ell,\alpha}(B)(z)
   &=
   \lambda
   \sum_{r=0}^{\ell-1}
@@ -166,7 +166,7 @@ These two zero sets strictly interlace:
 \[
   0>x_1>x_1-1>x_2>x_2-1>\cdots>x_{\ell-1}>x_{\ell-1}-1>-a.
 \]
-By the Hermite--Kakeya--Obreschkoff theorem, in the Obreschkoff form characterizing real-rootedness of all real linear combinations by interlacing, every nonnegative linear combination of these two polynomials has only real zeros; see \cite{Obreschkoff1963,BorceaBranden2009}. Hence \(\mathcal L_{\ell,\alpha}(B)\) is real-rooted. Its zeros lie one by one in the intervals
+By the Hermite--Kakeya--Obreschkoff theorem, in the Obreschkoff form characterizing real-rootedness of all real linear combinations by interlacing, every nonnegative linear combination of these two polynomials has only real zeros; see \cite{Obreschkoff1963,BorceaBranden2009}. Hence \(\mathcal S_{\ell,\alpha}(B)\) is real-rooted. Its zeros lie one by one in the intervals
 \[
   [x_1,0],\ [x_2,x_1-1],\ \ldots,\
   [x_{\ell-1},x_{\ell-2}-1],\ [-a,x_{\ell-1}-1],
@@ -407,7 +407,7 @@ Let \(Q(x)=\sum_{k=0}^{n}c_kx^k\) be palindromic of degree \(n\) and have only r
   \frac{2^\varepsilon}{s!}
   (w+s)_{m-s+\varepsilon}  \\
   &\quad\cdot
-  \mathcal L_{m-s,s+1/2}
+  \mathcal S_{m-s,s+1/2}
   \left(
     4^{m-s}\Gamma^{(s)}\left(\frac t4\right)
   \right)(w).
@@ -467,9 +467,9 @@ and hence
   s!\sum_{r=0}^{m-s}
   \binom{r+s}{s}\gamma_{r+s}4^{m-s-r}t^r.
 \]
-Using the definition of \(\mathcal L_{\ell,\alpha}\) in \eqref{eq:L}, the displayed sum is exactly the transform appearing in \eqref{eq:ladder}. This proves the formula.
+Using the definition of \(\mathcal S_{\ell,\alpha}\) in \eqref{eq:L}, the displayed sum is exactly the transform appearing in \eqref{eq:ladder}. This proves the formula.
 
-By \Cref{lem:gamma}, \(\Gamma\) has only real nonpositive zeros. Rolle's theorem implies that \(\Gamma^{(s)}\) also has only real nonpositive zeros, unless it is zero. Scaling \(t\mapsto t/4\) preserves this property. \Cref{lem:schur} gives that the \(\mathcal L\)-factor in \eqref{eq:ladder} has only real nonpositive zeros in \(w\), and the prefactor \((w+s)_{m-s+\varepsilon}\) also has only real nonpositive zeros in \(w\). Therefore all zeros satisfy \(w\leq0\), equivalently \(z\leq-\mu\). The conclusions follow.
+By \Cref{lem:gamma}, \(\Gamma\) has only real nonpositive zeros. Rolle's theorem implies that \(\Gamma^{(s)}\) also has only real nonpositive zeros, unless it is zero. Scaling \(t\mapsto t/4\) preserves this property. \Cref{lem:schur} gives that the \(\mathcal S\)-factor in \eqref{eq:ladder} has only real nonpositive zeros in \(w\), and the prefactor \((w+s)_{m-s+\varepsilon}\) also has only real nonpositive zeros in \(w\). Therefore all zeros satisfy \(w\leq0\), equivalently \(z\leq-\mu\). The conclusions follow.
 \end{proof}
 
 \begin{corollary}\label{cor:original-kernel-pal}
@@ -684,7 +684,7 @@ For the ladder kernels, the hidden mechanism is
   \longmapsto
   \Gamma^{(s)}
   \longmapsto
-  \mathcal L_{m-s,s+1/2}
+  \mathcal S_{m-s,s+1/2}
   \left(
     4^{m-s}\Gamma^{(s)}\left(\frac t4\right)
   \right).

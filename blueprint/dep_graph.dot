@@ -62,7 +62,7 @@ digraph blueprint {
       [label="Lem 1 (Hadamard closure)\nAissen–Schoenberg–Whitney\n★★★★★ (axiom)",
        fillcolor="#ffb3b3"];
   "lem:schur_preserves_nonpos"
-      [label="Lem 2 (Schur–Maló)\nℒ_{ℓ,α} preserves\nreal, non-pos zeros\n★★★★★ (axiom)",
+      [label="Lem 2 (Schur–Maló)\n𝒮_{ℓ,α} preserves\nreal, non-pos zeros\n★★★★★ (axiom)",
        fillcolor="#ffb3b3"];
 
   // -- Lemma 3: gamma-representation (main proved result; blue border).
