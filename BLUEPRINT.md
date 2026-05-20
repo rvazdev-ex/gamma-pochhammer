@@ -1,7 +1,7 @@
 # GammaPochhammer — Lean Formalization Blueprint
 
 This document maps the structure of the GammaPochhammer Lean project
-against *"Gamma Operators for Pochhammer Kernels"* by R. Valencia.
+against *"Gamma Operators for Pochhammer Kernels"* by rvazdev-ex.
 
 ## Project scope policy
 

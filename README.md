@@ -17,6 +17,12 @@ open-problem collection: the binomial Pochhammer convolution
 \(P_n(z)\) inherits strict negative real-rootedness from its input
 sequence \((f_k)\).
 
+## Disclosure
+
+The proof for Karp's original problem was done by the author. The kernel
+extension was provided by GPT 5.5, and the formalization was done in
+collaboration with Opus 4.7.
+
 ---
 
 ## Quick links
