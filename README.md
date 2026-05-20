@@ -32,6 +32,7 @@ collaboration with Opus 4.7.
 | Paper (PDF) | [`paper/paper.pdf`](./paper/paper.pdf) |
 | Paper (LaTeX source) | [`paper/paper.tex`](./paper/paper.tex) |
 | Blueprint (LaTeX source, builds to web + PDF) | [`blueprint/src/`](./blueprint/src/) |
+| Dependency graph (PNG) | [`blueprint/dep_graph.png`](./blueprint/dep_graph.png) |
 | Paper-to-Lean correspondence | [`BLUEPRINT.md`](./BLUEPRINT.md) |
 
 ## Formalization status
