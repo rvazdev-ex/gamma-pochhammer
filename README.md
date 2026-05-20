@@ -2,7 +2,7 @@
 
 [![Lean 4](https://img.shields.io/badge/Lean-4.29.1-blueviolet)](./lean-toolchain)
 [![Mathlib](https://img.shields.io/badge/Mathlib-v4.29.1-blue)](./lakefile.toml)
-[![License](https://img.shields.io/badge/license-Apache--2.0-green)](./LICENSE)
+[![License](https://img.shields.io/badge/license-MIT-green)](./LICENSE)
 
 A Lean 4 + [mathlib](https://leanprover-community.github.io/) formalization
 of the paper
@@ -44,8 +44,9 @@ does not yet provide.
 | Lemma~1 (Hadamard closure, ASW) | `hadamard_closure_for_negative_rooted` | (1) axiom |
 | Lemma~2 (Schur--Maló) | `schur_preserves_nonpos` | (2) axiom |
 
-`lake build` succeeds with **no `sorry`s**. Run `#print axioms main_theorem`
-to confirm only the two project axioms appear.
+`lake build` succeeds with **no `sorry`s**. Run
+`#print axioms GammaPochhammer.main_theorem` to confirm only the two
+project axioms appear.
 
 ## Repository layout
 

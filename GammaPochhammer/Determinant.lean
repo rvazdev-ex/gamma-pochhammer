@@ -4,9 +4,8 @@ import GammaPochhammer.GammaRep
 /-!
 # Theorem 1 of the paper — derived from Lemmas 1, 2, 3
 
-This module formalizes the path to discharging the project axiom
-`GammaPochhammer.determinant_main_preserves_strict` in `Basic.lean`,
-following **Theorem 1** of *"Gamma Operators for Pochhammer Kernels"*.
+This module proves Theorem 1 of *"Gamma Operators for Pochhammer Kernels"*
+from the two remaining Pólya--Schur axioms and the proved γ-representation.
 
 For `n ≥ 2` and a sequence `f : ℕ → ℝ` such that `ordinaryGen n f` has
 degree exactly `n` and only real strictly negative zeros, the polynomial
@@ -32,8 +31,7 @@ degree exactly `n` and only real strictly negative zeros, the polynomial
 
 Theorem 1 is fully derived below from the remaining two axioms
 (`hadamard_closure_for_negative_rooted` and `schur_preserves_nonpos`)
-plus the proven Lemma 3 (`gamma_representation`).  This eliminates
-`determinant_main_preserves_strict` as a standalone axiom.
+plus the proven Lemma 3 (`gamma_representation`).
 -/
 
 noncomputable section

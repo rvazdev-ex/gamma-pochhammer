@@ -1,10 +1,9 @@
 import GammaPochhammer.GammaRep
 
 /-!
-# Proof of `centered_classification_axiom` (Theorem 3 of the paper)
+# Proof of Theorem 3 of the paper
 
-This module proves the statement currently axiomatized as
-`GammaPochhammer.centered_classification_axiom` in `Basic.lean`.  The proof
+This module proves the centered-kernel classification theorem.  The proof
 follows the paper's argument for **Theorem 3** in §3:
 
 * **Sufficiency.** If `{a², c²} = {0, 1}`, then either `(a, c)` is `(0, ±1)` or

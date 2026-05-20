@@ -109,7 +109,9 @@ classical results that mathlib does not yet have, namely Lemmas~1 and 2.
   \label{def:determinantKernel}
   \lean{GammaPochhammer.determinantKernel}
   \leanok
-  $\Kdet{n}{k}(X) = \Poch{X}{k}\, \Poch{X}{n-k}$.
+  $\Kdet{n}{k}(X)
+    = \Poch{X}{k}\, \Poch{X}{n-k}
+      - \Poch{X+1}{k}\, \Poch{X-1}{n-k}$.
 \end{definition}
 
 \begin{definition}[Determinant polynomial $\Pn$]
@@ -128,8 +130,9 @@ classical results that mathlib does not yet have, namely Lemmas~1 and 2.
   \label{def:PalindromicOfDegree}
   \lean{GammaPochhammer.PalindromicOfDegree}
   \leanok
-  $Q \in \RR[X]$ is \emph{palindromic of degree $n$} when it has natural
-  degree $n$ and $[X^{n-k}]Q = [X^k]Q$ for all $0 \leq k \leq n$.
+  $Q \in \RR[X]$ is \emph{palindromic of formal degree $n$} when its
+  natural degree is at most $n$ and $[X^{n-k}]Q = [X^k]Q$ for all
+  $0 \leq k \leq n$.
 \end{definition}
 
 \begin{definition}[$\gamma$-basis]
@@ -156,8 +159,8 @@ classical results that mathlib does not yet have, namely Lemmas~1 and 2.
   \label{def:gammaPolynomial}
   \lean{GammaPochhammer.gammaPolynomial}
   \leanok
-  $\Gpoly{m}{\gamma} = \sum_{j=0}^{m} \gamma_j\, \gammabasis{n}{j}$,
-  packaged as a Lean polynomial.
+  $\Gpoly{m}{\gamma} = \sum_{j=0}^{m} \gamma_j\, X^j$,
+  the ordinary generating polynomial of the $\gamma$-coefficients.
 \end{definition}
 
 \chapter{Theorem~1: the determinant polynomial}
@@ -173,10 +176,9 @@ not currently provide.
   \label{lem:hadamard_closure}
   \lean{GammaPochhammer.hadamard_closure_for_negative_rooted}
   \leanok
-  Let $A, B \in \RR[X]$ both have only real, strictly negative zeros and
-  positive leading coefficient.  Then the truncated Hadamard product
-  $\operatorname{hadamard}(n, A, B)$ has only real, strictly negative
-  zeros.
+  Let $A, B \in \RR[X]$ have non-negative coefficients up to degree $n$
+  and only real, non-positive zeros.  Then the truncated Hadamard product
+  $\operatorname{hadamard}(n, A, B)$ has only real, non-positive zeros.
 \end{lemma}
 
 The Lean statement is recorded as the axiom
@@ -189,7 +191,7 @@ Aissen--Schoenberg--Whitney theory of totally-positive sequences.
   \lean{GammaPochhammer.schur_preserves_nonpos}
   \leanok
   Let $B \in \RR[X]$ have only real, non-positive zeros.  Then for all
-  $\ell \in \NN$ and $\alpha \geq 0$, the Schur transform
+  $\ell \in \NN$ and $\alpha > 0$, the Schur transform
   $\Lop_{\ell,\alpha}(B)$ has only real, non-positive zeros.
 \end{lemma}
 
@@ -205,13 +207,14 @@ would require Hermite--Kakeya--Obreschkoff (HKO) interlacing.
   \leanok
   \uses{def:PalindromicOfDegree, def:gammaBasis,
         def:IsGammaExpansion, def:HasOnlyRealNegativeZeros}
-  Let $Q$ be palindromic of degree $n = 2m + \varepsilon$
-  ($\varepsilon \in \{0,1\}$) with only real, non-positive zeros and
-  positive leading coefficient.  Then there exist non-negative
-  coefficients $\gamma_0, \ldots, \gamma_m \geq 0$ such that
+  Let $Q$ be palindromic of formal degree $n = 2m + \varepsilon$
+  ($\varepsilon \in \{0,1\}$) with only real, strictly negative zeros.
+  Then there exist coefficients $\gamma_0, \ldots, \gamma_m$ such that
   \(
     Q \;=\; \sum_{j=0}^{m} \gamma_j\, \gammabasis{n}{j}.
   \)
+  Moreover the $\gamma$-polynomial
+  $\sum_{j=0}^{m}\gamma_jX^j$ has only real, non-positive zeros.
 \end{lemma}
 
 \begin{proof}
@@ -234,7 +237,7 @@ would require Hermite--Kakeya--Obreschkoff (HKO) interlacing.
         lem:gamma_representation}
   Let $n \geq 2$ and $f : \NN \to \RR$ be such that the generating
   polynomial $\operatorname{ordinaryGen}(n,f)$ has only real, strictly
-  negative zeros, positive leading coefficient, and $f_0 > 0$.  Then
+  negative zeros and degree exactly $n$.  Then
   $\Pn(X; f)$ has only real, strictly negative zeros.
 \end{theorem}
 
@@ -349,7 +352,10 @@ are formalized in Lean and depend on no project-specific axiom.
   \leanok
   $\lcoef{s}{q} \in \RR$ is the alternating central-difference
   coefficient
-  $\lcoef{s}{q} = (-1)^{q}\binom{2s}{s-q}$ (paper, eq.~$\lambda$).
+  \[
+    \lcoef{s}{0}=\frac{1}{(s!)^2}, \qquad
+    \lcoef{s}{q}=\frac{2(-1)^q}{(s-q)!(s+q)!}\quad(q>0).
+  \]
 \end{definition}
 
 \begin{definition}[Rung kernel $K^{[s,\mu]}_{n,k}$]
@@ -357,7 +363,8 @@ are formalized in Lean and depend on no project-specific axiom.
   \lean{GammaPochhammer.rungKernel}
   \leanok
   $\Krung{n}{k}{s}{\mu}(X)
-   = \Poch{X+\mu}{k+s}\,\Poch{X+\mu}{n-k+s}$.
+   = \sum_{q=0}^{s}\lcoef{s}{q}\,
+      \Poch{X+\mu+q}{k}\,\Poch{X+\mu-q}{n-k}$.
 \end{definition}
 
 \begin{definition}[Rung operator $T_{s,\mu}^{(n)}$]
@@ -374,8 +381,10 @@ are formalized in Lean and depend on no project-specific axiom.
   \label{def:A380113}
   \lean{GammaPochhammer.A380113}
   \leanok
-  $\Atriangle{s}{q}$ is the OEIS sequence A380113, equal to
-  $\binom{2s}{s-q}$ in the closed form below.
+  $\Atriangle{s}{q}$ is the unsigned normalized triangle from OEIS
+  A380113: $\Atriangle{0}{0}=1$,
+  $\Atriangle{s}{0}=\frac12\binom{2s}{s}$ for $s\geq1$, and
+  $\Atriangle{s}{q}=\binom{2s}{s-q}$ for $1\leq q\leq s$.
 \end{definition}
 
 \section{Lemma~4 and Lemma~5}
@@ -408,8 +417,10 @@ are formalized in Lean and depend on no project-specific axiom.
   \leanok
   \uses{lem:rung_action_on_gamma_basis, def:rungOperator, def:gammaBasis}
   Statement of the paper's ladder formula: applied to a $\gamma$-expansion,
-  the rung operator $T_{s,\mu}^{(n)}$ produces another rung kernel with
-  shifted parameters.  (Full statement in the source.)
+  the rung operator $T_{s,\mu}^{(n)}$ factors as a Pochhammer prefactor
+  times the Schur transform of
+  $4^{m-s}\Gamma^{(s)}(t/4)$, evaluated after the shift $X\mapsto X+\mu$.
+  (Full statement in the source.)
 \end{theorem}
 
 \begin{theorem}[Kernel ladder, downstream]
@@ -428,13 +439,14 @@ are formalized in Lean and depend on no project-specific axiom.
   Variant in which the shift parameter is strict.
 \end{theorem}
 
-\begin{corollary}[Corollary~1 --- original kernel is palindromic]
+\begin{corollary}[Corollary~1 --- original determinant kernel]
   \label{cor:original_kernel_palindromic}
   \lean{GammaPochhammer.original_kernel_palindromic}
   \leanok
   \uses{thm:pochhammer_kernel_ladder, def:PalindromicOfDegree}
-  For all admissible parameters, the original Pochhammer kernel is
-  palindromic of the appropriate degree.
+  On palindromic negative-rooted inputs, the original determinant-kernel
+  operator produces a polynomial that is either zero or has only real,
+  non-positive zeros.
 \end{corollary}
 
 \begin{corollary}[Corollary~2 --- single-product kernel at $s=0$]
@@ -454,7 +466,9 @@ are formalized in Lean and depend on no project-specific axiom.
   \label{def:centeredKernel}
   \lean{GammaPochhammer.centeredKernel}
   \leanok
-  $\Kcent{n}{k}{a}{c}(X) = \Poch{X+a}{k}\,\Poch{X+c}{n-k}$.
+  $\Kcent{n}{k}{a}{c}(X)
+    = \Poch{X+a}{k}\,\Poch{X-a}{n-k}
+      - \Poch{X+c}{k}\,\Poch{X-c}{n-k}$.
 \end{definition}
 
 \begin{definition}[Centered operator]
@@ -469,9 +483,9 @@ are formalized in Lean and depend on no project-specific axiom.
   \lean{GammaPochhammer.UniversallyAdmissibleCentered}
   \leanok
   A pair $(a, c) \in \RR^2$ is \emph{universally admissible} when
-  $T^{a,c}_n$ sends every palindromic real-rooted $Q$ to a polynomial
-  with only real zeros.  (Full Lean definition in
-  \texttt{Basic.lean}.)
+  $T^{a,c}_n$ sends every palindromic polynomial $Q$ with only real,
+  strictly negative zeros to a polynomial that is either zero or has only
+  real, non-positive zeros.
 \end{definition}
 
 \section{Theorem~3}
@@ -502,4 +516,3 @@ are formalized in Lean and depend on no project-specific axiom.
   Corollary~\ref{cor:original_kernel_palindromic}.  Full Lean proof in
   \texttt{GammaPochhammer/Classification.lean}.
 \end{proof}
-

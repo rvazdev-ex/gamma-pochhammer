@@ -54,7 +54,7 @@ Lemmas 1, 2, 3.
 | **Lemma 4** (central-difference identity) | `central_difference_identity` (Basic) |
 | **Lemma 5** (rung action) | `rung_action_on_gamma_basis` (Basic) |
 | **Theorem 2** (the ladder formula) | `ladder_formula` (Basic); `pochhammer_kernel_ladder`, `pochhammer_kernel_ladder_strict_shift` (GammaRep) |
-| **Corollary 1** (original kernel palindromic) | `original_kernel_palindromic` (GammaRep) |
+| **Corollary 1** (original determinant kernel preserves nonpositive-rootedness) | `original_kernel_palindromic` (GammaRep) |
 | **Corollary 2** (single-product kernel, s=0) | `single_product_kernel` (GammaRep) |
 | Proof of Theorem 1 from Lemmas 1, 2, 3 + ladder | `main_theorem` (Determinant) |
 
@@ -160,13 +160,14 @@ Mathlib infrastructure builds and are not currently planned.
 $ lake build
 Build completed successfully.
 
-$ #print axioms main_theorem
+$ #print axioms GammaPochhammer.main_theorem
 [propext, Classical.choice,
- hadamard_closure_for_negative_rooted,
- schur_preserves_nonpos, Quot.sound]
+ GammaPochhammer.hadamard_closure_for_negative_rooted,
+ GammaPochhammer.schur_preserves_nonpos, Quot.sound]
 
-$ #print axioms centered_balanced_classification
-[propext, Classical.choice, schur_preserves_nonpos, Quot.sound]
+$ #print axioms GammaPochhammer.centered_balanced_classification
+[propext, Classical.choice, GammaPochhammer.schur_preserves_nonpos,
+ Quot.sound]
 ```
 
 `main_theorem` depends only on the two PF/Schur axioms (Lemmas 1 and 2 of
@@ -185,10 +186,11 @@ The paper itself contains two pieces that don't feed into the main
 theorems but are stated for context:
 
 1. **The A380113 / coefficient-triangle subsection in §2.** Identifies
-   the unsigned `λ_{s,q}` table with OEIS A380113 and gives the formula
-   `T(s,q) = C(2s, s−q)`. This is a *structural identification* with the
-   OEIS triangle, not a proof step in any later result. **Formalized in
-   `Basic.lean` as the definition `A380113`** — kept for paper
+   the unsigned normalized `λ_{s,q}` table with OEIS A380113: `T(0,0)=1`,
+   `T(s,0)=C(2s,s)/2` for `s≥1`, and `T(s,q)=C(2s,s−q)` for `q≥1`.
+   This is a *structural identification* with the OEIS triangle, not a
+   proof step in any later result. **Formalized in `Basic.lean` as the
+   definition `A380113`** — kept for paper
    correspondence but not used by any downstream theorem.
 
 2. **The final remark in §3** on γ-symbols. Provides interpretive
