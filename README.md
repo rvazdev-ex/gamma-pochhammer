@@ -228,9 +228,9 @@ The full bibliography of the paper. See
     In L. Kryvonos, *Open problems on polynomials, their zero distribution
     and related questions: 2023*, arXiv:2312.07754v1, 2023.
     [arXiv:2312.07754](https://arxiv.org/html/2312.07754v1).
-11. **[Obreschkoff1963]** N. Obreschkoff. *Verteilung und Berechnung der
-    Nullstellen reeller Polynome.* VEB Deutscher Verlag der
-    Wissenschaften, Berlin, 1963.
+11. **[RahmanSchmeisser2002]** Q. I. Rahman and G. Schmeisser. *Analytic
+    Theory of Polynomials.* London Mathematical Society Monographs (New
+    Series), Vol. 26, Oxford University Press, Oxford, 2002.
 12. **[OEISA380113]** The OEIS Foundation Inc. *A380113: Triangle read by
     rows: the inverse matrix of the central factorials, normalized.* The
     On-Line Encyclopedia of Integer Sequences.
