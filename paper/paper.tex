@@ -32,8 +32,8 @@ We prove that a binomial Pochhammer convolution preserves strict negative real-r
 
 For \(r\geq0\), write
 \[
-  (z)_r=z(z+1)\cdots(z+r-1),
-  \qquad (z)_0=1.
+  (z)_r=z(z+1)\cdots(z+r-1)
+  \qquad (z)_0=1
 \]
 Given real numbers \(f_0,\ldots,f_n\), define
 \begin{equation}\label{eq:Pn}
@@ -42,7 +42,7 @@ Given real numbers \(f_0,\ldots,f_n\), define
   f_kf_{n-k}\binom{n}{k}
   \left[
     (z)_k(z)_{n-k}-(z+1)_k(z-1)_{n-k}
-  \right].
+  \right]
 \end{equation}
 
 The following theorem proves Conjecture~1 in Karp's problem on Toeplitz determinants of Pochhammer symbols from the 2023 Sofia open-problem collection on polynomial zeros \cite{KarpProblem2023}.
@@ -70,7 +70,7 @@ Here we use a real-rooted refinement: for a palindromic polynomial with only rea
 \begin{lemma}[Hadamard closure]\label{lem:pf}
 Let
 \[
-  A(x)=\sum_{k=0}^{n}a_kx^k,
+  A(x)=\sum_{k=0}^{n}a_kx^k
   \qquad
   B(x)=\sum_{k=0}^{n}b_kx^k
 \]
@@ -90,7 +90,7 @@ For \(\ell\geq0\) and \(\alpha>0\), define
   \mathcal S_{\ell,\alpha}
   \left(\sum_{r=0}^{\ell}b_rt^r\right)(z)
   =
-  \sum_{r=0}^{\ell}b_r(z)_r(z+r+\alpha)_{\ell-r}.
+  \sum_{r=0}^{\ell}b_r(z)_r(z+r+\alpha)_{\ell-r}
 \end{equation}
 
 \begin{lemma}[Schur-type transform]\label{lem:schur}
@@ -104,8 +104,8 @@ has only real nonpositive zeros.
 \begin{proof}
 The zero polynomial is harmless, and multiplication by a nonzero scalar does not change zeros. It is enough, by coefficientwise approximation, to treat the case where \(B\) has degree exactly \(\ell\), positive leading coefficient, simple zeros in \((-\infty,0)\), and the strict generic inequalities needed below. The general case follows by perturbing the zeros and by replacing a polynomial of degree \(q<\ell\) with
 \[
-  B_\eta(t)=B(t)(1+\eta t)^{\ell-q},
-  \qquad \eta>0,
+  B_\eta(t)=B(t)(1+\eta t)^{\ell-q}
+  \qquad \eta>0
 \]
 then letting \(\eta\to0^+\).
 
@@ -117,27 +117,27 @@ and are separated by at least \(1\). The case \(\ell=0\) is immediate. For \(\el
 \[
   \mathcal S_{1,\alpha}(B)(z)
   =
-  \lambda(z+\alpha)+z,
+  \lambda(z+\alpha)+z
 \]
 whose unique zero lies in \((-\alpha,0)\).
 
 Assume the claim for \(\ell-1\). Write
 \[
-  B(t)=(t+\lambda)C(t),
+  B(t)=(t+\lambda)C(t)
   \qquad
-  \lambda>0,
+  \lambda>0
   \qquad
-  C(t)=\sum_{r=0}^{\ell-1}a_rt^r,
+  C(t)=\sum_{r=0}^{\ell-1}a_rt^r
 \]
 and set
 \[
-  p(z)=\mathcal S_{\ell-1,\alpha}(C)(z).
+  p(z)=\mathcal S_{\ell-1,\alpha}(C)(z)
 \]
 By induction, the zeros of \(p\) may be written
 \[
-  0>x_1>x_2>\cdots>x_{\ell-1}>-(\alpha+\ell-2),
+  0>x_1>x_2>\cdots>x_{\ell-1}>-(\alpha+\ell-2)
   \qquad
-  x_i-x_{i+1}>1,
+  x_i-x_{i+1}>1
 \]
 in the strict generic case. If \(B(t)=\sum_{r=0}^{\ell}b_rt^r\), then \(b_r=\lambda a_r+a_{r-1}\), where \(a_{-1}=a_\ell=0\). Therefore
 \[
@@ -151,25 +151,25 @@ in the strict generic case. If \(B(t)=\sum_{r=0}^{\ell}b_rt^r\), then \(b_r=\lam
   \sum_{r=1}^{\ell}
   a_{r-1}(z)_r(z+r+\alpha)_{\ell-r}  \\
   &=
-  \lambda(z+\alpha+\ell-1)p(z)+z\,p(z+1).
+  \lambda(z+\alpha+\ell-1)p(z)+z\,p(z+1)
 \end{aligned}
 \]
 Put \(a=\alpha+\ell-1\). The zeros of \((z+a)p(z)\) are
 \[
-  -a,x_{\ell-1},\ldots,x_1,
+  -a,x_{\ell-1},\ldots,x_1
 \]
 whereas the zeros of \(z\,p(z+1)\) are
 \[
-  x_{\ell-1}-1,\ldots,x_1-1,0.
+  x_{\ell-1}-1,\ldots,x_1-1,0
 \]
 These two zero sets strictly interlace:
 \[
-  0>x_1>x_1-1>x_2>x_2-1>\cdots>x_{\ell-1}>x_{\ell-1}-1>-a.
+  0>x_1>x_1-1>x_2>x_2-1>\cdots>x_{\ell-1}>x_{\ell-1}-1>-a
 \]
-By the Hermite--Kakeya--Obreschkoff theorem, in the Obreschkoff form characterizing real-rootedness of all real linear combinations by interlacing, every nonnegative linear combination of these two polynomials has only real zeros; see \cite{Obreschkoff1963,BorceaBranden2009}. Hence \(\mathcal S_{\ell,\alpha}(B)\) is real-rooted. Its zeros lie one by one in the intervals
+By the Hermite--Kakeya--Obreschkoff theorem, in the Obreschkoff form characterizing real-rootedness of all real linear combinations by interlacing, every nonnegative linear combination of these two polynomials has only real zeros; see \cite{RahmanSchmeisser2002,BorceaBranden2009}. Hence \(\mathcal S_{\ell,\alpha}(B)\) is real-rooted. Its zeros lie one by one in the intervals
 \[
   [x_1,0],\ [x_2,x_1-1],\ \ldots,\
-  [x_{\ell-1},x_{\ell-2}-1],\ [-a,x_{\ell-1}-1],
+  [x_{\ell-1},x_{\ell-2}-1],\ [-a,x_{\ell-1}-1]
 \]
 which gives the asserted location and separation. Passing to limits proves the result in full generality.
 \end{proof}
@@ -177,14 +177,14 @@ which gives the asserted location and separation. Passing to limits proves the r
 \begin{lemma}[The \(\gamma\)-polynomial]\label{lem:gamma}
 Let
 \[
-  Q(x)=\sum_{k=0}^{n}c_kx^k,
-  \qquad c_k=c_{n-k},
+  Q(x)=\sum_{k=0}^{n}c_kx^k
+  \qquad c_k=c_{n-k}
 \]
 have degree \(n\) and only real negative zeros. Write \(n=2m+\varepsilon\), where \(\varepsilon\in\{0,1\}\). Then \(Q\) has a unique expansion
 \begin{equation}\label{eq:gamma-expansion}
-  Q(x)=\sum_{j=0}^{m}\gamma_jx^j(1+x)^{n-2j},
+  Q(x)=\sum_{j=0}^{m}\gamma_jx^j(1+x)^{n-2j}
   \qquad
-  \Gamma(t)=\sum_{j=0}^{m}\gamma_jt^j,
+  \Gamma(t)=\sum_{j=0}^{m}\gamma_jt^j
 \end{equation}
 and the \(\gamma\)-polynomial \(\Gamma\) has only real nonpositive zeros.
 
@@ -196,16 +196,16 @@ This factorization argument is the standard real-rooted criterion underlying man
 \[
   Q(x)=
   C(1+x)^\varepsilon
-  \prod_{i=1}^{m}(x+\rho_i)(x+\rho_i^{-1}),
-  \qquad \rho_i>0.
+  \prod_{i=1}^{m}(x+\rho_i)(x+\rho_i^{-1})
+  \qquad \rho_i>0
 \]
 For each \(\rho>0\),
 \[
   (x+\rho)(x+\rho^{-1})
   =
-  (1+x)^2+\lambda x,
+  (1+x)^2+\lambda x
   \qquad
-  \lambda=\rho+\rho^{-1}-2\geq0.
+  \lambda=\rho+\rho^{-1}-2\geq0
 \]
 Consequently
 \[
@@ -214,34 +214,34 @@ Consequently
   \prod_{i=1}^{m}
   \left(
     1+\lambda_i\frac{x}{(1+x)^2}
-  \right),
+  \right)
 \]
 and hence
 \[
   \Gamma(t)=
-  C\prod_{i=1}^{m}(1+\lambda_it).
+  C\prod_{i=1}^{m}(1+\lambda_it)
 \]
 Thus \(\Gamma\) has only real nonpositive zeros. Uniqueness follows because the polynomials \(x^j(1+x)^{n-2j}\), \(0\leq j\leq m\), form a basis for the space of palindromic polynomials of formal degree \(n\).
 
 For the converse, write
 \[
-  \Gamma(t)=C\,t^r\prod_{i=1}^{d}(1+\lambda_it),
+  \Gamma(t)=C\,t^r\prod_{i=1}^{d}(1+\lambda_it)
   \qquad
-  \lambda_i>0,
+  \lambda_i>0
   \qquad
-  r+d\leq m.
+  r+d\leq m
 \]
 Then
 \[
   (1+x)^n\Gamma\left(\frac{x}{(1+x)^2}\right)
   =
   Cx^r(1+x)^{n-2r-2d}
-  \prod_{i=1}^{d}\bigl((1+x)^2+\lambda_ix\bigr).
+  \prod_{i=1}^{d}\bigl((1+x)^2+\lambda_ix\bigr)
 \]
 Each factor \((1+x)^2+\lambda x\), \(\lambda>0\), has two real negative reciprocal roots. Each factor \(x\) is the coefficientwise limit of
 \[
-  x+\eta(1+x)^2,
-  \qquad \eta>0,
+  x+\eta(1+x)^2
+  \qquad \eta>0
 \]
 and this quadratic also has two real negative roots. This proves the claimed limiting statement.
 \end{proof}
@@ -250,38 +250,38 @@ and this quadratic also has two real negative roots. This proves the claimed lim
 
 For \(s\geq0\), define
 \[
-  \lambda_{s,0}=\frac{1}{(s!)^2},
+  \lambda_{s,0}=\frac{1}{(s!)^2}
   \qquad
   \lambda_{s,q}=\frac{2(-1)^q}{(s-q)!(s+q)!}
-  \quad (1\leq q\leq s).
+  \quad (1\leq q\leq s)
 \]
 Let \(\mu\geq0\), put \(w=z+\mu\), and define
 \begin{equation}\label{eq:kernel}
   K_{n,k}^{[s,\mu]}(z)=
   \sum_{q=0}^{s}
-  \lambda_{s,q}(w+q)_k(w-q)_{n-k},
+  \lambda_{s,q}(w+q)_k(w-q)_{n-k}
   \qquad
-  0\leq s\leq\lfloor n/2\rfloor .
+  0\leq s\leq\lfloor n/2\rfloor 
 \end{equation}
 Thus
 \[
-  K_{n,k}^{[0,\mu]}(z)=(w)_k(w)_{n-k},
+  K_{n,k}^{[0,\mu]}(z)=(w)_k(w)_{n-k}
 \]
 and
 \[
   K_{n,k}^{[1,\mu]}(z)
   =
-  (w)_k(w)_{n-k}-(w+1)_k(w-1)_{n-k}.
+  (w)_k(w)_{n-k}-(w+1)_k(w-1)_{n-k}
 \]
 The case \(s=1\), \(\mu=0\), is the kernel in \eqref{eq:Pn}.
 
 For \(s\geq1\), multiplying the row \((\lambda_{s,q})_{q=0}^{s}\) by the positive scalar \((2s)!/2\) gives
 \[
-  (-1)^qT(s,q),
+  (-1)^qT(s,q)
   \qquad
-  T(s,0)=\frac12\binom{2s}{s},
+  T(s,0)=\frac12\binom{2s}{s}
   \qquad
-  T(s,q)=\binom{2s}{s-q}\quad(1\leq q\leq s).
+  T(s,q)=\binom{2s}{s-q}\quad(1\leq q\leq s)
 \]
 Set \(T(0,0)=1\). The unsigned rows begin
 \[
@@ -297,7 +297,7 @@ This is OEIS A380113, the normalized inverse triangle for central factorials \ci
   \sim
   3(w)_k(w)_{n-k}
   -4(w+1)_k(w-1)_{n-k}
-  +(w+2)_k(w-2)_{n-k},
+  +(w+2)_k(w-2)_{n-k}
 \]
 where \(\sim\) denotes equality up to multiplication by a positive scalar.
 
@@ -307,7 +307,7 @@ For \(s,j\geq0\),
   \sum_{q=0}^{s}
   \lambda_{s,q}(w+q)_j(w-q)_j
   =
-  \binom{j}{s}(w)_{j-s}(w+s)_{j-s},
+  \binom{j}{s}(w)_{j-s}(w+s)_{j-s}
 \end{equation}
 where the right-hand side is interpreted as \(0\) if \(j<s\).
 \end{lemma}
@@ -316,12 +316,12 @@ where the right-hand side is interpreted as \(0\) if \(j<s\).
 For \(-s\leq q\leq s\), put
 \[
   \alpha_{s,q}=
-  \frac{(-1)^q}{(s-q)!(s+q)!}.
+  \frac{(-1)^q}{(s-q)!(s+q)!}
 \]
 Since \((w+q)_j(w-q)_j\) is even as a function of \(q\), the left-hand side of \eqref{eq:central-difference} equals
 \[
   B_{j,s}(w):=
-  \sum_{q=-s}^{s}\alpha_{s,q}(w+q)_j(w-q)_j.
+  \sum_{q=-s}^{s}\alpha_{s,q}(w+q)_j(w-q)_j
 \]
 We prove that \(B_{j,s}(w)\) is the right-hand side of \eqref{eq:central-difference}. The case \(s=0\) is immediate, and \(B_{0,s}=0\) for \(s>0\), since
 \[
@@ -333,11 +333,11 @@ For \(j\geq1\),
 \[
   (w+q)_j(w-q)_j
   =
-  \bigl((w+j-1)^2-q^2\bigr)(w+q)_{j-1}(w-q)_{j-1}.
+  \bigl((w+j-1)^2-q^2\bigr)(w+q)_{j-1}(w-q)_{j-1}
 \]
 Moreover,
 \[
-  (s^2-q^2)\alpha_{s,q}=\alpha_{s-1,q},
+  (s^2-q^2)\alpha_{s,q}=\alpha_{s-1,q}
 \]
 where \(\alpha_{s-1,q}=0\) if \(|q|>s-1\). Hence
 \[
@@ -345,7 +345,7 @@ where \(\alpha_{s-1,q}=0\) if \(|q|>s-1\). Hence
   =
   \bigl((w+j-1)^2-s^2\bigr)B_{j-1,s}(w)
   +
-  B_{j-1,s-1}(w).
+  B_{j-1,s-1}(w)
 \]
 The expression
 \[
@@ -353,11 +353,11 @@ The expression
 \]
 has the same initial conditions and satisfies the same recurrence. Indeed, after cancelling the common factor
 \[
-  (w)_{j-s-1}(w+s)_{j-s-1},
+  (w)_{j-s-1}(w+s)_{j-s-1}
 \]
 the verification reduces to
 \[
-  s\binom{j-1}{s}=(j-s)\binom{j-1}{s-1}.
+  s\binom{j-1}{s}=(j-s)\binom{j-1}{s-1}
 \]
 Thus \(B_{j,s}=R_{j,s}\), as required.
 \end{proof}
@@ -366,7 +366,7 @@ For \(Q(x)=\sum_{k=0}^{n}c_kx^k\), define
 \[
   T_{s,\mu}^{(n)}(Q)(z)
   =
-  \sum_{k=0}^{n}c_kK_{n,k}^{[s,\mu]}(z).
+  \sum_{k=0}^{n}c_kK_{n,k}^{[s,\mu]}(z)
 \]
 
 \begin{lemma}\label{lem:rung-action}
@@ -376,7 +376,7 @@ Let \(n=2m+\varepsilon\), \(\varepsilon\in\{0,1\}\). For \(0\leq j\leq m\),
   \left(x^j(1+x)^{n-2j}\right)(z)
   =
   \binom{j}{s}
-  (w)_{j-s}(w+s)_{j-s}(2w+2j)_{n-2j},
+  (w)_{j-s}(w+s)_{j-s}(2w+2j)_{n-2j}
 \]
 where the right-hand side is interpreted as \(0\) if \(j<s\).
 \end{lemma}
@@ -392,7 +392,7 @@ Put \(N=n-2j\). The coefficient of \(x^{j+r}\) in \(x^j(1+x)^N\) is \(\binom Nr\
   \sum_{r=0}^{N}\binom Nr
   (w+q+j)_r(w-q+j)_{N-r}  \\
   &\qquad =
-  (w+q)_j(w-q)_j(2w+2j)_N.
+  (w+q)_j(w-q)_j(2w+2j)_N
 \end{aligned}
 \]
 Summing over \(q\) with coefficients \(\lambda_{s,q}\), and then applying \Cref{lem:central-difference}, proves the formula.
@@ -410,7 +410,7 @@ Let \(Q(x)=\sum_{k=0}^{n}c_kx^k\) be palindromic of degree \(n\) and have only r
   \mathcal S_{m-s,s+1/2}
   \left(
     4^{m-s}\Gamma^{(s)}\left(\frac t4\right)
-  \right)(w).
+  \right)(w)
 \end{aligned}
 \end{equation}
 Consequently, if \(\mu\geq0\), then \(T_{s,\mu}^{(n)}(Q)\) is either identically zero or has only real nonpositive zeros. If \(\mu>0\), then it is either identically zero or has only real negative zeros.
@@ -423,11 +423,11 @@ By \Cref{lem:rung-action},
   =
   \sum_{j=s}^{m}
   \gamma_j\binom{j}{s}
-  (w)_{j-s}(w+s)_{j-s}(2w+2j)_{n-2j}.
+  (w)_{j-s}(w+s)_{j-s}(2w+2j)_{n-2j}
 \]
 The duplication identities
 \[
-  (2u)_{2r}=4^r(u)_r\left(u+\frac12\right)_r,
+  (2u)_{2r}=4^r(u)_r\left(u+\frac12\right)_r
   \qquad
   (2u)_{2r+1}=2\cdot4^r(u)_{r+1}\left(u+\frac12\right)_r
 \]
@@ -437,7 +437,7 @@ give, uniformly for \(n=2m+\varepsilon\),
   =
   2^\varepsilon4^{m-j}
   (w+j)_{m-j+\varepsilon}
-  \left(w+j+\frac12\right)_{m-j}.
+  \left(w+j+\frac12\right)_{m-j}
 \]
 Thus
 \[
@@ -450,7 +450,7 @@ Thus
   \sum_{j=s}^{m}
   \gamma_j\binom{j}{s}4^{m-j}
   (w)_{j-s}
-  \left(w+j+\frac12\right)_{m-j}.
+  \left(w+j+\frac12\right)_{m-j}
 \end{aligned}
 \]
 Putting \(r=j-s\), we have
@@ -458,14 +458,14 @@ Putting \(r=j-s\), we have
   \Gamma^{(s)}(t)
   =
   s!\sum_{r=0}^{m-s}
-  \binom{r+s}{s}\gamma_{r+s}t^r,
+  \binom{r+s}{s}\gamma_{r+s}t^r
 \]
 and hence
 \[
   4^{m-s}\Gamma^{(s)}\left(\frac t4\right)
   =
   s!\sum_{r=0}^{m-s}
-  \binom{r+s}{s}\gamma_{r+s}4^{m-s-r}t^r.
+  \binom{r+s}{s}\gamma_{r+s}4^{m-s-r}t^r
 \]
 Using the definition of \(\mathcal S_{\ell,\alpha}\) in \eqref{eq:L}, the displayed sum is exactly the transform appearing in \eqref{eq:ladder}. This proves the formula.
 
@@ -492,13 +492,13 @@ This is \Cref{thm:ladder} with \(s=1\) and \(\mu=0\).
 Since \(F\) has degree \(n\) and only real negative zeros, all coefficients \(f_k\) are nonzero and have the same sign. Multiplying \(F\) by \(-1\), if necessary, does not change the products \(f_kf_{n-k}\). Thus we may assume
 \[
   f_k>0
-  \qquad(0\leq k\leq n).
+  \qquad(0\leq k\leq n)
 \]
 Define
 \[
-  c_k=\binom nk f_kf_{n-k},
+  c_k=\binom nk f_kf_{n-k}
   \qquad
-  Q(x)=\sum_{k=0}^{n}c_kx^k.
+  Q(x)=\sum_{k=0}^{n}c_kx^k
 \]
 The reversed polynomial
 \[
@@ -508,25 +508,25 @@ has only real negative zeros, and so does \((1+x)^n=\sum_{k=0}^{n}\binom nkx^k\)
 
 By \Cref{cor:original-kernel-pal}, \(P_n\) has only real nonpositive zeros. It remains to exclude zero. Evaluating \eqref{eq:Pn} at \(z=0\), the first product \((0)_k(0)_{n-k}\) vanishes for every \(k\), and
 \[
-  (-1)_r=0\qquad(r\geq2).
+  (-1)_r=0\qquad(r\geq2)
 \]
 Thus, for \(n\geq2\), only \(k=n\) and \(k=n-1\) contribute, giving
 \[
-  P_n(0)=n!\left(f_1f_{n-1}-f_0f_n\right).
+  P_n(0)=n!\left(f_1f_{n-1}-f_0f_n\right)
 \]
 Write
 \[
-  F(x)=C\prod_{i=1}^{n}(1+\alpha_ix),
+  F(x)=C\prod_{i=1}^{n}(1+\alpha_ix)
   \qquad
-  C>0,
+  C>0
   \qquad
-  \alpha_i>0.
+  \alpha_i>0
 \]
 Then \(f_k=C e_k(\alpha_1,\ldots,\alpha_n)\), where \(e_k\) is the elementary symmetric polynomial of degree \(k\). Hence
 \[
   f_1f_{n-1}-f_0f_n
   =
-  C^2\left(e_1e_{n-1}-e_n\right).
+  C^2\left(e_1e_{n-1}-e_n\right)
 \]
 For \(n\geq2\), the product \(e_1e_{n-1}\) contains the monomial \(e_n=\alpha_1\cdots\alpha_n\) exactly \(n\) times, together with further positive terms. Therefore \(e_1e_{n-1}>e_n\), and so \(P_n(0)>0\). Thus zero is not a zero of \(P_n\), and all zeros of \(P_n\) are real and strictly negative.
 \end{proof}
@@ -551,7 +551,7 @@ For \(a,c\in\mathbb R\), define
   =
   (z+a)_k(z-a)_{n-k}
   -
-  (z+c)_k(z-c)_{n-k}.
+  (z+c)_k(z-c)_{n-k}
 \]
 The shifts in each product sum to zero; this centered balanced condition is exactly what makes the \(\gamma_0\)-component vanish.
 
@@ -562,16 +562,16 @@ Assume \(a^2\neq c^2\). The following are equivalent.
 \[
   T_{a,c}^{(n)}(Q)(z)
   =
-  \sum_{k=0}^{n}c_kK_{n,k}^{a,c}(z),
+  \sum_{k=0}^{n}c_kK_{n,k}^{a,c}(z)
   \qquad
-  Q(x)=\sum_{k=0}^{n}c_kx^k,
+  Q(x)=\sum_{k=0}^{n}c_kx^k
 \]
 maps every palindromic polynomial \(Q\) with only real negative zeros to a polynomial which is either zero or has only real nonpositive zeros.
 \item \(\{a^2,c^2\}=\{0,1\}\).
 \end{enumerate}
 Equivalently, up to multiplication by a nonzero scalar and the invisible symmetry \(k\leftrightarrow n-k\), the only nontrivial centered balanced two-product Pochhammer kernel with this universal preservation property is
 \[
-  (z)_k(z)_{n-k}-(z+1)_k(z-1)_{n-k}.
+  (z)_k(z)_{n-k}-(z+1)_k(z-1)_{n-k}
 \]
 \end{theorem}
 
@@ -588,39 +588,39 @@ For the \(\gamma\)-basis element \(x^j(1+x)^{n-2j}\), put \(N=n-2j\). Vandermond
     (z+c)_j(z-c)_j
   \right]  \\
   &\quad\cdot
-  (2z+2j)_N .
+  (2z+2j)_N 
 \end{aligned}
 \end{equation}
 Let
 \[
-  u=a^2,
+  u=a^2
   \qquad
-  v=c^2.
+  v=c^2
 \]
 Multiplying the kernel by \(-1\), if necessary, does not affect zeros, so we may assume \(0\leq u<v\). Set
 \[
-  \delta=v-u>0,
+  \delta=v-u>0
   \qquad
-  \sigma=u+v.
+  \sigma=u+v
 \]
 
 Assume first that the universal preservation property holds. By the converse and closure statement in \Cref{lem:gamma}, it also holds for coefficientwise limits of palindromic negative-rooted polynomials. We may therefore test limiting \(\gamma\)-polynomials with zeros at \(0\).
 
 Take \(n=4\), so \(m=2\), and test
 \[
-  \Gamma_\tau(t)=\tau t+t^2=t(\tau+t),
-  \qquad \tau\geq0.
+  \Gamma_\tau(t)=\tau t+t^2=t(\tau+t)
+  \qquad \tau\geq0
 \]
 Let
 \[
   \Phi_j(z)=T_{a,c}^{(4)}
-  \left(x^j(1+x)^{4-2j}\right)(z).
+  \left(x^j(1+x)^{4-2j}\right)(z)
 \]
 Using \eqref{eq:Tac-basis},
 \[
-  \Phi_1(z)=\delta(2z+2)(2z+3),
+  \Phi_1(z)=\delta(2z+2)(2z+3)
   \qquad
-  \Phi_2(z)=\delta\left(z^2+(z+1)^2-\sigma\right).
+  \Phi_2(z)=\delta\left(z^2+(z+1)^2-\sigma\right)
 \]
 After dividing by the positive scalar \(\delta\), admissibility forces
 \[
@@ -632,11 +632,11 @@ to have only real nonpositive zeros for every \(\tau\geq0\). Its discriminant is
   \Delta(\tau)=
   4\left[
     \tau^2+(4\sigma-6)\tau+2\sigma-1
-  \right].
+  \right]
 \]
 If \(\sigma<1\), the quadratic inside the brackets has its minimum on \([0,\infty)\) at \(\tau=3-2\sigma>0\), and that minimum equals
 \[
-  -2(\sigma-1)(2\sigma-5)<0.
+  -2(\sigma-1)(2\sigma-5)<0
 \]
 Thus \(\Delta(\tau)<0\) for some \(\tau\geq0\), a contradiction. Hence \(\sigma\geq1\). On the other hand, \(R_0(0)=1-\sigma\). If \(\sigma>1\), then \(R_0(0)<0\), while \(R_0(z)\to+\infty\) as \(z\to+\infty\); hence \(R_0\) has a positive zero, again a contradiction. Therefore \(\sigma=1\).
 
@@ -649,7 +649,7 @@ to have only real nonpositive zeros. Put \(y=z+1\). Since \(u+v=1\), direct expa
 \[
   \Phi_3(z)
   =
-  (v-u)\left(3y^4-3y^2+u^2-u\right).
+  (v-u)\left(3y^4-3y^2+u^2-u\right)
 \]
 Because \(0\leq u<v\) and \(u+v=1\), we have \(0\leq u<1/2\). If \(0<u<1/2\), then \(u^2-u<0\). The quartic
 \[
@@ -661,13 +661,13 @@ Conversely, suppose \(\{a^2,c^2\}=\{0,1\}\). Up to multiplying the kernel by \(-
 \[
   K_{n,k}^{0,1}(z)
   =
-  (z)_k(z)_{n-k}-(z+1)_k(z-1)_{n-k},
+  (z)_k(z)_{n-k}-(z+1)_k(z-1)_{n-k}
 \]
 which is admissible by \Cref{cor:original-kernel-pal}. If \(c=-1\), then
 \[
   K_{n,k}^{0,-1}(z)
   =
-  (z)_k(z)_{n-k}-(z-1)_k(z+1)_{n-k}.
+  (z)_k(z)_{n-k}-(z-1)_k(z+1)_{n-k}
 \]
 On palindromic inputs, replacing \(k\) by \(n-k\) shows that this induces the same operator as \(K^{0,1}\). Hence it is admissible as well.
 \end{proof}
@@ -676,7 +676,7 @@ On palindromic inputs, replacing \(k\) by \(n-k\) shows that this induces the sa
 The classification is most transparent at the level of \(\gamma\)-symbols. A raw formula \(K_{n,k}(z)\) is not canonical on palindromic inputs: adding an antisymmetric part \(A_{n,k}(z)=-A_{n,n-k}(z)\) does not change the induced operator. The invariant data are the images
 \[
   \Phi_j(z)=
-  T_K\left(x^j(1+x)^{n-2j}\right).
+  T_K\left(x^j(1+x)^{n-2j}\right)
 \]
 For the ladder kernels, the hidden mechanism is
 \[
@@ -687,7 +687,7 @@ For the ladder kernels, the hidden mechanism is
   \mathcal S_{m-s,s+1/2}
   \left(
     4^{m-s}\Gamma^{(s)}\left(\frac t4\right)
-  \right).
+  \right)
 \]
 The original determinant kernel is the case \(s=1\), where
 \[
@@ -763,10 +763,11 @@ in L.~Kryvonos,
 arXiv:2312.07754v1, 2023.
 Available at \url{https://arxiv.org/html/2312.07754v1}.
 
-\bibitem{Obreschkoff1963}
-N.~Obreschkoff,
-\emph{Verteilung und Berechnung der Nullstellen reeller Polynome},
-VEB Deutscher Verlag der Wissenschaften, Berlin, 1963.
+\bibitem{RahmanSchmeisser2002}
+Q.~I. Rahman and G. Schmeisser,
+\emph{Analytic Theory of Polynomials},
+London Mathematical Society Monographs (New Series), Vol.~26,
+Oxford University Press, Oxford, 2002.
 
 \bibitem{OEISA380113}
 The OEIS Foundation Inc.,
