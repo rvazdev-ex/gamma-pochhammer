@@ -16,6 +16,7 @@
 \newtheorem{remark}{Remark}
 
 \DeclareMathOperator{\PF}{PF}
+\newcommand{\Gpoly}{\mathrm{G}}     % gamma-polynomial symbol (distinct from \Gpoly)
 
 \title{Pochhammer Gamma Kernels}
 \date{}
@@ -23,7 +24,7 @@
 \begin{document}
 
 \begin{abstract}
-We prove that a binomial Pochhammer convolution preserves strict negative real-rootedness. The proof passes through the \(\gamma\)-polynomial of a palindromic real-rooted polynomial and a Schur-type transform. We then construct higher Pochhammer kernels whose induced actions are, up to this transform, the successive derivatives \(\Gamma,\Gamma',\Gamma'',\ldots\). The original adjacent-shift determinant kernel is the first derivative rung. Within a centered balanced two-product family, we prove that this adjacent-shift kernel is essentially the unique universal preserver, and we identify the higher-rung coefficient triangle with OEIS A380113.
+We prove that a binomial Pochhammer convolution preserves strict negative real-rootedness. The proof passes through the \(\gamma\)-polynomial of a palindromic real-rooted polynomial and a Schur-type transform. We then construct higher Pochhammer kernels whose induced actions are, up to this transform, the successive derivatives \(\Gpoly,\Gpoly',\Gpoly'',\ldots\). The original adjacent-shift determinant kernel is the first derivative rung. Within a centered balanced two-product family, we prove that this adjacent-shift kernel is essentially the unique universal preserver, and we identify the higher-rung coefficient triangle with OEIS A380113.
 \end{abstract}
 
 \maketitle
@@ -184,11 +185,11 @@ have degree \(n\) and only real negative zeros. Write \(n=2m+\varepsilon\), wher
 \begin{equation}\label{eq:gamma-expansion}
   Q(x)=\sum_{j=0}^{m}\gamma_jx^j(1+x)^{n-2j}
   \qquad
-  \Gamma(t)=\sum_{j=0}^{m}\gamma_jt^j
+  \Gpoly(t)=\sum_{j=0}^{m}\gamma_jt^j
 \end{equation}
-and the \(\gamma\)-polynomial \(\Gamma\) has only real nonpositive zeros.
+and the \(\gamma\)-polynomial \(\Gpoly\) has only real nonpositive zeros.
 
-Conversely, if \(\Gamma\) has degree at most \(m\) and only real nonpositive zeros, then the polynomial \(Q\) defined by \eqref{eq:gamma-expansion} is a coefficientwise limit of palindromic polynomials of degree \(n\) with only real negative zeros.
+Conversely, if \(\Gpoly\) has degree at most \(m\) and only real nonpositive zeros, then the polynomial \(Q\) defined by \eqref{eq:gamma-expansion} is a coefficientwise limit of palindromic polynomials of degree \(n\) with only real negative zeros.
 \end{lemma}
 
 \begin{proof}
@@ -218,14 +219,14 @@ Consequently
 \]
 and hence
 \[
-  \Gamma(t)=
+  \Gpoly(t)=
   C\prod_{i=1}^{m}(1+\lambda_it)
 \]
-Thus \(\Gamma\) has only real nonpositive zeros. Uniqueness follows because the polynomials \(x^j(1+x)^{n-2j}\), \(0\leq j\leq m\), form a basis for the space of palindromic polynomials of formal degree \(n\).
+Thus \(\Gpoly\) has only real nonpositive zeros. Uniqueness follows because the polynomials \(x^j(1+x)^{n-2j}\), \(0\leq j\leq m\), form a basis for the space of palindromic polynomials of formal degree \(n\).
 
 For the converse, write
 \[
-  \Gamma(t)=C\,t^r\prod_{i=1}^{d}(1+\lambda_it)
+  \Gpoly(t)=C\,t^r\prod_{i=1}^{d}(1+\lambda_it)
   \qquad
   \lambda_i>0
   \qquad
@@ -233,7 +234,7 @@ For the converse, write
 \]
 Then
 \[
-  (1+x)^n\Gamma\left(\frac{x}{(1+x)^2}\right)
+  (1+x)^n\Gpoly\left(\frac{x}{(1+x)^2}\right)
   =
   Cx^r(1+x)^{n-2r-2d}
   \prod_{i=1}^{d}\bigl((1+x)^2+\lambda_ix\bigr)
@@ -409,7 +410,7 @@ Let \(Q(x)=\sum_{k=0}^{n}c_kx^k\) be palindromic of degree \(n\) and have only r
   &\quad\cdot
   \mathcal S_{m-s,s+1/2}
   \left(
-    4^{m-s}\Gamma^{(s)}\left(\frac t4\right)
+    4^{m-s}\Gpoly^{(s)}\left(\frac t4\right)
   \right)(w)
 \end{aligned}
 \end{equation}
@@ -455,21 +456,21 @@ Thus
 \]
 Putting \(r=j-s\), we have
 \[
-  \Gamma^{(s)}(t)
+  \Gpoly^{(s)}(t)
   =
   s!\sum_{r=0}^{m-s}
   \binom{r+s}{s}\gamma_{r+s}t^r
 \]
 and hence
 \[
-  4^{m-s}\Gamma^{(s)}\left(\frac t4\right)
+  4^{m-s}\Gpoly^{(s)}\left(\frac t4\right)
   =
   s!\sum_{r=0}^{m-s}
   \binom{r+s}{s}\gamma_{r+s}4^{m-s-r}t^r
 \]
 Using the definition of \(\mathcal S_{\ell,\alpha}\) in \eqref{eq:L}, the displayed sum is exactly the transform appearing in \eqref{eq:ladder}. This proves the formula.
 
-By \Cref{lem:gamma}, \(\Gamma\) has only real nonpositive zeros. Rolle's theorem implies that \(\Gamma^{(s)}\) also has only real nonpositive zeros, unless it is zero. Scaling \(t\mapsto t/4\) preserves this property. \Cref{lem:schur} gives that the \(\mathcal S\)-factor in \eqref{eq:ladder} has only real nonpositive zeros in \(w\), and the prefactor \((w+s)_{m-s+\varepsilon}\) also has only real nonpositive zeros in \(w\). Therefore all zeros satisfy \(w\leq0\), equivalently \(z\leq-\mu\). The conclusions follow.
+By \Cref{lem:gamma}, \(\Gpoly\) has only real nonpositive zeros. Rolle's theorem implies that \(\Gpoly^{(s)}\) also has only real nonpositive zeros, unless it is zero. Scaling \(t\mapsto t/4\) preserves this property. \Cref{lem:schur} gives that the \(\mathcal S\)-factor in \eqref{eq:ladder} has only real nonpositive zeros in \(w\), and the prefactor \((w+s)_{m-s+\varepsilon}\) also has only real nonpositive zeros in \(w\). Therefore all zeros satisfy \(w\leq0\), equivalently \(z\leq-\mu\). The conclusions follow.
 \end{proof}
 
 \begin{corollary}\label{cor:original-kernel-pal}
@@ -608,7 +609,7 @@ Assume first that the universal preservation property holds. By the converse and
 
 Take \(n=4\), so \(m=2\), and test
 \[
-  \Gamma_\tau(t)=\tau t+t^2=t(\tau+t)
+  \Gpoly_\tau(t)=\tau t+t^2=t(\tau+t)
   \qquad \tau\geq0
 \]
 Let
@@ -640,7 +641,7 @@ If \(\sigma<1\), the quadratic inside the brackets has its minimum on \([0,\inft
 \]
 Thus \(\Delta(\tau)<0\) for some \(\tau\geq0\), a contradiction. Hence \(\sigma\geq1\). On the other hand, \(R_0(0)=1-\sigma\). If \(\sigma>1\), then \(R_0(0)<0\), while \(R_0(z)\to+\infty\) as \(z\to+\infty\); hence \(R_0\) has a positive zero, again a contradiction. Therefore \(\sigma=1\).
 
-Now take \(n=6\), so \(m=3\), and test \(\Gamma(t)=t^3\). Admissibility forces
+Now take \(n=6\), so \(m=3\), and test \(\Gpoly(t)=t^3\). Admissibility forces
 \[
   \Phi_3(z)=
   (z+a)_3(z-a)_3-(z+c)_3(z-c)_3
@@ -680,13 +681,13 @@ The classification is most transparent at the level of \(\gamma\)-symbols. A raw
 \]
 For the ladder kernels, the hidden mechanism is
 \[
-  \Gamma
+  \Gpoly
   \longmapsto
-  \Gamma^{(s)}
+  \Gpoly^{(s)}
   \longmapsto
   \mathcal S_{m-s,s+1/2}
   \left(
-    4^{m-s}\Gamma^{(s)}\left(\frac t4\right)
+    4^{m-s}\Gpoly^{(s)}\left(\frac t4\right)
   \right)
 \]
 The original determinant kernel is the case \(s=1\), where
@@ -696,7 +697,7 @@ The original determinant kernel is the case \(s=1\), where
   j(z)_{j-1}(z+1)_{j-1}
   \qquad (j\geq1)
 \]
-is the rising-factorial shadow of the derivative \(\Gamma\mapsto\Gamma'\). The higher kernels are the corresponding higher central divided-difference shadows of \(\Gamma\mapsto\Gamma^{(s)}\). This analytic \(\gamma\)-symbol viewpoint parallels the way Foata--Strehl orbit decompositions expose \(\gamma\)-coefficients for Eulerian-type polynomials \cite{FoataStrehl1974,FoataStrehl1976,Branden2008}.
+is the rising-factorial shadow of the derivative \(\Gpoly\mapsto\Gpoly'\). The higher kernels are the corresponding higher central divided-difference shadows of \(\Gpoly\mapsto\Gpoly^{(s)}\). This analytic \(\gamma\)-symbol viewpoint parallels the way Foata--Strehl orbit decompositions expose \(\gamma\)-coefficients for Eulerian-type polynomials \cite{FoataStrehl1974,FoataStrehl1976,Branden2008}.
 \end{remark}
 
 \section*{Disclosure}
