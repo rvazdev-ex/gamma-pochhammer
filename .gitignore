@@ -12,6 +12,7 @@ blueprint/src/*.log
 blueprint/src/*.out
 blueprint/src/*.paux
 blueprint/src/*.pdf
+!blueprint/src/print.pdf
 blueprint/src/*.synctex.gz
 blueprint/src/*.toc
 
